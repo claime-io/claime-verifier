@@ -1,6 +1,6 @@
 # claime-verifier
 
-## Supported Properties
+## Supported Property Types
 
 - [Domain](#Domain)
 - [Website](#Website)
