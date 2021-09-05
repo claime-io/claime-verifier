@@ -86,7 +86,7 @@ example:
 ```json
 {
   "propertyType": "Twitter Account",
-  "propertyId": "@example_id",
+  "propertyId": "example_id",
   "evidence": "0000000000000000000"
 }
 ```
