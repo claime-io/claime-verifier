@@ -6,7 +6,7 @@
 - [Website](#Website)
 - [Twitter Account](#Twitter%20Account)
 
-## Verification Metods
+## Verification Methods
 
 ### Domain
 
