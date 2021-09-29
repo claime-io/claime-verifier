@@ -1,7 +1,7 @@
 import * as cdk from "@aws-cdk/core";
 import { DatasourceStack } from "../lib/datasource";
+import { DiscordStack } from "../lib/discord";
 import * as environment from "../lib/env";
-import { RestApiStack } from "../lib/restapi";
 
 const app = new cdk.App();
 const target: environment.Environments = app.node.tryGetContext(
@@ -16,4 +16,4 @@ new DatasourceStack(
   target,
   {}
 );
-new RestApiStack(app, environment.withEnvPrefix(target, "restapi"), target, {});
+new DiscordStack(app, environment.withEnvPrefix(target, "discord"), target, {});
