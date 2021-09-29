@@ -1,0 +1,33 @@
+{
+    "go.lintOnSave": "file",
+    "go.formatTool": "goimports",
+    "go.useLanguageServer": true,
+    "[go]": {
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": true,
+        "source.fixAll": true
+      }
+    },
+    "go.docsTool": "gogetdoc",
+    "javascript.format.enable": false,
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true,
+      "source.organizeImports": true,
+      "source.fixAll": true
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "editor.tabSize": 2,
+    "terminal.integrated.env.windows": {
+      "AWS_DEFAULT_PROFILE": "squard"
+    },
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "files.insertFinalNewline": true
+  }
+  
