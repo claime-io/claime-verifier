@@ -2,14 +2,13 @@
   "name": "claime-backend",
   "version": "0.1.0",
   "bin": {
-    "claime": "bin/claime-backend.js"
+    "claime": "bin/claime-backend.ts"
   },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest",
-    "cdk": "cdk",
-    "synth": "npx tsc && cdk8s synth"
+    "test": "jest --passWithNoTests",
+    "cdk": "cdk"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.122.0",
