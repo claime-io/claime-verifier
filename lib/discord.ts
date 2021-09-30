@@ -5,6 +5,7 @@ import {
 } from '@aws-cdk/aws-apigateway'
 import { Effect, PolicyStatement } from '@aws-cdk/aws-iam'
 import { Code, Function, Runtime, Tracing } from '@aws-cdk/aws-lambda'
+import { Secret } from '@aws-cdk/aws-secretsmanager'
 import * as cdk from '@aws-cdk/core'
 import { resolve } from 'path'
 import * as environment from './env'
@@ -21,6 +22,10 @@ export class DiscordStack extends cdk.Stack {
       restApiName: environment.withEnvPrefix(target, 'restapi'),
       apiKeySourceType: ApiKeySourceType.HEADER,
     })
+    const discordAPISecrets = new Secret(
+      this,
+      environment.withEnvPrefix(target, 'discord-api-key'),
+    )
     discordFunction(this, this.region, this.account, 'discord', target, api)
   }
 }

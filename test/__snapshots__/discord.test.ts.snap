@@ -1,0 +1,414 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`resource created 1`] = `
+Object {
+  "Outputs": Object {
+    "RestApiEndpoint0551178A": Object {
+      "Value": Object {
+        "Fn::Join": Array [
+          "",
+          Array [
+            "https://",
+            Object {
+              "Ref": "RestApi0C43BF4B",
+            },
+            ".execute-api.",
+            Object {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            Object {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            Object {
+              "Ref": "RestApiDeploymentStageprod3855DE66",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": Object {
+    "[HASH REMOVED]": Object {
+      "Description": "[HASH REMOVED]",
+      "Type": "String",
+    },
+    "[HASH REMOVED]": Object {
+      "Description": "[HASH REMOVED]",
+      "Type": "String",
+    },
+    "[HASH REMOVED]": Object {
+      "Description": "[HASH REMOVED]",
+      "Type": "String",
+    },
+  },
+  "Resources": Object {
+    "RestApi0C43BF4B": Object {
+      "Properties": Object {
+        "ApiKeySourceType": "HEADER",
+        "Name": "claime-verifier-restapi-test",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "RestApiAccount7C83CF5A": Object {
+      "DependsOn": Array [
+        "RestApi0C43BF4B",
+      ],
+      "Properties": Object {
+        "CloudWatchRoleArn": Object {
+          "Fn::GetAtt": Array [
+            "RestApiCloudWatchRoleE3ED6605",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+    },
+    "RestApiCloudWatchRoleE3ED6605": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "RestApiDeployment180EC5037796c2a4eb5b7d95124185b3edf07b6d": Object {
+      "DependsOn": Array [
+        "RestApiPOSTEF2EB351",
+      ],
+      "Properties": Object {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "RestApiDeploymentStageprod3855DE66": Object {
+      "Properties": Object {
+        "DeploymentId": Object {
+          "Ref": "RestApiDeployment180EC5037796c2a4eb5b7d95124185b3edf07b6d",
+        },
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+        "StageName": "prod",
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "RestApiPOSTApiPermissionTesttestRestApi41EB688DPOST7654BF68": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "discordE3A798ED",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/test-invoke-stage/POST/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApiPOSTApiPermissiontestRestApi41EB688DPOSTC600A146": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "discordE3A798ED",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/",
+              Object {
+                "Ref": "RestApiDeploymentStageprod3855DE66",
+              },
+              "/POST/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApiPOSTEF2EB351": Object {
+      "Properties": Object {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "Integration": Object {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                Object {
+                  "Fn::GetAtt": Array [
+                    "discordE3A798ED",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": Object {
+          "Fn::GetAtt": Array [
+            "RestApi0C43BF4B",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "claimeverifierdiscordapikeytest75609FE8": Object {
+      "Properties": Object {
+        "GenerateSecretString": Object {},
+      },
+      "Type": "AWS::SecretsManager::Secret",
+    },
+    "discordE3A798ED": Object {
+      "DependsOn": Array [
+        "discordServiceRoleDefaultPolicyE970AC2D",
+        "discordServiceRole5137BD59",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "[HASH REMOVED]",
+          },
+          "S3Key": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                Object {
+                  "Fn::Select": Array [
+                    0,
+                    Object {
+                      "Fn::Split": Array [
+                        "||",
+                        Object {
+                          "Ref": "[HASH REMOVED]",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                Object {
+                  "Fn::Select": Array [
+                    1,
+                    Object {
+                      "Fn::Split": Array [
+                        "||",
+                        Object {
+                          "Ref": "[HASH REMOVED]",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+        "FunctionName": "claime-verifier-discord-test",
+        "Handler": "bin/main",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "discordServiceRole5137BD59",
+            "Arn",
+          ],
+        },
+        "Runtime": "go1.x",
+        "Timeout": 60,
+        "TracingConfig": Object {
+          "Mode": "Active",
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "discordServiceRole5137BD59": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "discordServiceRoleDefaultPolicyE970AC2D": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "dynamodb:Put*",
+                "dynamodb:Get*",
+                "dynamodb:Scan*",
+                "dynamodb:Delete*",
+                "dynamodb:Batch*",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:dynamodb:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":table/claime-verifier-main*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": "ssm:Get*",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/claime-verifier*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "discordServiceRoleDefaultPolicyE970AC2D",
+        "Roles": Array [
+          Object {
+            "Ref": "discordServiceRole5137BD59",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+}
+`;
