@@ -47,6 +47,7 @@ const discordFunction = (
   target: environment.Environments,
   api: RestApi,
 ) => {
+  const requestValidator = fromDiscordRequestValidator(scope, 'validator', api)
   const func = new Function(scope, resource, {
     functionName: `${environment.withEnvPrefix(target, resource)}`,
     code: code(resource),
@@ -60,47 +61,63 @@ const discordFunction = (
   )
   api.root.addMethod(
     'POST',
-    new LambdaIntegration(func, {
-      proxy: false,
-      requestTemplates: {
-        'application/json':
-          '{\r\n\
-            "timestamp": "$input.params(\'x-signature-timestamp\')",\r\n\
-            "signature": "$input.params(\'x-signature-ed25519\')",\r\n\
-            "jsonBody" : $input.json(\'$\')\r\n\
-          }',
-      },
-      integrationResponses: [
-        {
-          statusCode: '200',
-        },
-        {
-          statusCode: '401',
-          selectionPattern: '.*[UNAUTHORIZED].*',
-          responseTemplates: {
-            'application/json': 'invalid request signature',
-          },
-        },
-      ],
-    }),
-    {
-      requestValidator: new RequestValidator(scope, 'validator', {
-        restApi: api,
-        validateRequestBody: true,
-        validateRequestParameters: true,
-      }),
-      apiKeyRequired: false,
-      methodResponses: [
-        {
-          statusCode: '200',
-        },
-        {
-          statusCode: '401',
-        },
-      ],
-    },
+    new LambdaIntegration(func, fromDiscordIntegrationOptions()),
+    discordMethodIntegration(requestValidator),
   )
   return func
+}
+
+const discordMethodIntegration = (validator: RequestValidator) => {
+  return {
+    requestValidator: validator,
+    apiKeyRequired: false,
+    methodResponses: [
+      {
+        statusCode: '200',
+      },
+      {
+        statusCode: '401',
+      },
+    ],
+  }
+}
+
+const fromDiscordRequestValidator = (
+  scope: cdk.Construct,
+  id: string,
+  api: RestApi,
+) => {
+  return new RequestValidator(scope, id, {
+    restApi: api,
+    validateRequestBody: true,
+    validateRequestParameters: true,
+  })
+}
+
+const fromDiscordIntegrationOptions = () => {
+  return {
+    proxy: false,
+    requestTemplates: {
+      'application/json':
+        '{\r\n\
+          "timestamp": "$input.params(\'x-signature-timestamp\')",\r\n\
+          "signature": "$input.params(\'x-signature-ed25519\')",\r\n\
+          "jsonBody" : $input.json(\'$\')\r\n\
+        }',
+    },
+    integrationResponses: [
+      {
+        statusCode: '200',
+      },
+      {
+        statusCode: '401',
+        selectionPattern: '.*[UNAUTHORIZED].*',
+        responseTemplates: {
+          'application/json': 'invalid request signature',
+        },
+      },
+    ],
+  }
 }
 
 export const basicPolicytStatements = (region: string, account: string) => {

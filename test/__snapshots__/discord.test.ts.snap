@@ -220,10 +220,10 @@ Object {
           ],
           "RequestTemplates": Object {
             "application/json": "{
-            "timestamp": "$input.params('x-signature-timestamp')",
-            "signature": "$input.params('x-signature-ed25519')",
-            "jsonBody" : $input.json('$')
-          }",
+          "timestamp": "$input.params('x-signature-timestamp')",
+          "signature": "$input.params('x-signature-ed25519')",
+          "jsonBody" : $input.json('$')
+        }",
           },
           "Type": "AWS",
           "Uri": Object {
