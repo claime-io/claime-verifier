@@ -22,7 +22,7 @@ Object {
             },
             "/",
             Object {
-              "Ref": "RestApiDeploymentStageprod3855DE66",
+              "Ref": "[HASH REMOVED]",
             },
             "/",
           ],
@@ -97,7 +97,7 @@ Object {
       },
       "Type": "AWS::IAM::Role",
     },
-    "RestApiDeployment180EC5037796c2a4eb5b7d95124185b3edf07b6d": Object {
+    "[HASH REMOVED]": Object {
       "DependsOn": Array [
         "RestApiPOSTEF2EB351",
       ],
@@ -109,10 +109,10 @@ Object {
       },
       "Type": "AWS::ApiGateway::Deployment",
     },
-    "RestApiDeploymentStageprod3855DE66": Object {
+    "[HASH REMOVED]": Object {
       "Properties": Object {
         "DeploymentId": Object {
-          "Ref": "RestApiDeployment180EC5037796c2a4eb5b7d95124185b3edf07b6d",
+          "Ref": "[HASH REMOVED]",
         },
         "RestApiId": Object {
           "Ref": "RestApi0C43BF4B",
@@ -190,7 +190,7 @@ Object {
               },
               "/",
               Object {
-                "Ref": "RestApiDeploymentStageprod3855DE66",
+                "Ref": "[HASH REMOVED]",
               },
               "/POST/",
             ],
