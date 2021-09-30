@@ -1,6 +1,7 @@
 import {
   ApiKeySourceType,
   LambdaIntegration,
+  RequestValidator,
   RestApi,
 } from '@aws-cdk/aws-apigateway'
 import { Effect, PolicyStatement } from '@aws-cdk/aws-iam'
@@ -57,7 +58,48 @@ const discordFunction = (
   basicPolicytStatements(region, account).forEach((s) =>
     func.addToRolePolicy(s),
   )
-  api.root.addMethod('POST', new LambdaIntegration(func))
+  api.root.addMethod(
+    'POST',
+    new LambdaIntegration(func, {
+      proxy: false,
+      requestTemplates: {
+        'application/json':
+          '{\r\n\
+            "timestamp": "$input.params(\'x-signature-timestamp\')",\r\n\
+            "signature": "$input.params(\'x-signature-ed25519\')",\r\n\
+            "jsonBody" : $input.json(\'$\')\r\n\
+          }',
+      },
+      integrationResponses: [
+        {
+          statusCode: '200',
+        },
+        {
+          statusCode: '401',
+          selectionPattern: '.*[UNAUTHORIZED].*',
+          responseTemplates: {
+            'application/json': 'invalid request signature',
+          },
+        },
+      ],
+    }),
+    {
+      requestValidator: new RequestValidator(scope, 'validator', {
+        restApi: api,
+        validateRequestBody: true,
+        validateRequestParameters: true,
+      }),
+      apiKeyRequired: false,
+      methodResponses: [
+        {
+          statusCode: '200',
+        },
+        {
+          statusCode: '401',
+        },
+      ],
+    },
+  )
   return func
 }
 

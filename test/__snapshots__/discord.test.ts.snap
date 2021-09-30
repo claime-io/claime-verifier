@@ -100,6 +100,7 @@ Object {
     "[HASH REMOVED]": Object {
       "DependsOn": Array [
         "RestApiPOSTEF2EB351",
+        "validator61463DE6",
       ],
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
@@ -205,7 +206,26 @@ Object {
         "HttpMethod": "POST",
         "Integration": Object {
           "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
+          "IntegrationResponses": Array [
+            Object {
+              "StatusCode": "200",
+            },
+            Object {
+              "ResponseTemplates": Object {
+                "application/json": "invalid request signature",
+              },
+              "SelectionPattern": ".*[UNAUTHORIZED].*",
+              "StatusCode": "401",
+            },
+          ],
+          "RequestTemplates": Object {
+            "application/json": "{
+            "timestamp": "$input.params('x-signature-timestamp')",
+            "signature": "$input.params('x-signature-ed25519')",
+            "jsonBody" : $input.json('$')
+          }",
+          },
+          "Type": "AWS",
           "Uri": Object {
             "Fn::Join": Array [
               "",
@@ -229,6 +249,17 @@ Object {
               ],
             ],
           },
+        },
+        "MethodResponses": Array [
+          Object {
+            "StatusCode": "200",
+          },
+          Object {
+            "StatusCode": "401",
+          },
+        ],
+        "RequestValidatorId": Object {
+          "Ref": "validator61463DE6",
         },
         "ResourceId": Object {
           "Fn::GetAtt": Array [
@@ -418,6 +449,16 @@ Object {
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "validator61463DE6": Object {
+      "Properties": Object {
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+        "ValidateRequestBody": true,
+        "ValidateRequestParameters": true,
+      },
+      "Type": "AWS::ApiGateway::RequestValidator",
     },
   },
 }
