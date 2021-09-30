@@ -26,7 +26,15 @@ export class DiscordStack extends cdk.Stack {
       this,
       environment.withEnvPrefix(target, 'discord-api-key'),
     )
-    discordFunction(this, this.region, this.account, 'discord', target, api)
+    const func = discordFunction(
+      this,
+      this.region,
+      this.account,
+      'discord',
+      target,
+      api,
+    )
+    discordAPISecrets.grantRead(func)
   }
 }
 
@@ -50,6 +58,7 @@ const discordFunction = (
     func.addToRolePolicy(s),
   )
   api.root.addMethod('POST', new LambdaIntegration(func))
+  return func
 }
 
 export const basicPolicytStatements = (region: string, account: string) => {

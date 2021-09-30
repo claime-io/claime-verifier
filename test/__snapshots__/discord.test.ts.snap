@@ -397,6 +397,16 @@ Object {
                 ],
               },
             },
+            Object {
+              "Action": Array [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Ref": "claimeverifierdiscordapikeytest75609FE8",
+              },
+            },
           ],
           "Version": "2012-10-17",
         },

@@ -1,3 +1,9 @@
+*.js
+!jest.config.js
+*.d.ts
 node_modules
 vendor
 cdk.out
+lib/functions/**/bin
+vendor/*
+.DS_Store
