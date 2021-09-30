@@ -403,7 +403,7 @@ Object {
                     Object {
                       "Ref": "AWS::AccountId",
                     },
-                    ":table/claime-verifier-main*",
+                    ":table/claime-verifier-main-test*",
                   ],
                 ],
               },

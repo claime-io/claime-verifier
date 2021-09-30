@@ -9,6 +9,7 @@ import { Code, Function, Runtime, Tracing } from '@aws-cdk/aws-lambda'
 import { Secret } from '@aws-cdk/aws-secretsmanager'
 import * as cdk from '@aws-cdk/core'
 import { resolve } from 'path'
+import { dataSourceReadWritePolicyStatement } from './datasource'
 import * as environment from './env'
 
 export class DiscordStack extends cdk.Stack {
@@ -56,7 +57,7 @@ const discordFunction = (
     runtime: Runtime.GO_1_X,
     tracing: Tracing.ACTIVE,
   })
-  basicPolicytStatements(region, account).forEach((s) =>
+  basicPolicytStatements(region, account, target).forEach((s) =>
     func.addToRolePolicy(s),
   )
   api.root.addMethod(
@@ -120,21 +121,13 @@ const fromDiscordIntegrationOptions = () => {
   }
 }
 
-export const basicPolicytStatements = (region: string, account: string) => {
+export const basicPolicytStatements = (
+  region: string,
+  account: string,
+  target: environment.Environments,
+) => {
   return [
-    new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: [
-        'dynamodb:Put*',
-        'dynamodb:Get*',
-        'dynamodb:Scan*',
-        'dynamodb:Delete*',
-        'dynamodb:Batch*',
-      ],
-      resources: [
-        `arn:aws:dynamodb:${region}:${account}:table/claime-verifier-main*`,
-      ],
-    }),
+    dataSourceReadWritePolicyStatement(region, account, target),
     new PolicyStatement({
       effect: Effect.ALLOW,
       actions: ['ssm:Get*'],

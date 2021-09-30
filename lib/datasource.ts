@@ -4,6 +4,7 @@ import {
   Table,
   TableProps,
 } from '@aws-cdk/aws-dynamodb'
+import { Effect, PolicyStatement } from '@aws-cdk/aws-iam'
 import * as cdk from '@aws-cdk/core'
 import * as environment from './env'
 export class DatasourceStack extends cdk.Stack {
@@ -17,7 +18,7 @@ export class DatasourceStack extends cdk.Stack {
     const table = new Table(
       this,
       'claime-verifier-table',
-      ddbProps(environment.withEnvPrefix(target, 'main')),
+      ddbProps(tableName(target)),
     )
     table.addGlobalSecondaryIndex({
       indexName: 'GSI-1',
@@ -31,6 +32,10 @@ export class DatasourceStack extends cdk.Stack {
       },
     })
   }
+}
+
+const tableName = (target: environment.Environments) => {
+  return environment.withEnvPrefix(target, 'main')
 }
 
 const ddbProps = (tableName: string): TableProps => {
@@ -48,4 +53,24 @@ const ddbProps = (tableName: string): TableProps => {
     removalPolicy: cdk.RemovalPolicy.DESTROY,
     pointInTimeRecovery: true,
   }
+}
+
+export const dataSourceReadWritePolicyStatement = (
+  region: string,
+  account: string,
+  target: environment.Environments,
+) => {
+  return new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: [
+      'dynamodb:Put*',
+      'dynamodb:Get*',
+      'dynamodb:Scan*',
+      'dynamodb:Delete*',
+      'dynamodb:Batch*',
+    ],
+    resources: [
+      `arn:aws:dynamodb:${region}:${account}:table/${tableName(target)}*`,
+    ],
+  })
 }
