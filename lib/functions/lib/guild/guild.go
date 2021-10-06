@@ -1,6 +1,7 @@
 package guild
 
 import (
+	"claime-verifier/lib/functions/lib/common/log"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
@@ -20,7 +21,7 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 		// 2. We opened enough DM channels quickly enough for Discord to
 		//    label us as abusing the endpoint, blocking us from opening
 		//    new ones.
-		fmt.Println("error creating channel:", err)
+		log.Error("error creating channel:", err)
 		return
 	}
 	_, err = s.ChannelMessageSend(channel.ID, "Pong!")
@@ -30,8 +31,9 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 		// It may occur either when we do not share a server with the
 		// user (highly unlikely as we just received a message) or
 		// the user disabled DM in their settings (more likely).
-		fmt.Println("error sending DM message:", err)
+		log.Error("error sending DM message:", err)
 	}
+
 	fmt.Println(m)
 	s.UserChannels()
 }
