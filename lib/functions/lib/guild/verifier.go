@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/ed25519"
 	"encoding/hex"
+	"fmt"
 	"time"
 )
 
@@ -20,7 +21,7 @@ type (
 )
 
 func (in SignatureInput) String() string {
-	return "timestamp=" + in.Timestamp.String() + "userId=" + in.UserID + "&guildId=" + in.GuildID + "&validity=" + in.Validity.String()
+	return "timestamp=" + fmt.Sprint(in.Timestamp.UnixNano()) + "userId=" + in.UserID + "&guildId=" + in.GuildID + "&validity=" + fmt.Sprint(in.Validity.UnixNano())
 }
 
 func Sign(in SignatureInput, key ed25519.PrivateKey) string {

@@ -64,5 +64,5 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 }
 
 func url(in SignatureInput, sig string) string {
-	return discordAuthURL + "?userId=" + in.UserID + "&guildId=" + in.GuildID + "&validity=" + in.Validity.String() + "&timestamp=" + in.Timestamp.String() + "&signature=" + sig
+	return discordAuthURL + "?userId=" + in.UserID + "&guildId=" + in.GuildID + "&validity=" + fmt.Sprint(in.Validity.UnixNano()) + "&timestamp=" + fmt.Sprint(in.Timestamp.UnixNano()) + "&signature=" + sig
 }
