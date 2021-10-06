@@ -20,7 +20,7 @@ func TestSign(t *testing.T) {
 			t.Error("")
 		}
 
-		if !Verify(VerificationInput{
+		if !verify(VerificationInput{
 			SignatureInput: input,
 			Sign:           signature,
 		}, pub) {
@@ -28,7 +28,7 @@ func TestSign(t *testing.T) {
 		}
 	})
 	t.Run("signature not verified with fake userid", func(t *testing.T) {
-		if Verify(VerificationInput{
+		if verify(VerificationInput{
 			SignatureInput: SignatureInput{
 				UserID:    input.UserID + "a",
 				GuildID:   input.GuildID,
@@ -41,7 +41,7 @@ func TestSign(t *testing.T) {
 		}
 	})
 	t.Run("signature not verified with fake guild id", func(t *testing.T) {
-		if Verify(VerificationInput{
+		if verify(VerificationInput{
 			SignatureInput: SignatureInput{
 				UserID:    input.UserID,
 				GuildID:   input.GuildID + "a",
@@ -54,7 +54,7 @@ func TestSign(t *testing.T) {
 		}
 	})
 	t.Run("signature not verified with fake validity", func(t *testing.T) {
-		if Verify(VerificationInput{
+		if verify(VerificationInput{
 			SignatureInput: SignatureInput{
 				UserID:    input.UserID,
 				GuildID:   input.GuildID,
@@ -67,7 +67,7 @@ func TestSign(t *testing.T) {
 		}
 	})
 	t.Run("signature not verified with fake timestamp", func(t *testing.T) {
-		if Verify(VerificationInput{
+		if verify(VerificationInput{
 			SignatureInput: SignatureInput{
 				UserID:    input.UserID,
 				GuildID:   input.GuildID,

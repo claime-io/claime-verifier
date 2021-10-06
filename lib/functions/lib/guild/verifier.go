@@ -28,6 +28,10 @@ func Sign(in SignatureInput, key ed25519.PrivateKey) string {
 }
 
 func Verify(in VerificationInput, key ed25519.PublicKey) bool {
+	return time.Now().Before(in.Validity) && verify(in, key)
+}
+
+func verify(in VerificationInput, key ed25519.PublicKey) bool {
 	sig, err := hex.DecodeString(in.Sign)
 	if err != nil {
 		return false

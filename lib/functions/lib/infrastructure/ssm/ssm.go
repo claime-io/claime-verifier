@@ -2,6 +2,8 @@ package ssm
 
 import (
 	"context"
+	"crypto/ed25519"
+	"encoding/hex"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -26,6 +28,8 @@ const (
 	slackSigningSecretKey = keyPrefix + "slack-signingsecret"
 	discordPublicKey      = keyPrefix + "discord-public-key"
 	discordBotToken       = keyPrefix + "discord-bot-token"
+	claimePublicKey       = keyPrefix + "public-key"
+	claimePrivateKey      = keyPrefix + "private-key"
 )
 
 func keyOf(network string) string {
@@ -47,6 +51,22 @@ func (c Client) WsEndpoint(ctx context.Context, network string) (val string, err
 // DiscordPublicKey get Discord public key
 func (c Client) DiscordPublicKey(ctx context.Context) (val string, err error) {
 	return c.get(ctx, discordPublicKey)
+}
+
+func (c Client) ClaimePublicKey(ctx context.Context) (val ed25519.PublicKey, err error) {
+	return c.getKey(ctx, claimePublicKey)
+}
+
+func (c Client) ClaimePrivateKey(ctx context.Context) (val ed25519.PrivateKey, err error) {
+	return c.getKey(ctx, claimePrivateKey)
+}
+
+func (c Client) getKey(ctx context.Context, key string) ([]byte, error) {
+	k, err := c.get(ctx, claimePrivateKey)
+	if err != nil {
+		return []byte{}, err
+	}
+	return hex.DecodeString(k)
 }
 
 func (c Client) DiscordBotToken(ctx context.Context) (val string, err error) {
