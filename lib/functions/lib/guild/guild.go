@@ -12,12 +12,16 @@ import (
 )
 
 var (
-	PrivateKey ed25519.PrivateKey
+	privateKey ed25519.PrivateKey
+)
+
+const (
+	discordAuthURL = "https://claime-webfront-k6p1srx99-squard.vercel.app/claim/discord"
 )
 
 func init() {
 	s := ssm.New()
-	PrivateKey, _ = s.ClaimePrivateKey(context.Background())
+	privateKey, _ = s.ClaimePrivateKey(context.Background())
 }
 
 // GuildMemberAdd This function will be called (due to AddHandler above) every time a new
@@ -43,7 +47,7 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 		Validity:  time.Now().Add(time.Minute * 10),
 		Timestamp: time.Now(),
 	}
-	sig := Sign(in, PrivateKey)
+	sig := Sign(in, privateKey)
 
 	_, err = s.ChannelMessageSend(channel.ID, "Please complete sign to prove you have a NFT: "+url(in, sig))
 	if err != nil {
@@ -60,5 +64,5 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 }
 
 func url(in SignatureInput, sig string) string {
-	return "https://claime-webfront-k6p1srx99-squard.vercel.app/claim/discord?userId=" + in.UserID + "&guildId=" + in.GuildID + "&validity=" + in.Validity.String() + "&timestamp=" + in.Timestamp.String() + "&signature=" + sig
+	return discordAuthURL + "?userId=" + in.UserID + "&guildId=" + in.GuildID + "&validity=" + in.Validity.String() + "&timestamp=" + in.Timestamp.String() + "&signature=" + sig
 }
