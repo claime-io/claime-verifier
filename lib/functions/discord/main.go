@@ -31,6 +31,8 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 
 	req, _ := json.Marshal(request["jsonBody"])
 	webhook := discordgo.Webhook{}
+	fmt.Printf("%+v\n", request["jsonBody"])
+	fmt.Printf("%+v\n", req)
 	json.Unmarshal(req, &webhook)
 	fmt.Printf("%+v\n", webhook)
 	httpreq, err := http.NewRequest("", "", bytes.NewReader(req))
