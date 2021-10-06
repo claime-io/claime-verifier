@@ -2,10 +2,23 @@ package guild
 
 import (
 	"claime-verifier/lib/functions/lib/common/log"
+	"claime-verifier/lib/functions/lib/infrastructure/ssm"
+	"context"
+	"crypto/ed25519"
 	"fmt"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
+
+var (
+	PrivateKey ed25519.PrivateKey
+)
+
+func init() {
+	s := ssm.New()
+	PrivateKey, _ = s.ClaimePrivateKey(context.Background())
+}
 
 // GuildMemberAdd This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the authenticated bot has access to.
@@ -24,7 +37,15 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 		log.Error("error creating channel:", err)
 		return
 	}
-	_, err = s.ChannelMessageSend(channel.ID, "Pong!")
+	in := SignatureInput{
+		UserID:    m.User.ID,
+		GuildID:   m.GuildID,
+		Validity:  time.Now().Add(time.Minute * 10),
+		Timestamp: time.Now(),
+	}
+	sig := Sign(in, PrivateKey)
+
+	_, err = s.ChannelMessageSend(channel.ID, "Please complete sign to prove you have a NFT: "+url(in, sig))
 	if err != nil {
 		// If an error occurred, we failed to send the message.
 		//
@@ -36,4 +57,8 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 
 	fmt.Println(m)
 	s.UserChannels()
+}
+
+func url(in SignatureInput, sig string) string {
+	return "https://claime-webfront-k6p1srx99-squard.vercel.app/claim/discord?userId=" + in.UserID + "&guildId=" + in.GuildID + "&validity=" + in.Validity.String() + "&timestamp=" + in.Timestamp.String() + "&signature=" + sig
 }
