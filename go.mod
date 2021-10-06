@@ -12,7 +12,7 @@ require (
 	github.com/aws/constructs-go/constructs/v10 v10.0.5
 	github.com/aws/constructs-go/constructs/v3 v3.3.156
 	github.com/aws/jsii-runtime-go v1.35.0
-	github.com/bwmarrin/discordgo v0.23.2
+	github.com/bwmarrin/discordgo v0.23.3-0.20210821175000-0fad116c6c2a
 	github.com/ethereum/go-ethereum v1.10.8
 	github.com/guregu/dynamo v1.11.0
 	github.com/kyokomi/goslash v0.1.0
