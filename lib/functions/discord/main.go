@@ -38,6 +38,7 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 	fmt.Printf("%+v\n", interaction.ApplicationCommandData().Options[0].StringValue())
 	fmt.Printf("%+v\n", interaction.ApplicationCommandData().Options[1].StringValue())
 	fmt.Printf("%+v\n", interaction.ApplicationCommandData().Options[2].StringValue())
+	fmt.Printf("%+v\n", interaction.ApplicationCommandData().Options[3].IntValue())
 	json.Unmarshal(req, &webhook)
 	fmt.Printf("%+v\n", webhook)
 	httpreq, err := http.NewRequest("", "", bytes.NewReader(req))
