@@ -90,7 +90,7 @@ func errorResponse(request events.APIGatewayProxyRequest, output subscribe.Outpu
 	}
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
-		Headers:    lib.Headers(request),
+		Headers:    lib.Headers(),
 		Body:       string(out),
 	}, nil
 }

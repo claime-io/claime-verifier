@@ -5,13 +5,19 @@ import (
 	slackclient "claime-verifier/lib/functions/lib/infrastructure/slack"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"context"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 )
 
 // Headers with headers
-func Headers(request events.APIGatewayProxyRequest) map[string]string {
-	return map[string]string{}
+func Headers() map[string]string {
+	return map[string]string{
+		"Access-Control-Allow-Headers":     "*",
+		"Access-Control-Allow-Methods":     "GET,POST,PUT,DELETE",
+		"Access-Control-Allow-Credentials": "true",
+		"Access-Control-Allow-Origin":      os.Getenv("AllowedOrigin"),
+	}
 }
 
 // NewParameterStore new parameter store

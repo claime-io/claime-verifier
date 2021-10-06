@@ -5,14 +5,22 @@ export enum Environments {
   DEV = 'dev',
   TEST = 'test',
 }
-export interface EnvironmentVariables {}
+export interface EnvironmentVariables {
+  allowedOrigin: string
+}
 
 const EnvironmentVariablesSetting: {
   [key in Environments]: EnvironmentVariables
 } = {
-  [Environments.PROD]: {},
-  [Environments.DEV]: {},
-  [Environments.TEST]: {},
+  [Environments.PROD]: {
+    allowedOrigin: '',
+  },
+  [Environments.DEV]: {
+    allowedOrigin: 'https://claime-webfront-k6p1srx99-squard.vercel.app',
+  },
+  [Environments.TEST]: {
+    allowedOrigin: '',
+  },
 }
 
 export function valueOf(env: Environments): EnvironmentVariables {
