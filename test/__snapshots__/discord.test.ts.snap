@@ -538,7 +538,7 @@ Object {
                   Object {
                     "Ref": "AWS::URLSuffix",
                   },
-                  "/aws-cdk/assets:be918d12902a7dd593cb9959c9cfbd4c1b88bcd9d2f4a48632185ba809272bfd",
+                  "/aws-cdk/[HASH REMOVED]",
                 ],
               ],
             },
