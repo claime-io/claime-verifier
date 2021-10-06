@@ -25,6 +25,7 @@ const (
 	slackTokenKey         = keyPrefix + "slack-token"
 	slackSigningSecretKey = keyPrefix + "slack-signingsecret"
 	discordPublicKey      = keyPrefix + "discord-public-key"
+	discordBotToken       = keyPrefix + "discord-bot-token"
 )
 
 func keyOf(network string) string {
@@ -48,6 +49,10 @@ func (c Client) DiscordPublicKey(ctx context.Context) (val string, err error) {
 	return c.get(ctx, discordPublicKey)
 }
 
+func (c Client) DiscordBotToken(ctx context.Context) (val string, err error) {
+	return c.get(ctx, discordBotToken)
+}
+
 // SlackToken get slack token
 func (c Client) SlackToken(ctx context.Context) (val string, err error) {
 	return c.get(ctx, slackTokenKey)
@@ -68,5 +73,6 @@ func (c Client) get(ctx context.Context, key string) (val string, err error) {
 		log.Error("ssm get parameter failed", err)
 		return
 	}
+
 	return *out.Parameter.Value, nil
 }

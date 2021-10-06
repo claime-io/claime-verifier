@@ -4,10 +4,26 @@ import {
   RequestValidator,
   RestApi,
 } from '@aws-cdk/aws-apigateway'
-import { Effect, PolicyStatement } from '@aws-cdk/aws-iam'
+import { SubnetType, Vpc } from '@aws-cdk/aws-ec2'
+import {
+  Cluster,
+  ContainerImage,
+  FargateService,
+  FargateTaskDefinition,
+  LogDriver,
+} from '@aws-cdk/aws-ecs'
+import {
+  Effect,
+  ManagedPolicy,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from '@aws-cdk/aws-iam'
 import { Code, Function, Runtime, Tracing } from '@aws-cdk/aws-lambda'
+import { LogGroup } from '@aws-cdk/aws-logs'
 import { Secret } from '@aws-cdk/aws-secretsmanager'
 import * as cdk from '@aws-cdk/core'
+import { RemovalPolicy } from '@aws-cdk/core'
 import { resolve } from 'path'
 import { dataSourceReadWritePolicyStatement } from './datasource'
 import * as environment from './env'
@@ -37,6 +53,82 @@ export class DiscordStack extends cdk.Stack {
       api,
     )
     discordAPISecrets.grantRead(func)
+    const vpc = new Vpc(this, 'vpc', {
+      cidr: '192.156.0.0/16',
+      natGateways: 1,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'Public1',
+          subnetType: SubnetType.PUBLIC,
+        },
+        {
+          cidrMask: 24,
+          name: 'Public2',
+          subnetType: SubnetType.PUBLIC,
+        },
+        {
+          cidrMask: 24,
+          name: 'Private1',
+          subnetType: SubnetType.PRIVATE,
+        },
+        {
+          cidrMask: 24,
+          name: 'Private2',
+          subnetType: SubnetType.PRIVATE,
+        },
+      ],
+    })
+    const executionRole = new Role(this, 'EcsTaskExecutionRole', {
+      roleName: environment.withEnvPrefix(target, 'ecs-execution-role'),
+      assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
+      managedPolicies: [
+        ManagedPolicy.fromAwsManagedPolicyName(
+          'service-role/AmazonECSTaskExecutionRolePolicy',
+        ),
+      ],
+    })
+    const serviceTaskRole = new Role(this, 'EcsServiceTaskRole', {
+      roleName: environment.withEnvPrefix(target, 'ecs-service-task-role'),
+      assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
+    })
+    basicPolicytStatements(this.region, this.account, target).forEach((s) =>
+      serviceTaskRole.addToPolicy(s),
+    )
+    const logGroup = new LogGroup(this, 'ServiceLogGroup', {
+      logGroupName: '/aws/ecs/claime-cluster' + target,
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
+    const image = ContainerImage.fromAsset('.')
+    const cpu = 256
+    const mem = 1024
+    const taskDef = new FargateTaskDefinition(this, 'ServiceTaskDefinition', {
+      cpu: cpu,
+      memoryLimitMiB: mem,
+      executionRole: executionRole,
+      taskRole: serviceTaskRole,
+    })
+    taskDef.addContainer('ContainerDef', {
+      image,
+      cpu: cpu,
+      memoryLimitMiB: mem,
+      logging: LogDriver.awsLogs({
+        streamPrefix: 'claime',
+        logGroup,
+      }),
+    })
+    const cluster = new Cluster(this, 'claime-cluster', {
+      clusterName: environment.withEnvPrefix(target, 'cluster'),
+      containerInsights: true,
+      vpc: vpc,
+      enableFargateCapacityProviders: true,
+    })
+    const fargateService = new FargateService(this, 'FargateService', {
+      cluster,
+      vpcSubnets: vpc.selectSubnets({ subnetType: SubnetType.PRIVATE }),
+      taskDefinition: taskDef,
+      desiredCount: 1,
+    })
   }
 }
 
