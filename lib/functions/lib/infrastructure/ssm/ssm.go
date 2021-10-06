@@ -24,6 +24,7 @@ const (
 	infuraKeyPrefix       = keyPrefix + "infura-key-"
 	slackTokenKey         = keyPrefix + "slack-token"
 	slackSigningSecretKey = keyPrefix + "slack-signingsecret"
+	discordPublicKey      = keyPrefix + "discord-public-key"
 )
 
 func keyOf(network string) string {
@@ -40,6 +41,11 @@ func New() Client {
 // WsEndpoint get ws endpoint
 func (c Client) WsEndpoint(ctx context.Context, network string) (val string, err error) {
 	return c.get(ctx, keyOf(network))
+}
+
+// DiscordPublicKey get Discord public key
+func (c Client) DiscordPublicKey(ctx context.Context) (val string, err error) {
+	return c.get(ctx, discordPublicKey)
 }
 
 // SlackToken get slack token

@@ -5,9 +5,11 @@ import (
 	"claime-verifier/lib/functions/lib"
 	"claime-verifier/lib/functions/lib/common/log"
 	slackclient "claime-verifier/lib/functions/lib/infrastructure/slack"
+	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -23,7 +25,7 @@ const (
 	requiredArgs = 3
 )
 
-func handler(ctx context.Context, request map[string]interface{}) (events.APIGatewayProxyResponse, error) {
+func handler(ctx context.Context, request map[string]interface{}) (interface{}, error) {
 	token := request["signature"].(string)
 	timestamp := request["timestamp"].(string)
 
@@ -34,21 +36,22 @@ func handler(ctx context.Context, request map[string]interface{}) (events.APIGat
 	if err != nil {
 		log.Error("", err)
 	}
-	key, _ := hex.DecodeString("API_KEY")
+	k, err := ssm.New().DiscordPublicKey(ctx)
 	if err != nil {
 		log.Error("", err)
 	}
+	key, _ := hex.DecodeString(k)
+	if err != nil {
+		log.Error("", err)
+	}
+	fmt.Println("key")
+	fmt.Println(string(key))
 	httpreq.Header.Add("X-Signature-Ed25519", token)
 	httpreq.Header.Add("X-Signature-Timestamp", timestamp)
 	result := discordgo.VerifyInteraction(httpreq, key)
 	fmt.Println(result)
 	if !result {
-		return events.APIGatewayProxyResponse{
-			StatusCode:      401,
-			Body:            `[UNAUTHORIZED] invalid request signature`,
-			Headers:         map[string]string{},
-			IsBase64Encoded: false,
-		}, nil
+		return `[UNAUTHORIZED] invalid request signature`, errors.New("[UNAUTHORIZED] invalid request signature")
 	}
 	fmt.Println("type")
 	fmt.Println(webhook.Type)
@@ -59,35 +62,18 @@ func handler(ctx context.Context, request map[string]interface{}) (events.APIGat
 		}{
 			Type: 1,
 		}
-		rp, _ := json.Marshal(resp)
-		return events.APIGatewayProxyResponse{
-			StatusCode:      200,
-			Body:            string(rp),
-			Headers:         map[string]string{},
-			IsBase64Encoded: false,
-		}, nil
+		return resp, nil
 	}
 	if webhook.Type == discordgo.WebhookTypeIncoming {
 		resp := struct {
 			Type int `json:"type"`
 		}{
-			Type: 5,
+			Type: 4,
 		}
-		rp, _ := json.Marshal(resp)
-		return events.APIGatewayProxyResponse{
-			StatusCode:      200,
-			Body:            string(rp),
-			Headers:         map[string]string{},
-			IsBase64Encoded: false,
-		}, nil
+		return resp, nil
 	}
+	return `[UNAUTHORIZED] invalid request signature`, errors.New("[UNAUTHORIZED] invalid request signature")
 
-	return events.APIGatewayProxyResponse{
-		StatusCode:      401,
-		Body:            `[UNAUTHORIZED] invalid request signature`,
-		Headers:         map[string]string{},
-		IsBase64Encoded: false,
-	}, nil
 }
 
 func unexpectedError(request events.APIGatewayProxyRequest, err error) (events.APIGatewayProxyResponse, error) {
