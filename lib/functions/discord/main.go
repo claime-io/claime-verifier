@@ -23,22 +23,34 @@ import (
 
 const (
 	requiredArgs = 3
+	mockGuildID  = "892441777808765049"
+)
+
+var (
+	token string
 )
 
 func handler(ctx context.Context, request map[string]interface{}) (interface{}, error) {
 	token := request["signature"].(string)
 	timestamp := request["timestamp"].(string)
 
+	token, err := ssm.New().DiscordBotToken(context.Background())
+	if err != nil {
+		log.Error("error get bot token", err)
+		return "error get bot token", nil
+	}
+
 	req, _ := json.Marshal(request["jsonBody"])
 	webhook := discordgo.Webhook{}
 	interaction := discordgo.Interaction{}
 	interaction.UnmarshalJSON(req)
+	dg, err := discordgo.New("Bot " + token)
+	guildID := mockGuildID
+	member, err := dg.GuildMember(guildID, interaction.User.ID)
+	fmt.Printf("%+v\n", member)
+
 	fmt.Printf("%+v\n", request["jsonBody"])
 	fmt.Printf("%+v\n", interaction)
-	fmt.Printf("%+v\n", interaction.ApplicationCommandData().Options[0].StringValue())
-	fmt.Printf("%+v\n", interaction.ApplicationCommandData().Options[1].StringValue())
-	fmt.Printf("%+v\n", interaction.ApplicationCommandData().Options[2].StringValue())
-	fmt.Printf("%+v\n", interaction.ApplicationCommandData().Options[3].IntValue())
 	json.Unmarshal(req, &webhook)
 	fmt.Printf("%+v\n", webhook)
 	httpreq, err := http.NewRequest("", "", bytes.NewReader(req))
