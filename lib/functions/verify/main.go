@@ -25,6 +25,7 @@ type (
 		Validity  int64  `json:"validity"`
 		Timestamp int64  `json:"timestamp"`
 		Signature string `json:"signature"`
+		Message   string `json:"message"`
 	}
 )
 

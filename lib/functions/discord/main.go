@@ -31,6 +31,15 @@ var (
 	token string
 )
 
+type (
+	// RegisterContractInput register contract input
+	RegisterContractInput struct {
+		RoleID          string `json:"roleId"`
+		ContractAddress string `json:"contract_address"`
+		ChainID         int    `json:"chain_id"`
+	}
+)
+
 func handler(ctx context.Context, request map[string]interface{}) (interface{}, error) {
 	token := request["signature"].(string)
 	timestamp := request["timestamp"].(string)
@@ -91,6 +100,7 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 		return resp, nil
 	}
 	if webhook.Type == discordgo.WebhookTypeIncoming {
+
 		resp := struct {
 			Type int `json:"type"`
 		}{
@@ -126,4 +136,15 @@ func main() {
 
 func newApp(ctx context.Context, slcli slackclient.Client) subscribe.Registrar {
 	return subscribe.NewRegistrar(slcli, repository.New())
+}
+
+func toInput(d discordgo.ApplicationCommandInteractionData) RegisterContractInput {
+	if len(d.Options) < 3 {
+		return RegisterContractInput{}
+	}
+	return RegisterContractInput{
+		RoleID:          d.Options[0].Value.(string),
+		ContractAddress: d.Options[1].Value.(string),
+		ChainID:         d.Options[2].Value.(int),
+	}
 }
