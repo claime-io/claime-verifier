@@ -52,28 +52,6 @@ Object {
       },
       "Type": "AWS::ApiGateway::RestApi",
     },
-    "RestApiARecord0F033820": Object {
-      "Properties": Object {
-        "AliasTarget": Object {
-          "DNSName": Object {
-            "Fn::GetAtt": Array [
-              "RestApiclaimeverifierdomaintest8DF44C4D",
-              "RegionalDomainName",
-            ],
-          },
-          "HostedZoneId": Object {
-            "Fn::GetAtt": Array [
-              "RestApiclaimeverifierdomaintest8DF44C4D",
-              "RegionalHostedZoneId",
-            ],
-          },
-        },
-        "HostedZoneId": "",
-        "Name": "api.",
-        "Type": "A",
-      },
-      "Type": "AWS::Route53::RecordSet",
-    },
     "RestApiAccount7C83CF5A": Object {
       "DependsOn": Array [
         "RestApi0C43BF4B",
@@ -145,33 +123,6 @@ Object {
         "StageName": "prod",
       },
       "Type": "AWS::ApiGateway::Stage",
-    },
-    "RestApiclaimeverifierdomaintest8DF44C4D": Object {
-      "Properties": Object {
-        "DomainName": "api.",
-        "EndpointConfiguration": Object {
-          "Types": Array [
-            "REGIONAL",
-          ],
-        },
-        "RegionalCertificateArn": "",
-        "SecurityPolicy": "TLS_1_2",
-      },
-      "Type": "AWS::ApiGateway::DomainName",
-    },
-    "RestApiclaimeverifierdomaintestMaptestRestApi41EB688D8756FA87": Object {
-      "Properties": Object {
-        "DomainName": Object {
-          "Ref": "RestApiclaimeverifierdomaintest8DF44C4D",
-        },
-        "RestApiId": Object {
-          "Ref": "RestApi0C43BF4B",
-        },
-        "Stage": Object {
-          "Ref": "[HASH REMOVED]",
-        },
-      },
-      "Type": "AWS::ApiGateway::BasePathMapping",
     },
     "RestApidiscord04FB5242": Object {
       "Properties": Object {

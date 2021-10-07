@@ -30,8 +30,8 @@ const EnvironmentVariablesSetting: {
   },
   [Environments.TEST]: {
     allowedOrigin: '',
-    rootDomain: '',
-    hostedZoneId: '',
+    rootDomain: 'test',
+    hostedZoneId: 'test',
     certificateArn: '',
   },
 }

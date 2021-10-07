@@ -39,9 +39,9 @@ export class RestApiStack extends cdk.Stack {
       target,
       api,
     )
-    const customDomain = withCustomDomain(this, api, target)
+    //const customDomain = withCustomDomain(this, api, target)
 
-    aRecord(this, target, customDomain)
+    //aRecord(this, target, customDomain)
   }
 }
 

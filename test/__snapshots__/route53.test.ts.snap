@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`resource created 1`] = `
+Object {
+  "Resources": Object {
+    "HostedZoneDB99F866": Object {
+      "Properties": Object {
+        "HostedZoneConfig": Object {
+          "Comment": "created by cdk",
+        },
+        "Name": "test.",
+      },
+      "Type": "AWS::Route53::HostedZone",
+    },
+    "VercelARecord89A76128": Object {
+      "Properties": Object {
+        "HostedZoneId": Object {
+          "Ref": "HostedZoneDB99F866",
+        },
+        "Name": "test.",
+        "ResourceRecords": Array [
+          "76.76.21.21",
+        ],
+        "TTL": "1800",
+        "Type": "A",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
+    "VercelCNAMERecordE66B48C8": Object {
+      "Properties": Object {
+        "HostedZoneId": Object {
+          "Ref": "HostedZoneDB99F866",
+        },
+        "Name": "www.test.",
+        "ResourceRecords": Array [
+          "cname.vercel-dns.com",
+        ],
+        "TTL": "1800",
+        "Type": "CNAME",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
+    "VercelLpCNAMERecordAA66760A": Object {
+      "Properties": Object {
+        "HostedZoneId": Object {
+          "Ref": "HostedZoneDB99F866",
+        },
+        "Name": "service.test.",
+        "ResourceRecords": Array [
+          "cname.vercel-dns.com",
+        ],
+        "TTL": "1800",
+        "Type": "CNAME",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
+    "VercelLpCNAMEWWWRecord436C4FC0": Object {
+      "Properties": Object {
+        "HostedZoneId": Object {
+          "Ref": "HostedZoneDB99F866",
+        },
+        "Name": "www.service.test.",
+        "ResourceRecords": Array [
+          "cname.vercel-dns.com",
+        ],
+        "TTL": "1800",
+        "Type": "CNAME",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
+  },
+}
+`;
