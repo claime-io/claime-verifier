@@ -6,6 +6,11 @@
   "options": [
     { "type": 3, "name": "role_id", "description": "ID of the role for NFT owners", "required": true },
     { "type": 3, "name": "contract_address", "description": "contract address of your NFT", "required": true },
-    { "type": 4, "name": "chain_id", "description": "ID of the chain your NFT contract deployed", "required": true }
+    { "type": 3, "name": "network", "description": "Network which your NFT contract deployed", "required": true,
+      "choices": [
+        { "name": "Mainnet", "value": "mainnet" },
+        { "name": "Rinkeby", "value": "rinkeby" }
+      ]
+    }
   ]
 }
