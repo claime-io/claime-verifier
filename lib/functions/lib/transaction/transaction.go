@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"claime-verifier/lib/functions/lib/contracts"
+	"encoding/json"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -11,30 +12,19 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	messagePrefix = "\x19Ethereum Signed Message:\n"
+)
+
 func RecoverAddress(rawTx string, signature string) (string, error) {
-	arr, err := hexutil.Decode(rawTx)
+	txBytes, err := hexutil.Decode(rawTx)
 	if err != nil {
 		return "", err
 	}
-	hash := crypto.Keccak256Hash(arr)
-	sigArr, err := hexutil.Decode(signature)
-	if err != nil {
-		return "", err
-	}
-	sigArr[64] -= 27
-	rpk, err := crypto.Ecrecover(hash.Bytes(), sigArr)
-	if err != nil {
-		return "", err
-	}
-	pubKey, err := crypto.UnmarshalPubkey(rpk)
-	if err != nil {
-		return "", err
-	}
-	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
-	return recoveredAddr.Hex(), err
+	return recover(crypto.Keccak256(txBytes), signature)
 }
 
-func RecoverClaim(rawTx string) (contracts.IClaimRegistryClaim, error) {
+func RecoverClaimFromTx(rawTx string) (contracts.IClaimRegistryClaim, error) {
 	var result []interface{}
 	arr, err := hexutil.Decode(rawTx)
 	if err != nil {
@@ -63,4 +53,42 @@ func RecoverClaim(rawTx string) (contracts.IClaimRegistryClaim, error) {
 		Evidence:     val[2].(string),
 		Method:       val[3].(string),
 	}, nil
+}
+
+func RecoverAddressFromMessage(message string, signature string) (string, error) {
+	return recover(signHash([]byte(message)), signature)
+}
+
+func RecoverClaimFromMessage(message string) (contracts.IClaimRegistryClaim, error) {
+	var val map[string]string
+	err := json.Unmarshal([]byte(message), &val)
+	return contracts.IClaimRegistryClaim{
+		PropertyType: val["propertyType"],
+		PropertyId:   val["propertyId"],
+		Evidence:     val["evidence"],
+		Method:       val["method"],
+	}, err
+}
+
+func recover(hash []byte, signature string) (string, error) {
+	sigArr, err := hexutil.Decode(signature)
+	if err != nil {
+		return "", err
+	}
+	sigArr[64] -= 27
+	rpk, err := crypto.Ecrecover(hash, sigArr)
+	if err != nil {
+		return "", err
+	}
+	pubKey, err := crypto.UnmarshalPubkey(rpk)
+	if err != nil {
+		return "", err
+	}
+	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
+	return recoveredAddr.Hex(), err
+}
+
+func signHash(data []byte) []byte {
+	msg := fmt.Sprintf(messagePrefix+"%d%s", len(data), data)
+	return crypto.Keccak256([]byte(msg))
 }
