@@ -20,3 +20,5 @@ build:
 	done
 deploy:
 	cdk deploy -c target=dev --all --require-approval never
+abi:
+	abigen --abi claime-registry/abi/contracts/ClaimRegistry.sol/ClaimRegistry.json --pkg contracts --out lib/functions/lib/contracts/claimregistry.go	
