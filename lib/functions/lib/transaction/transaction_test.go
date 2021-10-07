@@ -17,7 +17,10 @@ const (
 
 func TestRecoverAddress(t *testing.T) {
 	t.Run("recover address", func(t *testing.T) {
-		addr := RecoverAddress(rawTx, signature)
+		addr, err := RecoverAddress(rawTx, signature)
+		if err != nil {
+			t.Error(err)
+		}
 		if expectedAddress != addr {
 			t.Errorf("Address does not match. expected: %s, actual: %s", expectedAddress, addr)
 		}
