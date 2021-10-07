@@ -1,16 +1,23 @@
 import {
   ApiKeySourceType,
+  DomainName,
+  EndpointType,
   LambdaIntegration,
   MockIntegration,
   PassthroughBehavior,
   Resource,
   RestApi,
+  SecurityPolicy,
 } from '@aws-cdk/aws-apigateway'
+import * as certificatemanager from '@aws-cdk/aws-certificatemanager'
 import { Code, Function, Runtime, Tracing } from '@aws-cdk/aws-lambda'
+import * as route53 from '@aws-cdk/aws-route53'
+import * as alias from '@aws-cdk/aws-route53-targets'
 import * as cdk from '@aws-cdk/core'
 import { resolve } from 'path'
 import { basicPolicytStatements } from './discord'
 import * as environment from './env'
+import { hostedZoneFromId } from './route53'
 
 export class RestApiStack extends cdk.Stack {
   constructor(
@@ -32,6 +39,9 @@ export class RestApiStack extends cdk.Stack {
       target,
       api,
     )
+    const customDomain = withCustomDomain(this, api, target)
+
+    aRecord(this, target, customDomain)
   }
 }
 
@@ -106,4 +116,47 @@ function addCorsOptions(apiResource: Resource, allowedOrigin: string) {
       ],
     },
   )
+}
+const aRecord = (
+  stack: RestApiStack,
+  target: environment.Environments,
+  customDomain: DomainName,
+) => {
+  new route53.ARecord(stack, 'RestApiARecord', {
+    zone: hostedZoneFromId(stack, target),
+    recordName: restApiDomainName(target),
+    target: route53.RecordTarget.fromAlias(
+      new alias.ApiGatewayDomain(customDomain),
+    ),
+  })
+}
+const restApiDomainName = (target: environment.Environments) => {
+  return `api.` + environment.valueOf(target).rootDomain
+}
+
+const withCustomDomain = (
+  stack: cdk.Stack,
+  api: RestApi,
+  target: environment.Environments,
+) => {
+  const customDomain = api.addDomainName(
+    environment.withEnvPrefix(target, 'domain'),
+    customDomainProps(stack, target),
+  )
+  return customDomain
+}
+const customDomainProps = (
+  stack: cdk.Stack,
+  target: environment.Environments,
+) => {
+  return {
+    domainName: restApiDomainName(target),
+    certificate: certificatemanager.Certificate.fromCertificateArn(
+      stack,
+      'Cert',
+      environment.valueOf(target).certificateArn,
+    ),
+    securityPolicy: SecurityPolicy.TLS_1_2,
+    endpointType: EndpointType.REGIONAL,
+  }
 }
