@@ -7,3 +7,5 @@ cdk.out
 lib/functions/**/bin
 vendor/*
 .DS_Store
+claime-registry/
+
