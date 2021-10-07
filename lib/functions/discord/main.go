@@ -36,7 +36,7 @@ type (
 	RegisterContractInput struct {
 		RoleID          string `json:"roleId"`
 		ContractAddress string `json:"contract_address"`
-		ChainID         int    `json:"chain_id"`
+		Network         string `json:"network"`
 	}
 )
 
@@ -145,6 +145,6 @@ func toInput(d discordgo.ApplicationCommandInteractionData) RegisterContractInpu
 	return RegisterContractInput{
 		RoleID:          d.Options[0].Value.(string),
 		ContractAddress: d.Options[1].Value.(string),
-		ChainID:         d.Options[2].Value.(int),
+		Network:         d.Options[2].Value.(string),
 	}
 }

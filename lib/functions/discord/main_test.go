@@ -8,7 +8,7 @@ import (
 
 func TestToInput(t *testing.T) {
 	in := discordgo.ApplicationCommandInteractionData{
-		Options: []*discordgo.ApplicationCommandInteractionDataOption{{Value: "roleId"}, {Value: "contractAddress"}, {Value: 1}},
+		Options: []*discordgo.ApplicationCommandInteractionDataOption{{Value: "roleId"}, {Value: "contractAddress"}, {Value: "rinkeby"}},
 	}
 	res := toInput(in)
 	t.Run("enable to retrive roleId", func(t *testing.T) {
@@ -21,9 +21,9 @@ func TestToInput(t *testing.T) {
 			t.Error("wrong contractAddress")
 		}
 	})
-	t.Run("enable to retrive chainId", func(t *testing.T) {
-		if res.ChainID != 1 {
-			t.Error("wrong chainId")
+	t.Run("enable to retrive network", func(t *testing.T) {
+		if res.Network != "rinkeby" {
+			t.Error("wrong network")
 		}
 	})
 }
