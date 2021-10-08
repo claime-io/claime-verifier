@@ -2,15 +2,12 @@ package main
 
 import (
 	"claime-verifier/lib/functions/lib"
-	"claime-verifier/lib/functions/lib/common/log"
 	"claime-verifier/lib/functions/lib/guild"
 	"claime-verifier/lib/functions/lib/infrastructure/discord"
 	slackclient "claime-verifier/lib/functions/lib/infrastructure/slack"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 
 	"claime-verifier/lib/functions/lib/subscribe"
 	repository "claime-verifier/lib/functions/lib/subscribe/persistence"
@@ -39,62 +36,34 @@ type (
 )
 
 func handler(ctx context.Context, request map[string]interface{}) (interface{}, error) {
-
-	botToken, err := ssm.New().DiscordBotToken(context.Background())
+	keyresolver := ssm.New()
+	if !discord.VerifyInteractionRequest(ctx, request, keyresolver) {
+		return unauthorized()
+	}
+	converter, err := discord.NewConverter(ctx, keyresolver)
 	if err != nil {
-		log.Error("error get bot token", err)
-		return "error get bot token", nil
+		return unauthorized()
 	}
-
-	req, _ := json.Marshal(request["jsonBody"])
-	webhook := discordgo.Webhook{}
-	interaction := discordgo.Interaction{}
-	interaction.UnmarshalJSON(req)
-	fmt.Printf("%+v\n", request["jsonBody"])
-	fmt.Printf("%+v\n", interaction)
-	json.Unmarshal(req, &webhook)
-	fmt.Printf("%+v\n", webhook)
-	if guild.HasPermissionAdministrator(interaction.Member.Permissions) {
-		fmt.Printf("called by admin")
-	}
-
-	dg, err := discordgo.New("Bot " + botToken)
-	guildID := mockGuildID
-	member, err := dg.GuildMember(guildID, interaction.User.ID)
-	fmt.Printf("%+v\n", member)
-
-	k, err := ssm.New().DiscordPublicKey(ctx)
+	req, err := converter.ToRegisterContractInput(request)
 	if err != nil {
-		log.Error("", err)
+		return unauthorized()
 	}
-
-	result := discord.VerifyRequest(request, k)
-	fmt.Println(result)
-	if !result {
-		return `[UNAUTHORIZED] invalid request signature`, errors.New("[UNAUTHORIZED] invalid request signature")
+	i, err := guild.New(ctx, keyresolver)
+	if err != nil {
+		return unauthorized()
 	}
-	fmt.Println("type")
-	fmt.Println(webhook.Type)
-
-	if webhook.Type == discordgo.WebhookTypeChannelFollower {
-		resp := struct {
-			Type int `json:"type"`
-		}{
-			Type: 1,
-		}
-		return resp, nil
+	res, err := converter.HandleInteractionResponse(request)
+	if err != nil {
+		return unauthorized()
 	}
-	if webhook.Type == discordgo.WebhookTypeIncoming {
-
-		resp := struct {
-			Type int `json:"type"`
-		}{
-			Type: 4,
-		}
-		return resp, nil
+	if !res.ShouldProcess() {
+		return res, err
 	}
+	i.RegisterContract(ctx, req)
+	return res, err
+}
+func unauthorized() (interface{}, error) {
 	return `[UNAUTHORIZED] invalid request signature`, errors.New("[UNAUTHORIZED] invalid request signature")
-
 }
 
 func unexpectedError(request events.APIGatewayProxyRequest, err error) (events.APIGatewayProxyResponse, error) {

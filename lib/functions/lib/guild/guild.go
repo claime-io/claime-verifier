@@ -2,7 +2,6 @@ package guild
 
 import (
 	"claime-verifier/lib/functions/lib/common/log"
-	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"context"
 	"crypto/ed25519"
 	"fmt"
@@ -19,9 +18,46 @@ const (
 	discordAuthURL = "https://claime-webfront-k6p1srx99-squard.vercel.app/claim/discord"
 )
 
-func init() {
-	s := ssm.New()
-	privateKey, _ = s.ClaimePrivateKey(context.Background())
+type (
+	KeyResolver interface {
+		DiscordPublicKey(ctx context.Context) (val string, err error)
+		DiscordBotToken(ctx context.Context) (val string, err error)
+		ClaimePrivateKey(ctx context.Context) (val ed25519.PrivateKey, err error)
+	}
+	GuildInteractor struct {
+		discordPublicKey string
+		discordBotToken  string
+		claimePrivateKey ed25519.PrivateKey
+	}
+	RegisterContractInput struct {
+		RoleID          string `json:"roleId"`
+		ContractAddress string `json:"contract_address"`
+		Network         string `json:"network"`
+	}
+)
+
+func New(ctx context.Context, r KeyResolver) (GuildInteractor, error) {
+	pub, err := r.DiscordPublicKey(ctx)
+	if err != nil {
+		return GuildInteractor{}, err
+	}
+	t, err := r.DiscordBotToken(ctx)
+	if err != nil {
+		return GuildInteractor{}, err
+	}
+	pri, err := r.ClaimePrivateKey(ctx)
+	if err != nil {
+		return GuildInteractor{}, err
+	}
+	return GuildInteractor{
+		discordPublicKey: pub,
+		discordBotToken:  t,
+		claimePrivateKey: pri,
+	}, nil
+}
+
+func (i GuildInteractor) RegisterContract(ctx context.Context, in RegisterContractInput) error {
+	return nil
 }
 
 // GuildMemberAdd This function will be called (due to AddHandler above) every time a new
