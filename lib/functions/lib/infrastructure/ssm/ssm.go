@@ -72,7 +72,7 @@ func (c Client) ClaimePrivateKey(ctx context.Context) (val ed25519.PrivateKey, e
 }
 
 func (c Client) getKey(ctx context.Context, key string) ([]byte, error) {
-	k, err := c.get(ctx, claimePrivateKey)
+	k, err := c.get(ctx, key)
 	if err != nil {
 		return []byte{}, err
 	}
