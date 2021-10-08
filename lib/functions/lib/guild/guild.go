@@ -21,7 +21,7 @@ var (
 )
 
 const (
-	discordAuthURL = "https://claime-webfront-k6p1srx99-squard.vercel.app/claim/discord"
+	discordAuthURL = "https://claime-webfront-git-feature-discord-squard.vercel.app/claim/discord"
 )
 
 type (
