@@ -15,20 +15,7 @@ paths:
         content:
           application/json:
             schema:
-              description: ''
               type: object
-              x-examples:
-                example-1:
-                  discord:
-                    userId: '0000'
-                    guildId: '0000'
-                    validity: 1
-                    timestamp: 1
-                    signature: '0000'
-                  eoa:
-                    signature: '0x0000'
-                    message: '0x0000'
-                    rawTx: '0x0000'
               properties:
                 discord:
                   type: object
@@ -41,37 +28,29 @@ paths:
                   properties:
                     userId:
                       type: string
-                      minLength: 1
                     guildId:
                       type: string
-                      minLength: 1
                     validity:
-                      type: number
+                      type: string
                     timestamp:
-                      type: number
+                      type: string
                     signature:
                       type: string
-                      minLength: 1
                 eoa:
                   type: object
+                  description: either "message" or "rawTx" is required.
                   required:
                     - signature
-                  description: either "message" or "rawTx" is required.
                   properties:
                     signature:
                       type: string
-                      minLength: 1
                     message:
                       type: string
-                      minLength: 1
                     rawTx:
                       type: string
-                      minLength: 1
               required:
                 - discord
                 - eoa
-            examples: {}
-    parameters: []
   /:
     post:
       operationId: post-discord-app
@@ -79,4 +58,3 @@ paths:
       responses:
         '200':
           description: OK
-    parameters: []
