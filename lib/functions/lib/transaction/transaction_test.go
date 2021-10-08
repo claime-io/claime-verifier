@@ -17,13 +17,13 @@ const (
 	expectedMethod       = "Claime Discord App"
 )
 
-func TestRecoverAddress(t *testing.T) {
+func TestRecoverAddressFromTx(t *testing.T) {
 	t.Run("recover address", func(t *testing.T) {
-		addr, err := RecoverAddress(rawTx, signature)
+		addr, err := RecoverAddressFromTx(rawTx, signature)
 		if err != nil {
 			t.Error(err)
 		}
-		assert.Equal(t, expectedAddress, addr)
+		assert.Equal(t, expectedAddress, addr.Hex())
 	})
 }
 
@@ -45,7 +45,7 @@ func TestRecoverAddressFromMessage(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		assert.Equal(t, expectedAddress, addr)
+		assert.Equal(t, expectedAddress, addr.Hex())
 	})
 }
 func TestRecoverClaimFromMessage(t *testing.T) {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -16,10 +17,10 @@ const (
 	messagePrefix = "\x19Ethereum Signed Message:\n"
 )
 
-func RecoverAddress(rawTx string, signature string) (string, error) {
+func RecoverAddressFromTx(rawTx string, signature string) (common.Address, error) {
 	txBytes, err := hexutil.Decode(rawTx)
 	if err != nil {
-		return "", err
+		return common.Address{}, err
 	}
 	return recover(crypto.Keccak256(txBytes), signature)
 }
@@ -55,7 +56,7 @@ func RecoverClaimFromTx(rawTx string) (contracts.IClaimRegistryClaim, error) {
 	}, nil
 }
 
-func RecoverAddressFromMessage(message string, signature string) (string, error) {
+func RecoverAddressFromMessage(message string, signature string) (common.Address, error) {
 	return recover(signHash([]byte(message)), signature)
 }
 
@@ -70,22 +71,22 @@ func RecoverClaimFromMessage(message string) (contracts.IClaimRegistryClaim, err
 	}, err
 }
 
-func recover(hash []byte, signature string) (string, error) {
+func recover(hash []byte, signature string) (common.Address, error) {
 	sigArr, err := hexutil.Decode(signature)
 	if err != nil {
-		return "", err
+		return common.Address{}, err
 	}
 	sigArr[64] -= 27
 	rpk, err := crypto.Ecrecover(hash, sigArr)
 	if err != nil {
-		return "", err
+		return common.Address{}, err
 	}
 	pubKey, err := crypto.UnmarshalPubkey(rpk)
 	if err != nil {
-		return "", err
+		return common.Address{}, err
 	}
 	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
-	return recoveredAddr.Hex(), err
+	return recoveredAddr, err
 }
 
 func signHash(data []byte) []byte {
