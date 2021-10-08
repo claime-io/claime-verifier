@@ -27,7 +27,7 @@ const EnvironmentVariablesSetting: {
     rootDomain: 'claime-dev.tk',
     hostedZoneId: 'Z08620181ARYV5PENJUEI',
     certificateArn:
-      'arn:aws:acm:us-east-1:495476032358:certificate/92761d01-6e38-4ca4-8580-a945a5c379fe',
+      'arn:aws:acm:us-east-1:495476032358:certificate/7ba1d525-652e-4388-9e09-c06b86f7f29a',
   },
   [Environments.TEST]: {
     allowedOrigin: '',
