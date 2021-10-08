@@ -4,14 +4,19 @@ import (
 	"claime-verifier/lib/functions/lib/common/log"
 	"context"
 	"crypto/ed25519"
+	"errors"
 	"fmt"
 	"time"
+
+	validate "github.com/go-playground/validator/v10"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 var (
 	privateKey ed25519.PrivateKey
+	// SupportedChains supported chains
+	SupportedChains = []string{"mainnet", "rinkeby"}
 )
 
 const (
@@ -28,15 +33,34 @@ type (
 		discordPublicKey string
 		discordBotToken  string
 		claimePrivateKey ed25519.PrivateKey
+		rep              Repository
 	}
 	RegisterContractInput struct {
-		RoleID          string `json:"roleId"`
-		ContractAddress string `json:"contract_address"`
-		Network         string `json:"network"`
+		RoleID          string `json:"roleId" validate:"required"`
+		ContractAddress string `json:"contract_address" validate:"required"`
+		Network         string `json:"network" validate:"required"`
+		GuildID         string `json:"guildId" validate:"required"`
+	}
+	Repository interface {
+		RegisterContract(ctx context.Context, in RegisterContractInput) error
 	}
 )
 
-func New(ctx context.Context, r KeyResolver) (GuildInteractor, error) {
+func (in RegisterContractInput) validate() error {
+	err := validate.New().Struct(in)
+	if err != nil {
+		log.Error("", err)
+		return err
+	}
+	for _, c := range SupportedChains {
+		if c == in.Network {
+			return nil
+		}
+	}
+	return errors.New(in.Network + " is not currently supported")
+}
+
+func New(ctx context.Context, r KeyResolver, rep Repository) (GuildInteractor, error) {
 	pub, err := r.DiscordPublicKey(ctx)
 	if err != nil {
 		return GuildInteractor{}, err
@@ -53,11 +77,15 @@ func New(ctx context.Context, r KeyResolver) (GuildInteractor, error) {
 		discordPublicKey: pub,
 		discordBotToken:  t,
 		claimePrivateKey: pri,
+		rep:              rep,
 	}, nil
 }
 
 func (i GuildInteractor) RegisterContract(ctx context.Context, in RegisterContractInput) error {
-	return nil
+	if err := in.validate(); err != nil {
+		return err
+	}
+	return i.rep.RegisterContract(ctx, in)
 }
 
 // GuildMemberAdd This function will be called (due to AddHandler above) every time a new

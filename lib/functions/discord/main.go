@@ -4,6 +4,7 @@ import (
 	"claime-verifier/lib/functions/lib"
 	"claime-verifier/lib/functions/lib/common/log"
 	"claime-verifier/lib/functions/lib/guild"
+	guildrep "claime-verifier/lib/functions/lib/guild/persistence"
 	"claime-verifier/lib/functions/lib/infrastructure/discord"
 	slackclient "claime-verifier/lib/functions/lib/infrastructure/slack"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
@@ -60,7 +61,7 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 		log.Error("", err)
 		return unauthorized()
 	}
-	i, err := guild.New(ctx, keyresolver)
+	i, err := guild.New(ctx, keyresolver, guildrep.New())
 	if err != nil {
 		log.Error("", err)
 		return unauthorized()
