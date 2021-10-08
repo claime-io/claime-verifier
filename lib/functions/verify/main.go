@@ -10,6 +10,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -83,7 +84,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			Headers:    lib.Headers(),
 		}, errors.New("invalid userID")
 	}
-	println(address)
+	fmt.Println(address)
 	// TODO verify NFT ownership
 
 	// TODO grant Role
