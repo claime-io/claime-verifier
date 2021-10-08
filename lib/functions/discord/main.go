@@ -44,6 +44,14 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 	if err != nil {
 		return unauthorized()
 	}
+
+	res, err := converter.HandleInteractionResponse(request)
+	if err != nil {
+		return unauthorized()
+	}
+	if !res.ShouldProcess() {
+		return res, err
+	}
 	req, err := converter.ToRegisterContractInput(request)
 	if err != nil {
 		return unauthorized()
@@ -51,13 +59,6 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 	i, err := guild.New(ctx, keyresolver)
 	if err != nil {
 		return unauthorized()
-	}
-	res, err := converter.HandleInteractionResponse(request)
-	if err != nil {
-		return unauthorized()
-	}
-	if !res.ShouldProcess() {
-		return res, err
 	}
 	i.RegisterContract(ctx, req)
 	return res, err
