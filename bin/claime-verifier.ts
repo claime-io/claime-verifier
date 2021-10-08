@@ -18,6 +18,7 @@ new CertificateStack(
   environment.withEnvPrefix(target, 'certificate'),
   target,
 )
+new RestApiStack(app, environment.withEnvPrefix(target, 'restapi'), target, {})
 new DatasourceStack(
   app,
   environment.withEnvPrefix(target, 'datasource'),
@@ -25,4 +26,3 @@ new DatasourceStack(
   {},
 )
 new DiscordStack(app, environment.withEnvPrefix(target, 'discord'), target, {})
-new RestApiStack(app, environment.withEnvPrefix(target, 'restapi'), target, {})

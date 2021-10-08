@@ -65,7 +65,7 @@ const discordFunction = (
   basicPolicytStatements(region, account, target).forEach((s) =>
     func.addToRolePolicy(s),
   )
-  const rs = api.root.addResource('discord').addResource('verity')
+  const rs = api.root.addResource('verify')
   rs.addMethod('POST', new LambdaIntegration(func))
   addCorsOptions(rs, environment.valueOf(target).allowedOrigin)
   return func

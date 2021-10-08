@@ -120,10 +120,9 @@ Object {
     },
     "[HASH REMOVED]": Object {
       "DependsOn": Array [
-        "RestApidiscord04FB5242",
-        "RestApidiscordverityOPTIONS48B5BCD3",
-        "RestApidiscordverityPOST208EE566",
-        "RestApidiscordverityDE8B7438",
+        "RestApiverifyOPTIONS9F218BB1",
+        "RestApiverifyPOST9CA55680",
+        "RestApiverifyBAACE9AF",
       ],
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
@@ -172,7 +171,7 @@ Object {
       },
       "Type": "AWS::ApiGateway::BasePathMapping",
     },
-    "RestApidiscord04FB5242": Object {
+    "RestApiverifyBAACE9AF": Object {
       "Properties": Object {
         "ParentId": Object {
           "Fn::GetAtt": Array [
@@ -180,26 +179,14 @@ Object {
             "RootResourceId",
           ],
         },
-        "PathPart": "discord",
+        "PathPart": "verify",
         "RestApiId": Object {
           "Ref": "RestApi0C43BF4B",
         },
       },
       "Type": "AWS::ApiGateway::Resource",
     },
-    "RestApidiscordverityDE8B7438": Object {
-      "Properties": Object {
-        "ParentId": Object {
-          "Ref": "RestApidiscord04FB5242",
-        },
-        "PathPart": "verity",
-        "RestApiId": Object {
-          "Ref": "RestApi0C43BF4B",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "RestApidiscordverityOPTIONS48B5BCD3": Object {
+    "RestApiverifyOPTIONS9F218BB1": Object {
       "Properties": Object {
         "AuthorizationType": "NONE",
         "HttpMethod": "OPTIONS",
@@ -233,7 +220,7 @@ Object {
           },
         ],
         "ResourceId": Object {
-          "Ref": "RestApidiscordverityDE8B7438",
+          "Ref": "RestApiverifyBAACE9AF",
         },
         "RestApiId": Object {
           "Ref": "RestApi0C43BF4B",
@@ -241,7 +228,7 @@ Object {
       },
       "Type": "AWS::ApiGateway::Method",
     },
-    "RestApidiscordverityPOST208EE566": Object {
+    "RestApiverifyPOST9CA55680": Object {
       "Properties": Object {
         "AuthorizationType": "NONE",
         "HttpMethod": "POST",
@@ -273,7 +260,7 @@ Object {
           },
         },
         "ResourceId": Object {
-          "Ref": "RestApidiscordverityDE8B7438",
+          "Ref": "RestApiverifyBAACE9AF",
         },
         "RestApiId": Object {
           "Ref": "RestApi0C43BF4B",
@@ -281,7 +268,7 @@ Object {
       },
       "Type": "AWS::ApiGateway::Method",
     },
-    "RestApidiscordverityPOSTApiPermissionTesttestRestApi41EB688DPOSTdiscordverity6834F8D8": Object {
+    "RestApiverifyPOSTApiPermissionTesttestRestApi41EB688DPOSTverify086441E2": Object {
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -311,14 +298,14 @@ Object {
               Object {
                 "Ref": "RestApi0C43BF4B",
               },
-              "/test-invoke-stage/POST/discord/verity",
+              "/test-invoke-stage/POST/verify",
             ],
           ],
         },
       },
       "Type": "AWS::Lambda::Permission",
     },
-    "RestApidiscordverityPOSTApiPermissiontestRestApi41EB688DPOSTdiscordverityD37FD396": Object {
+    "RestApiverifyPOSTApiPermissiontestRestApi41EB688DPOSTverify7EE72A7A": Object {
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -352,7 +339,7 @@ Object {
               Object {
                 "Ref": "[HASH REMOVED]",
               },
-              "/POST/discord/verity",
+              "/POST/verify",
             ],
           ],
         },
