@@ -2,12 +2,14 @@ package main
 
 import (
 	"claime-verifier/lib/functions/lib"
+	"claime-verifier/lib/functions/lib/common/log"
 	"claime-verifier/lib/functions/lib/guild"
 	"claime-verifier/lib/functions/lib/infrastructure/discord"
 	slackclient "claime-verifier/lib/functions/lib/infrastructure/slack"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"context"
 	"errors"
+	"fmt"
 
 	"claime-verifier/lib/functions/lib/subscribe"
 	repository "claime-verifier/lib/functions/lib/subscribe/persistence"
@@ -37,6 +39,7 @@ type (
 
 func handler(ctx context.Context, request map[string]interface{}) (interface{}, error) {
 	keyresolver := ssm.New()
+	fmt.Println(request)
 	if !discord.VerifyInteractionRequest(ctx, request, keyresolver) {
 		return unauthorized()
 	}
@@ -54,10 +57,12 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 	}
 	req, err := converter.ToRegisterContractInput(request)
 	if err != nil {
+		log.Error("", err)
 		return unauthorized()
 	}
 	i, err := guild.New(ctx, keyresolver)
 	if err != nil {
+		log.Error("", err)
 		return unauthorized()
 	}
 	i.RegisterContract(ctx, req)

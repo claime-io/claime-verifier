@@ -42,14 +42,17 @@ func (i InteractionResponse) ShouldProcess() bool {
 func NewConverter(ctx context.Context, r KeyResolver) (InteractionConverter, error) {
 	pub, err := r.DiscordPublicKey(ctx)
 	if err != nil {
+		log.Error("", err)
 		return InteractionConverter{}, err
 	}
 	t, err := r.DiscordBotToken(ctx)
 	if err != nil {
+		log.Error("", err)
 		return InteractionConverter{}, err
 	}
 	pri, err := r.ClaimePrivateKey(ctx)
 	if err != nil {
+		log.Error("", err)
 		return InteractionConverter{}, err
 	}
 	return InteractionConverter{
@@ -70,10 +73,10 @@ func (s InteractionConverter) HandleInteractionResponse(request map[string]inter
 		return InteractionResponse{}, err
 	}
 	if webhook.Type == discordgo.WebhookTypeChannelFollower {
-		return InteractionResponse{Type: 1}, nil
+		return InteractionResponse{Type: 5}, nil
 	}
 	if webhook.Type == discordgo.WebhookTypeIncoming {
-		return InteractionResponse{Type: 4}, nil
+		return InteractionResponse{Type: 1}, nil
 	}
 	return InteractionResponse{}, errors.New("unknown type:" + strconv.Itoa(int(webhook.Type)))
 }
@@ -113,14 +116,17 @@ func VerifyInteractionRequest(ctx context.Context, request map[string]interface{
 func verify(request map[string]interface{}, publicKey string) bool {
 	signature, ok := request["signature"].(string)
 	if !ok {
+		log.Info("sig not found")
 		return false
 	}
 	timestamp, ok := request["timestamp"].(string)
 	if !ok {
+		log.Info("timestamp not found")
 		return false
 	}
 	req, err := json.Marshal(request["jsonBody"])
 	if err != nil {
+		log.Error("", err)
 		return false
 	}
 
