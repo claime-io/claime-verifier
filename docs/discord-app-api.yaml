@@ -1,0 +1,60 @@
+openapi: 3.0.0
+info:
+  title: Claime Verifier for Discord App
+  version: '1.0'
+servers:
+  - url: 'https://discord.claime.io'
+paths:
+  /discord/verify:
+    post:
+      operationId: post-discord-verify
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                example-1:
+                  userId: '0000000000'
+                  guildId: '0000000000'
+                  validity: 1
+                  timestamp: 1
+                  signature: '0x000000000'
+                  message: '0x000000000'
+                  rawTx: '0x000000000'
+              properties:
+                userId:
+                  type: string
+                  minLength: 1
+                guildId:
+                  type: string
+                  minLength: 1
+                validity:
+                  type: number
+                timestamp:
+                  type: number
+                signature:
+                  type: string
+                  minLength: 1
+                message:
+                  type: string
+                  minLength: 1
+                rawTx:
+                  type: string
+                  minLength: 1
+              required:
+                - userId
+                - guildId
+                - validity
+                - timestamp
+                - signature
+  /discord/app:
+    post:
+      operationId: post-discord-app
+      description: Endpoint for Discord App
+      responses:
+        '200':
+          description: OK
