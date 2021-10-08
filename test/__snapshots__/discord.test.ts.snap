@@ -655,6 +655,11 @@ Object {
             ],
           },
         },
+        "Environment": Object {
+          "Variables": Object {
+            "EnvironmentId": "test",
+          },
+        },
         "FunctionName": "claime-verifier-discord-test",
         "Handler": "bin/main",
         "Role": Object {
