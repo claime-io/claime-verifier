@@ -95,10 +95,10 @@ func toInteraction(request map[string]interface{}) (discordgo.Interaction, error
 	return interaction, nil
 }
 
-func (s InteractionConverter) ToRegisterContractInput(request map[string]interface{}) (guild.RegisterContractInput, error) {
+func (s InteractionConverter) ToRegisterContractInput(request map[string]interface{}) (guild.ContractInfo, error) {
 	interaction, err := toInteraction(request)
 	if err != nil {
-		return guild.RegisterContractInput{}, err
+		return guild.ContractInfo{}, err
 	}
 	return toInput(interaction.ApplicationCommandData()), err
 }
@@ -145,11 +145,11 @@ func verify(request map[string]interface{}, publicKey string) bool {
 	return discordgo.VerifyInteraction(httpreq, key)
 }
 
-func toInput(d discordgo.ApplicationCommandInteractionData) guild.RegisterContractInput {
+func toInput(d discordgo.ApplicationCommandInteractionData) guild.ContractInfo {
 	if len(d.Options) < 3 {
-		return guild.RegisterContractInput{}
+		return guild.ContractInfo{}
 	}
-	return guild.RegisterContractInput{
+	return guild.ContractInfo{
 		RoleID:          d.Options[0].Value.(string),
 		ContractAddress: d.Options[1].Value.(string),
 		Network:         d.Options[2].Value.(string),

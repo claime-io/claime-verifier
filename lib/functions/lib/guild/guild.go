@@ -35,18 +35,18 @@ type (
 		claimePrivateKey ed25519.PrivateKey
 		rep              Repository
 	}
-	RegisterContractInput struct {
+	ContractInfo struct {
 		RoleID          string `json:"roleId" validate:"required"`
 		ContractAddress string `json:"contract_address" validate:"required"`
 		Network         string `json:"network" validate:"required"`
 		GuildID         string `json:"guildId" validate:"required"`
 	}
 	Repository interface {
-		RegisterContract(ctx context.Context, in RegisterContractInput) error
+		RegisterContract(ctx context.Context, in ContractInfo) error
 	}
 )
 
-func (in RegisterContractInput) validate() error {
+func (in ContractInfo) validate() error {
 	err := validate.New().Struct(in)
 	if err != nil {
 		log.Error("", err)
@@ -81,7 +81,7 @@ func New(ctx context.Context, r KeyResolver, rep Repository) (GuildInteractor, e
 	}, nil
 }
 
-func (i GuildInteractor) RegisterContract(ctx context.Context, in RegisterContractInput) error {
+func (i GuildInteractor) RegisterContract(ctx context.Context, in ContractInfo) error {
 	if err := in.validate(); err != nil {
 		return err
 	}

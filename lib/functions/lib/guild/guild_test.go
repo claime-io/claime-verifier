@@ -32,8 +32,8 @@ func TestValidate(t *testing.T) {
 	})
 }
 
-func in() RegisterContractInput {
-	return RegisterContractInput{
+func in() ContractInfo {
+	return ContractInfo{
 		RoleID:          "test",
 		ContractAddress: "test",
 		Network:         "mainnet",
