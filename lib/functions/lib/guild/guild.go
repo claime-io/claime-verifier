@@ -87,9 +87,12 @@ func New(ctx context.Context, r KeyResolver, rep Repository) (GuildInteractor, e
 	}, nil
 }
 
-func (i GuildInteractor) RegisterContract(ctx context.Context, channelID, guildID string, in ContractInfo) error {
+func (i GuildInteractor) RegisterContract(ctx context.Context, channelID, guildID string, permission int64, in ContractInfo) error {
 	if err := in.validate(); err != nil {
 		return i.error(ctx, channelID, err)
+	}
+	if !HasPermissionAdministrator(permission) {
+		return errors.New("Only administrator can configure contracts")
 	}
 
 	if err := i.rep.RegisterContract(ctx, in); err != nil {
