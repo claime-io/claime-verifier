@@ -29,7 +29,6 @@ type (
 		bottoken  string
 		claimeKey ed25519.PrivateKey
 	}
-	Gateway             struct{}
 	InteractionResponse struct {
 		Type int `json:"type"`
 	}
@@ -95,12 +94,12 @@ func toInteraction(request map[string]interface{}) (discordgo.Interaction, error
 	return interaction, nil
 }
 
-func (s InteractionConverter) ToRegisterContractInput(request map[string]interface{}) (guild.ContractInfo, error) {
+func (s InteractionConverter) ToRegisterContractInput(request map[string]interface{}) (guild.ContractInfo, discordgo.Interaction, error) {
 	interaction, err := toInteraction(request)
 	if err != nil {
-		return guild.ContractInfo{}, err
+		return guild.ContractInfo{}, interaction, err
 	}
-	return toInput(interaction.ApplicationCommandData()), err
+	return toInput(interaction.ApplicationCommandData()), interaction, err
 }
 
 // VerifyInteractionRequest verify signature of interaction request

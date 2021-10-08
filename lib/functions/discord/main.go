@@ -56,7 +56,7 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 	if !res.ShouldProcess() {
 		return res, err
 	}
-	req, err := converter.ToRegisterContractInput(request)
+	req, interaction, err := converter.ToRegisterContractInput(request)
 	if err != nil {
 		log.Error("", err)
 		return unauthorized()
@@ -66,7 +66,7 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 		log.Error("", err)
 		return unauthorized()
 	}
-	i.RegisterContract(ctx, req)
+	i.RegisterContract(ctx, interaction.ChannelID, req)
 	return res, err
 }
 func unauthorized() (interface{}, error) {

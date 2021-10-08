@@ -41,7 +41,7 @@ func keyOf(network string) string {
 // New New client
 func New() Client {
 	return Client{
-		svc: ssm.New(session.New()),
+		svc: ssm.New(session.New(&aws.Config{Region: aws.String("us-east-1")})),
 	}
 }
 

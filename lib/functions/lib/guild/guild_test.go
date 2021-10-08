@@ -1,6 +1,8 @@
 package guild
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestValidate(t *testing.T) {
 
@@ -40,3 +42,14 @@ func in() ContractInfo {
 		GuildID:         "test",
 	}
 }
+
+//func TestNotify(t *testing.T) {
+//	svc, err := New(context.Background(), ssm.New(), nil)
+//	if err != nil {
+//		t.Error(err)
+//	}
+//	err = svc.notify(context.Background(), "892441777808765052", errors.New("unexpected error occured"), false)
+//	if err != nil {
+//		t.Error(err)
+//	}
+//}

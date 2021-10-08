@@ -81,11 +81,23 @@ func New(ctx context.Context, r KeyResolver, rep Repository) (GuildInteractor, e
 	}, nil
 }
 
-func (i GuildInteractor) RegisterContract(ctx context.Context, in ContractInfo) error {
+func (i GuildInteractor) RegisterContract(ctx context.Context, channelID string, in ContractInfo) error {
 	if err := in.validate(); err != nil {
+		return i.notify(ctx, channelID, err, true)
+	}
+	if err := i.rep.RegisterContract(ctx, in); err != nil {
+		return i.notify(ctx, channelID, err, true)
+	}
+	return nil
+}
+
+func (i GuildInteractor) notify(ctx context.Context, channelID string, info interface{}, er bool) error {
+	dg, err := discordgo.New("Bot " + i.discordBotToken)
+	if err != nil {
 		return err
 	}
-	return i.rep.RegisterContract(ctx, in)
+	_, err = dg.ChannelMessageSend(channelID, fmt.Sprint(info))
+	return err
 }
 
 // GuildMemberAdd This function will be called (due to AddHandler above) every time a new
