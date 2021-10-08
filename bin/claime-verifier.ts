@@ -1,4 +1,5 @@
 import * as cdk from '@aws-cdk/core'
+import { CertificateStack } from '../lib/certificate'
 import { DatasourceStack } from '../lib/datasource'
 import { DiscordStack } from '../lib/discord'
 import * as environment from '../lib/env'
@@ -12,11 +13,11 @@ const target: environment.Environments = app.node.tryGetContext(
 if (!target || !environment.valueOf(target))
   throw new Error('Invalid target environment')
 new Route53Stack(app, environment.withEnvPrefix(target, 'route53'), target, {})
-//new CertificateStack(
-//  app,
-//  environment.withEnvPrefix(target, 'certificate'),
-//  target,
-//)
+new CertificateStack(
+  app,
+  environment.withEnvPrefix(target, 'certificate'),
+  target,
+)
 new DatasourceStack(
   app,
   environment.withEnvPrefix(target, 'datasource'),

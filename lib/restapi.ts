@@ -1,5 +1,4 @@
 import {
-  ApiKeySourceType,
   DomainName,
   EndpointType,
   LambdaIntegration,
@@ -29,7 +28,6 @@ export class RestApiStack extends cdk.Stack {
     super(scope, id, props)
     const api = new RestApi(this, 'RestApi', {
       restApiName: environment.withEnvPrefix(target, 'verification-restapi'),
-      apiKeySourceType: ApiKeySourceType.HEADER,
     })
     const func = discordFunction(
       this,
@@ -39,9 +37,9 @@ export class RestApiStack extends cdk.Stack {
       target,
       api,
     )
-    //const customDomain = withCustomDomain(this, api, target)
+    const customDomain = withCustomDomain(this, api, target)
 
-    //aRecord(this, target, customDomain)
+    aRecord(this, target, customDomain)
   }
 }
 
@@ -131,7 +129,7 @@ const aRecord = (
   })
 }
 const restApiDomainName = (target: environment.Environments) => {
-  return `api.` + environment.valueOf(target).rootDomain
+  return `discord.` + environment.valueOf(target).rootDomain
 }
 
 const withCustomDomain = (

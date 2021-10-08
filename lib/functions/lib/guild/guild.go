@@ -16,7 +16,6 @@ import (
 )
 
 var (
-	privateKey ed25519.PrivateKey
 	// SupportedChains supported chains
 	SupportedChains = []string{"mainnet", "rinkeby"}
 )
@@ -191,8 +190,7 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 	}
 	cli := ssm.New()
 	pk, err := cli.ClaimePrivateKey(context.Background())
-	privateKey = pk
-	sig := Sign(in, privateKey)
+	sig := Sign(in, pk)
 
 	_, err = s.ChannelMessageSend(channel.ID, "Please complete sign to prove you have a NFT: "+url(in, sig))
 	if err != nil {
