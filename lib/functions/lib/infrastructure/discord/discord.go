@@ -70,20 +70,10 @@ func (s InteractionConverter) HandleInteractionResponse(request map[string]inter
 		return InteractionResponse{}, err
 	}
 	if webhook.Type == discordgo.WebhookTypeChannelFollower {
-		resp := struct {
-			Type int `json:"type"`
-		}{
-			Type: 1,
-		}
-		return resp, nil
+		return InteractionResponse{Type: 1}, nil
 	}
 	if webhook.Type == discordgo.WebhookTypeIncoming {
-		resp := struct {
-			Type int `json:"type"`
-		}{
-			Type: 4,
-		}
-		return resp, nil
+		return InteractionResponse{Type: 4}, nil
 	}
 	return InteractionResponse{}, errors.New("unknown type:" + strconv.Itoa(int(webhook.Type)))
 }
