@@ -1,18 +1,16 @@
 package main
 
 import (
-	"bytes"
 	"claime-verifier/lib/functions/lib"
 	"claime-verifier/lib/functions/lib/common/log"
 	"claime-verifier/lib/functions/lib/guild"
+	"claime-verifier/lib/functions/lib/infrastructure/discord"
 	slackclient "claime-verifier/lib/functions/lib/infrastructure/slack"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 
 	"claime-verifier/lib/functions/lib/subscribe"
 	repository "claime-verifier/lib/functions/lib/subscribe/persistence"
@@ -41,10 +39,8 @@ type (
 )
 
 func handler(ctx context.Context, request map[string]interface{}) (interface{}, error) {
-	token := request["signature"].(string)
-	timestamp := request["timestamp"].(string)
 
-	token, err := ssm.New().DiscordBotToken(context.Background())
+	botToken, err := ssm.New().DiscordBotToken(context.Background())
 	if err != nil {
 		log.Error("error get bot token", err)
 		return "error get bot token", nil
@@ -62,28 +58,17 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 		fmt.Printf("called by admin")
 	}
 
-	dg, err := discordgo.New("Bot " + token)
+	dg, err := discordgo.New("Bot " + botToken)
 	guildID := mockGuildID
 	member, err := dg.GuildMember(guildID, interaction.User.ID)
 	fmt.Printf("%+v\n", member)
 
-	httpreq, err := http.NewRequest("", "", bytes.NewReader(req))
-	if err != nil {
-		log.Error("", err)
-	}
 	k, err := ssm.New().DiscordPublicKey(ctx)
 	if err != nil {
 		log.Error("", err)
 	}
-	key, _ := hex.DecodeString(k)
-	if err != nil {
-		log.Error("", err)
-	}
-	fmt.Println("key")
-	fmt.Println(string(key))
-	httpreq.Header.Add("X-Signature-Ed25519", token)
-	httpreq.Header.Add("X-Signature-Timestamp", timestamp)
-	result := discordgo.VerifyInteraction(httpreq, key)
+
+	result := discord.VerifyRequest(request, k)
 	fmt.Println(result)
 	if !result {
 		return `[UNAUTHORIZED] invalid request signature`, errors.New("[UNAUTHORIZED] invalid request signature")

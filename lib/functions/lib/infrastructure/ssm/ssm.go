@@ -30,6 +30,8 @@ const (
 	discordBotToken       = keyPrefix + "discord-bot-token"
 	claimePublicKey       = keyPrefix + "public-key"
 	claimePrivateKey      = keyPrefix + "private-key"
+	endpointRinkeby       = keyPrefix + "endpoint-rinkeby"
+	endpointMainnet       = keyPrefix + "endpoint-mainnet"
 )
 
 func keyOf(network string) string {
@@ -51,6 +53,14 @@ func (c Client) WsEndpoint(ctx context.Context, network string) (val string, err
 // DiscordPublicKey get Discord public key
 func (c Client) DiscordPublicKey(ctx context.Context) (val string, err error) {
 	return c.get(ctx, discordPublicKey)
+}
+
+func (c Client) EndpointRinkeby(ctx context.Context) (val string, err error) {
+	return c.get(ctx, endpointRinkeby)
+}
+
+func (c Client) EndpointMainnet(ctx context.Context) (val string, err error) {
+	return c.get(ctx, endpointMainnet)
 }
 
 func (c Client) ClaimePublicKey(ctx context.Context) (val ed25519.PublicKey, err error) {
