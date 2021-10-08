@@ -54,13 +54,14 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}, err
 	}
 	var in Input
+	fmt.Println(request.Body)
 	if err = json.Unmarshal([]byte(request.Body), &in); err != nil {
 		log.Error("json unmarshal failed", err)
 		return events.APIGatewayProxyResponse{
 			StatusCode: 403,
 			Body:       "{}",
 			Headers:    lib.Headers(),
-		}, err
+		}, nil
 	}
 	if !guild.Verify(guild.VerificationInput{
 		SignatureInput: guild.SignatureInput{
@@ -71,28 +72,31 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		},
 		Sign: in.Discord.Signature,
 	}, k) {
+		log.Error("", errors.New("invalid signature"))
 		// TODO resend if expired
 		return events.APIGatewayProxyResponse{
 			StatusCode: 403,
 			Body:       "{}",
 			Headers:    lib.Headers(),
-		}, errors.New("invalid signature")
+		}, nil
 	}
 
 	address, claim, err := recoverAddressAndClaim(in.EOA)
 	if err != nil {
+		log.Error("recover address failed", err)
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
 			Body:       "{}",
 			Headers:    lib.Headers(),
-		}, err
+		}, nil
 	}
 	if claim.PropertyId != in.Discord.UserID {
+		log.Error("", errors.New("invalid userID"))
 		return events.APIGatewayProxyResponse{
 			StatusCode: 403,
 			Body:       "{}",
 			Headers:    lib.Headers(),
-		}, errors.New("invalid userID")
+		}, nil
 	}
 	fmt.Println(address)
 	// TODO verify NFT ownership
@@ -104,7 +108,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			StatusCode: 400,
 			Body:       "{}",
 			Headers:    lib.Headers(),
-		}, err
+		}, nil
 	}
 	granted := false
 	for _, c := range cs {
