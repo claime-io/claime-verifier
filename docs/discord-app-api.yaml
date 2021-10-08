@@ -72,13 +72,11 @@ paths:
                 - eoa
             examples: {}
     parameters: []
-  '':
+  /:
     post:
       operationId: post-discord-app
       description: Endpoint for Discord App
       responses:
         '200':
           description: OK
-    parameters: []
-  /:
     parameters: []
