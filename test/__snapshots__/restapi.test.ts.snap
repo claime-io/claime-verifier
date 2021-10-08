@@ -393,6 +393,7 @@ Object {
         "Environment": Object {
           "Variables": Object {
             "AllowedOrigin": "",
+            "EnvironmentId": "test",
           },
         },
         "FunctionName": "claime-verifier-verify-test",
@@ -459,6 +460,7 @@ Object {
                 "dynamodb:Put*",
                 "dynamodb:Get*",
                 "dynamodb:Scan*",
+                "dynamodb:Query*",
                 "dynamodb:Delete*",
                 "dynamodb:Batch*",
               ],
