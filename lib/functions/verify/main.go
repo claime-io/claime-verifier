@@ -69,6 +69,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			Validity:  time.Unix(0, in.Discord.Validity),
 			Timestamp: time.Unix(0, in.Discord.Timestamp),
 		},
+		Sign: in.Discord.Signature,
 	}, k) {
 		// TODO resend if expired
 		return events.APIGatewayProxyResponse{
