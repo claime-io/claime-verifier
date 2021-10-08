@@ -106,6 +106,14 @@ func (i GuildInteractor) RegisterContract(ctx context.Context, channelID, guildI
 	return i.notify(ctx, channelID, in)
 }
 
+func (i GuildInteractor) GrantRole(ctx context.Context, userID string, in ContractInfo) error {
+	err := i.dg.GuildMemberRoleAdd(in.GuildID, userID, in.RoleID)
+	if err != nil {
+		log.Error("role add failed", err)
+	}
+	return err
+}
+
 func (i GuildInteractor) existsRole(guildID, roleID string) error {
 	st, err := i.dg.GuildRoles(guildID)
 	if err != nil {

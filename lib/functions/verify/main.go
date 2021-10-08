@@ -5,6 +5,8 @@ import (
 	"claime-verifier/lib/functions/lib/common/log"
 	"claime-verifier/lib/functions/lib/contracts"
 	"claime-verifier/lib/functions/lib/guild"
+	guildrep "claime-verifier/lib/functions/lib/guild/persistence"
+	"claime-verifier/lib/functions/lib/infrastructure/ethclient"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"claime-verifier/lib/functions/lib/transaction"
 	"context"
@@ -93,14 +95,77 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	}
 	fmt.Println(address)
 	// TODO verify NFT ownership
-
-	// TODO grant Role
-
+	rep := guildrep.New()
+	cs, err := rep.ListContracts(ctx, in.Discord.GuildID)
+	if err != nil {
+		log.Error("", err)
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "{}",
+			Headers:    lib.Headers(),
+		}, err
+	}
+	granted := false
+	for _, c := range cs {
+		if isOwner(ctx, c, address) {
+			if err = grantRole(ctx, in.Discord.UserID, c); err != nil {
+				log.Error("", err)
+			}
+			granted = true
+		}
+	}
+	if granted {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 200,
+			Body:       "{}",
+			Headers:    lib.Headers(),
+		}, nil
+	}
 	return events.APIGatewayProxyResponse{
-		StatusCode: 200,
+		StatusCode: 401,
 		Body:       "{}",
 		Headers:    lib.Headers(),
 	}, nil
+}
+
+func grantRole(ctx context.Context, userID string, c guild.ContractInfo) error {
+	act, err := guild.New(ctx, ssm.New(), guildrep.New())
+	if err != nil {
+		return err
+	}
+	return act.GrantRole(ctx, userID, c)
+}
+
+func isOwner(ctx context.Context, i guild.ContractInfo, address common.Address) bool {
+	network := i.Network
+	ssm := ssm.New()
+	var endpoint string
+	if network == "rinkeby" {
+		e, err := ssm.EndpointRinkeby(ctx)
+		if err != nil {
+			log.Error("", err)
+			return false
+		}
+		endpoint = e
+	} else {
+		e, err := ssm.EndpointMainnet(ctx)
+		if err != nil {
+			log.Error("", err)
+			return false
+		}
+		endpoint = e
+	}
+	cl, err := ethclient.NewERC721Client(endpoint)
+	if err != nil {
+		log.Error("", err)
+		return false
+	}
+	caller, err := cl.Caller(common.HexToAddress(i.ContractAddress))
+	if err != nil {
+		log.Error("", err)
+		return false
+	}
+	return caller.TokenOwner(address)
 }
 
 func main() {
