@@ -22,7 +22,8 @@ const EnvironmentVariablesSetting: {
     certificateArn: '',
   },
   [Environments.DEV]: {
-    allowedOrigin: 'https://claime-webfront-k6p1srx99-squard.vercel.app',
+    allowedOrigin:
+      'https://claime-webfront-git-feature-discord-squard.vercel.app',
     rootDomain: 'claime-dev.tk',
     hostedZoneId: 'Z08620181ARYV5PENJUEI',
     certificateArn:
