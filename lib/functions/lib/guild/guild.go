@@ -2,6 +2,7 @@ package guild
 
 import (
 	"claime-verifier/lib/functions/lib/common/log"
+	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"context"
 	"crypto/ed25519"
 	"errors"
@@ -188,6 +189,9 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 		Validity:  time.Now().Add(time.Minute * 10),
 		Timestamp: time.Now(),
 	}
+	cli := ssm.New()
+	pk, err := cli.ClaimePrivateKey(context.Background())
+	privateKey = pk
 	sig := Sign(in, privateKey)
 
 	_, err = s.ChannelMessageSend(channel.ID, "Please complete sign to prove you have a NFT: "+url(in, sig))
