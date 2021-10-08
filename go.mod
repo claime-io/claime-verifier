@@ -4,7 +4,6 @@ go 1.16
 
 require (
 	github.com/andersfylling/disgord v0.29.0
-	github.com/andersfylling/snowflake/v3 v3.0.2 // indirect
 	github.com/aws/aws-cdk-go/awscdk v1.125.0-devpreview
 	github.com/aws/aws-cdk-go/awscdk/v2 v2.0.0-rc.23
 	github.com/aws/aws-lambda-go v1.27.0
@@ -16,6 +15,7 @@ require (
 	github.com/ethereum/go-ethereum v1.10.8
 	github.com/guregu/dynamo v1.11.0
 	github.com/kyokomi/goslash v0.1.0
+	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/slack-go/slack v0.9.5
 	github.com/stretchr/testify v1.7.0
