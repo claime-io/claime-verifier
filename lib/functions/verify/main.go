@@ -23,14 +23,21 @@ const (
 )
 
 type (
-	Input struct {
+	DiscordInput struct {
 		UserID    string `json:"userId"`
 		GuildID   string `json:"guildId"`
 		Validity  int64  `json:"validity"`
 		Timestamp int64  `json:"timestamp"`
 		Signature string `json:"signature"`
+	}
+	EOAInput struct {
+		Signature string `json:"signature"`
 		Message   string `json:"message"`
 		RawTx     string `json:"rawTx"`
+	}
+	Input struct {
+		Discord DiscordInput `json:"discord"`
+		EOA     EOAInput     `json:"eoa"`
 	}
 )
 
@@ -55,10 +62,10 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	}
 	if !guild.Verify(guild.VerificationInput{
 		SignatureInput: guild.SignatureInput{
-			UserID:    in.UserID,
-			GuildID:   in.GuildID,
-			Validity:  time.Unix(0, in.Validity),
-			Timestamp: time.Unix(0, in.Timestamp),
+			UserID:    in.Discord.UserID,
+			GuildID:   in.Discord.GuildID,
+			Validity:  time.Unix(0, in.Discord.Validity),
+			Timestamp: time.Unix(0, in.Discord.Timestamp),
 		},
 	}, k) {
 		// TODO resend if expired
@@ -69,7 +76,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}, errors.New("invalid signature")
 	}
 
-	address, claim, err := recoverAddressAndClaim(in)
+	address, claim, err := recoverAddressAndClaim(in.EOA)
 	if err != nil {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
@@ -77,7 +84,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			Headers:    lib.Headers(),
 		}, err
 	}
-	if claim.PropertyId != in.UserID {
+	if claim.PropertyId != in.Discord.UserID {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 403,
 			Body:       "{}",
@@ -100,7 +107,7 @@ func main() {
 	lambda.Start(handler)
 }
 
-func recoverAddressAndClaim(in Input) (common.Address, contracts.IClaimRegistryClaim, error) {
+func recoverAddressAndClaim(in EOAInput) (common.Address, contracts.IClaimRegistryClaim, error) {
 	if in.RawTx != "" {
 		address, err := transaction.RecoverAddressFromTx(in.RawTx, in.Signature)
 		if err != nil {
