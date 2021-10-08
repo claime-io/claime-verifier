@@ -102,5 +102,5 @@ func fromSK(sk string) (contractaddress string) {
 }
 
 func from(key, prefix string) (contractval string) {
-	return strings.Replace(key, prefix, "", 0)
+	return strings.Replace(key, prefix, "", 1)
 }

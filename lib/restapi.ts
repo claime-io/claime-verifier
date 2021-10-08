@@ -59,6 +59,7 @@ const discordFunction = (
     runtime: Runtime.GO_1_X,
     environment: {
       AllowedOrigin: environment.valueOf(target).allowedOrigin,
+      EnvironmentId: target,
     },
     tracing: Tracing.ACTIVE,
   })

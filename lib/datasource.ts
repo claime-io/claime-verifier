@@ -66,6 +66,7 @@ export const dataSourceReadWritePolicyStatement = (
       'dynamodb:Put*',
       'dynamodb:Get*',
       'dynamodb:Scan*',
+      'dynamodb:Query*',
       'dynamodb:Delete*',
       'dynamodb:Batch*',
     ],

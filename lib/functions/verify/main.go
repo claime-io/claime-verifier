@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -28,8 +29,8 @@ type (
 	DiscordInput struct {
 		UserID    string `json:"userId"`
 		GuildID   string `json:"guildId"`
-		Validity  int64  `json:"validity"`
-		Timestamp int64  `json:"timestamp"`
+		Validity  string `json:"validity"`
+		Timestamp string `json:"timestamp"`
 		Signature string `json:"signature"`
 	}
 	EOAInput struct {
@@ -63,16 +64,19 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			Headers:    lib.Headers(),
 		}, nil
 	}
+	vali, _ := strconv.ParseInt(in.Discord.Validity, 10, 64)
+	timi, _ := strconv.ParseInt(in.Discord.Timestamp, 10, 64)
 	if !guild.Verify(guild.VerificationInput{
 		SignatureInput: guild.SignatureInput{
 			UserID:    in.Discord.UserID,
 			GuildID:   in.Discord.GuildID,
-			Validity:  time.Unix(0, in.Discord.Validity),
-			Timestamp: time.Unix(0, in.Discord.Timestamp),
+			Validity:  time.Unix(0, vali),
+			Timestamp: time.Unix(0, timi),
 		},
 		Sign: in.Discord.Signature,
 	}, k) {
 		log.Error("", errors.New("invalid signature"))
+		// TODO check validity
 		// TODO resend if expired
 		return events.APIGatewayProxyResponse{
 			StatusCode: 403,
@@ -145,6 +149,8 @@ func isOwner(ctx context.Context, i guild.ContractInfo, address common.Address) 
 	network := i.Network
 	ssm := ssm.New()
 	var endpoint string
+	fmt.Println("network")
+	fmt.Println(network)
 	if network == "rinkeby" {
 		e, err := ssm.EndpointRinkeby(ctx)
 		if err != nil {
@@ -165,6 +171,8 @@ func isOwner(ctx context.Context, i guild.ContractInfo, address common.Address) 
 		log.Error("", err)
 		return false
 	}
+	fmt.Println("contractaddress")
+	fmt.Println(i.ContractAddress)
 	caller, err := cl.Caller(common.HexToAddress(i.ContractAddress))
 	if err != nil {
 		log.Error("", err)
