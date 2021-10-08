@@ -34,6 +34,7 @@ type (
 		discordBotToken  string
 		claimePrivateKey ed25519.PrivateKey
 		rep              Repository
+		dg               *discordgo.Session
 	}
 	ContractInfo struct {
 		RoleID          string `json:"roleId" validate:"required"`
@@ -73,30 +74,78 @@ func New(ctx context.Context, r KeyResolver, rep Repository) (GuildInteractor, e
 	if err != nil {
 		return GuildInteractor{}, err
 	}
+	sess, err := discordgo.New("Bot " + t)
+	if err != nil {
+		return GuildInteractor{}, err
+	}
 	return GuildInteractor{
 		discordPublicKey: pub,
 		discordBotToken:  t,
 		claimePrivateKey: pri,
 		rep:              rep,
+		dg:               sess,
 	}, nil
 }
 
-func (i GuildInteractor) RegisterContract(ctx context.Context, channelID string, in ContractInfo) error {
+func (i GuildInteractor) RegisterContract(ctx context.Context, channelID, guildID string, in ContractInfo) error {
 	if err := in.validate(); err != nil {
-		return i.notify(ctx, channelID, err, true)
+		return i.error(ctx, channelID, err)
 	}
+
 	if err := i.rep.RegisterContract(ctx, in); err != nil {
-		return i.notify(ctx, channelID, err, true)
+		return i.error(ctx, channelID, err)
 	}
-	return nil
+	return i.notify(ctx, channelID, in)
 }
 
-func (i GuildInteractor) notify(ctx context.Context, channelID string, info interface{}, er bool) error {
-	dg, err := discordgo.New("Bot " + i.discordBotToken)
+func (i GuildInteractor) existsRole(guildID, roleID string) error {
+	st, err := i.dg.GuildRoles(guildID)
 	if err != nil {
 		return err
 	}
-	_, err = dg.ChannelMessageSend(channelID, fmt.Sprint(info))
+	for _, s := range st {
+		if s.ID == roleID {
+			return nil
+		}
+	}
+	return errors.New("Role with ID " + roleID + " does not exist.")
+}
+
+func (i GuildInteractor) error(ctx context.Context, channelID string, cause error) error {
+
+	_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
+		Embed: &discordgo.MessageEmbed{
+			Title:       "Something went wrong",
+			Description: cause.Error(),
+			Color:       int(0xFF0000),
+		},
+	})
+	return err
+}
+
+func (i GuildInteractor) notify(ctx context.Context, channelID string, in ContractInfo) error {
+
+	_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
+		Embed: &discordgo.MessageEmbed{
+			Title:       "Set contract address Succeeded!",
+			Description: "Configure contract address succeeded with following properties:",
+			Color:       int(0x0000FF),
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:  "ContractAddress",
+					Value: in.ContractAddress,
+				},
+				{
+					Name:  "Network",
+					Value: in.Network,
+				},
+				{
+					Value: in.RoleID,
+					Name:  "RoleID",
+				},
+			},
+		},
+	})
 	return err
 }
 

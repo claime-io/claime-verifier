@@ -48,7 +48,23 @@ func in() ContractInfo {
 //	if err != nil {
 //		t.Error(err)
 //	}
-//	err = svc.notify(context.Background(), "892441777808765052", errors.New("unexpected error occured"), false)
+//	err = svc.notify(context.Background(), "892441777808765052", ContractInfo{
+//		RoleID:          "test",
+//		ContractAddress: "test",
+//		Network:         "rinkeby",
+//		GuildID:         "test",
+//	})
+//	if err != nil {
+//		t.Error(err)
+//	}
+//}
+//
+//func TestError(t *testing.T) {
+//	svc, err := New(context.Background(), ssm.New(), nil)
+//	if err != nil {
+//		t.Error(err)
+//	}
+//	err = svc.error(context.Background(), "892441777808765052", errors.New("error message"))
 //	if err != nil {
 //		t.Error(err)
 //	}
