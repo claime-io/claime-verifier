@@ -148,6 +148,9 @@ const discordFunction = (
     timeout: cdk.Duration.minutes(1),
     runtime: Runtime.GO_1_X,
     tracing: Tracing.ACTIVE,
+    environment: {
+      EnvironmentId: target,
+    },
   })
   basicPolicytStatements(region, account, target).forEach((s) =>
     func.addToRolePolicy(s),

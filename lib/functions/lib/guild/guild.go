@@ -45,6 +45,7 @@ type (
 	}
 	Repository interface {
 		RegisterContract(ctx context.Context, in ContractInfo) error
+		ListContracts(ctx context.Context, guildID string) ([]ContractInfo, error)
 	}
 )
 

@@ -35,7 +35,7 @@ type (
 )
 
 func (i InteractionResponse) ShouldProcess() bool {
-	return i.Type == 2
+	return i.Type == 5
 }
 
 func NewConverter(ctx context.Context, r KeyResolver) (InteractionConverter, error) {
@@ -99,7 +99,7 @@ func (s InteractionConverter) ToRegisterContractInput(request map[string]interfa
 	if err != nil {
 		return guild.ContractInfo{}, interaction, err
 	}
-	return toInput(interaction.ApplicationCommandData()), interaction, err
+	return toInput(interaction.ApplicationCommandData(), interaction.GuildID), interaction, err
 }
 
 // VerifyInteractionRequest verify signature of interaction request
@@ -144,7 +144,7 @@ func verify(request map[string]interface{}, publicKey string) bool {
 	return discordgo.VerifyInteraction(httpreq, key)
 }
 
-func toInput(d discordgo.ApplicationCommandInteractionData) guild.ContractInfo {
+func toInput(d discordgo.ApplicationCommandInteractionData, guildID string) guild.ContractInfo {
 	if len(d.Options) < 3 {
 		return guild.ContractInfo{}
 	}
@@ -152,5 +152,6 @@ func toInput(d discordgo.ApplicationCommandInteractionData) guild.ContractInfo {
 		RoleID:          d.Options[0].Value.(string),
 		ContractAddress: d.Options[1].Value.(string),
 		Network:         d.Options[2].Value.(string),
+		GuildID:         guildID,
 	}
 }
