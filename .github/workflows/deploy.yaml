@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - dev
+concurrency: this_is_concurrency_workflow
 
 jobs:
   deploy:
