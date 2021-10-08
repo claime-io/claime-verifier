@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	validate "github.com/go-playground/validator/v10"
 
 	"github.com/bwmarrin/discordgo"
@@ -91,8 +92,11 @@ func (i GuildInteractor) RegisterContract(ctx context.Context, channelID, guildI
 	if err := in.validate(); err != nil {
 		return i.error(ctx, channelID, err)
 	}
+	if !common.IsHexAddress(in.ContractAddress) {
+		return i.error(ctx, channelID, errors.New("Contract address should be hex string"))
+	}
 	if !HasPermissionAdministrator(permission) {
-		return errors.New("Only administrator can configure contracts")
+		return i.error(ctx, channelID, errors.New("Only administrator can configure contracts"))
 	}
 
 	if err := i.rep.RegisterContract(ctx, in); err != nil {
