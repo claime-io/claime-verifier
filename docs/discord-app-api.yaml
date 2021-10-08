@@ -5,7 +5,7 @@ info:
 servers:
   - url: 'https://discord.claime.io'
 paths:
-  /discord/verify:
+  /verify:
     post:
       operationId: post-discord-verify
       responses:
@@ -71,10 +71,14 @@ paths:
                 - discord
                 - eoa
             examples: {}
-  /discord/app:
+    parameters: []
+  '':
     post:
       operationId: post-discord-app
       description: Endpoint for Discord App
       responses:
         '200':
           description: OK
+    parameters: []
+  /:
+    parameters: []
