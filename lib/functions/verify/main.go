@@ -10,6 +10,7 @@ import (
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"claime-verifier/lib/functions/lib/transaction"
 	"context"
+	"crypto/ed25519"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -44,7 +45,7 @@ type (
 )
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	k, err := ssm.New().ClaimePublicKey(ctx)
+	key, err := ssm.New().ClaimePublicKey(ctx)
 	if err != nil {
 		log.Error("get pubkey failed", err)
 		return response(500), err
@@ -55,15 +56,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		log.Error("json unmarshal failed", err)
 		return response(403), nil
 	}
-	vali, _ := strconv.ParseInt(in.Discord.Validity, 10, 64)
-	if !guild.Verify(guild.VerificationInput{
-		SignatureInput: guild.SignatureInput{
-			UserID:   in.Discord.UserID,
-			GuildID:  in.Discord.GuildID,
-			Validity: time.Unix(0, vali),
-		},
-		Sign: in.Discord.Signature,
-	}, k) {
+	if !verifyDiscordAppSignature(in.Discord, key) {
 		log.Error("", errors.New("invalid signature"))
 		// TODO check validity
 		// TODO resend if expired
@@ -179,4 +172,16 @@ func recoverAddressAndClaim(in EOAInput) (common.Address, contracts.IClaimRegist
 		return common.Address{}, contracts.IClaimRegistryClaim{}, err
 	}
 	return address, claim, nil
+}
+
+func verifyDiscordAppSignature(in DiscordInput, key ed25519.PublicKey) bool {
+	vali, _ := strconv.ParseInt(in.Validity, 10, 64)
+	return guild.Verify(guild.VerificationInput{
+		SignatureInput: guild.SignatureInput{
+			UserID:   in.UserID,
+			GuildID:  in.GuildID,
+			Validity: time.Unix(0, vali),
+		},
+		Sign: in.Signature,
+	}, key)
 }
