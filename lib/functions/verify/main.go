@@ -22,10 +22,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-const (
-	requiredArgs = 3
-)
-
 type (
 	DiscordInput struct {
 		UserID    string `json:"userId"`
@@ -75,12 +71,12 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		log.Error("", errors.New("invalid userID"))
 		return response(403), nil
 	}
-	fmt.Println(address)
-	// TODO verify NFT ownership
+
 	rep := guildrep.New()
 	cs, err := rep.ListContracts(ctx, in.Discord.GuildID)
 	if err != nil {
 		log.Error("", err)
+		// TODO send messsage to admin to set contract address
 		return response(400), nil
 	}
 	granted := false
