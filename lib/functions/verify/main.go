@@ -58,7 +58,10 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	}
 	if !verifyDiscordAppSignature(in.Discord, key) {
 		log.Error("", errors.New("invalid signature"))
-		// TODO check validity
+		return response(403), nil
+	}
+	if hasSignatureExpired(in.Discord) {
+		log.Error("", errors.New("signature expired"))
 		// TODO resend if expired
 		return response(403), nil
 	}
@@ -184,4 +187,9 @@ func verifyDiscordAppSignature(in DiscordInput, key ed25519.PublicKey) bool {
 		},
 		Sign: in.Signature,
 	}, key)
+}
+
+func hasSignatureExpired(in DiscordInput) bool {
+	vali, _ := strconv.ParseInt(in.Validity, 10, 64)
+	return time.Now().After(time.Unix(0, vali))
 }
