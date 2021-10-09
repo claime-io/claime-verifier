@@ -30,7 +30,6 @@ type (
 		UserID    string `json:"userId"`
 		GuildID   string `json:"guildId"`
 		Validity  string `json:"validity"`
-		Timestamp string `json:"timestamp"`
 		Signature string `json:"signature"`
 	}
 	EOAInput struct {
@@ -65,13 +64,11 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}, nil
 	}
 	vali, _ := strconv.ParseInt(in.Discord.Validity, 10, 64)
-	timi, _ := strconv.ParseInt(in.Discord.Timestamp, 10, 64)
 	if !guild.Verify(guild.VerificationInput{
 		SignatureInput: guild.SignatureInput{
-			UserID:    in.Discord.UserID,
-			GuildID:   in.Discord.GuildID,
-			Validity:  time.Unix(0, vali),
-			Timestamp: time.Unix(0, timi),
+			UserID:   in.Discord.UserID,
+			GuildID:  in.Discord.GuildID,
+			Validity: time.Unix(0, vali),
 		},
 		Sign: in.Discord.Signature,
 	}, k) {

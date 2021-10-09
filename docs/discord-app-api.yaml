@@ -23,7 +23,6 @@ paths:
                     - userId
                     - guildId
                     - validity
-                    - timestamp
                     - signature
                   properties:
                     userId:
@@ -31,8 +30,6 @@ paths:
                     guildId:
                       type: string
                     validity:
-                      type: string
-                    timestamp:
                       type: string
                     signature:
                       type: string

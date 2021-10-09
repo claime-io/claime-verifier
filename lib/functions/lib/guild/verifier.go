@@ -12,7 +12,6 @@ type (
 	SignatureInput struct {
 		UserID, GuildID string
 		Validity        time.Time
-		Timestamp       time.Time
 	}
 	VerificationInput struct {
 		SignatureInput
@@ -21,7 +20,7 @@ type (
 )
 
 func (in SignatureInput) String() string {
-	return "timestamp=" + fmt.Sprint(in.Timestamp.UnixNano()) + "userId=" + in.UserID + "&guildId=" + in.GuildID + "&validity=" + fmt.Sprint(in.Validity.UnixNano())
+	return fmt.Sprintf("userId=%s&guildId=%s&validity=%d", in.UserID, in.GuildID, in.Validity.UnixNano())
 }
 
 func Sign(in SignatureInput, key ed25519.PrivateKey) string {

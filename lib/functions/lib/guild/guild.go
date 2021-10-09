@@ -183,10 +183,9 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 		return
 	}
 	in := SignatureInput{
-		UserID:    m.User.ID,
-		GuildID:   m.GuildID,
-		Validity:  time.Now().Add(time.Minute * 10),
-		Timestamp: time.Now(),
+		UserID:   m.User.ID,
+		GuildID:  m.GuildID,
+		Validity: time.Now().Add(time.Minute * 10),
 	}
 	cli := ssm.New()
 	pk, err := cli.ClaimePrivateKey(context.Background())
@@ -207,5 +206,5 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 }
 
 func url(in SignatureInput, sig string) string {
-	return discordAuthURL + "?userId=" + in.UserID + "&guildId=" + in.GuildID + "&validity=" + fmt.Sprint(in.Validity.UnixNano()) + "&timestamp=" + fmt.Sprint(in.Timestamp.UnixNano()) + "&signature=" + sig
+	return fmt.Sprintf("%s?userId=%s&guildId=%s&validity=%d&signature=%s", discordAuthURL, in.UserID, in.GuildID, in.Validity.UnixNano(), sig)
 }
