@@ -47,21 +47,13 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	k, err := ssm.New().ClaimePublicKey(ctx)
 	if err != nil {
 		log.Error("get pubkey failed", err)
-		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       "{}",
-			Headers:    lib.Headers(),
-		}, err
+		return response(500), err
 	}
 	var in Input
 	fmt.Println(request.Body)
 	if err = json.Unmarshal([]byte(request.Body), &in); err != nil {
 		log.Error("json unmarshal failed", err)
-		return events.APIGatewayProxyResponse{
-			StatusCode: 403,
-			Body:       "{}",
-			Headers:    lib.Headers(),
-		}, nil
+		return response(403), nil
 	}
 	vali, _ := strconv.ParseInt(in.Discord.Validity, 10, 64)
 	if !guild.Verify(guild.VerificationInput{
@@ -75,29 +67,17 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		log.Error("", errors.New("invalid signature"))
 		// TODO check validity
 		// TODO resend if expired
-		return events.APIGatewayProxyResponse{
-			StatusCode: 403,
-			Body:       "{}",
-			Headers:    lib.Headers(),
-		}, nil
+		return response(403), nil
 	}
 
 	address, claim, err := recoverAddressAndClaim(in.EOA)
 	if err != nil {
 		log.Error("recover address failed", err)
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "{}",
-			Headers:    lib.Headers(),
-		}, nil
+		return response(400), nil
 	}
 	if claim.PropertyId != in.Discord.UserID {
 		log.Error("", errors.New("invalid userID"))
-		return events.APIGatewayProxyResponse{
-			StatusCode: 403,
-			Body:       "{}",
-			Headers:    lib.Headers(),
-		}, nil
+		return response(403), nil
 	}
 	fmt.Println(address)
 	// TODO verify NFT ownership
@@ -105,11 +85,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	cs, err := rep.ListContracts(ctx, in.Discord.GuildID)
 	if err != nil {
 		log.Error("", err)
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "{}",
-			Headers:    lib.Headers(),
-		}, nil
+		return response(400), nil
 	}
 	granted := false
 	for _, c := range cs {
@@ -121,17 +97,9 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}
 	}
 	if granted {
-		return events.APIGatewayProxyResponse{
-			StatusCode: 200,
-			Body:       "{}",
-			Headers:    lib.Headers(),
-		}, nil
+		return response(200), nil
 	}
-	return events.APIGatewayProxyResponse{
-		StatusCode: 401,
-		Body:       "{}",
-		Headers:    lib.Headers(),
-	}, nil
+	return response(401), nil
 }
 
 func grantRole(ctx context.Context, userID string, c guild.ContractInfo) error {
@@ -180,6 +148,14 @@ func isOwner(ctx context.Context, i guild.ContractInfo, address common.Address) 
 
 func main() {
 	lambda.Start(handler)
+}
+
+func response(statusCode int) events.APIGatewayProxyResponse {
+	return events.APIGatewayProxyResponse{
+		StatusCode: statusCode,
+		Body:       "{}",
+		Headers:    lib.Headers(),
+	}
 }
 
 func recoverAddressAndClaim(in EOAInput) (common.Address, contracts.IClaimRegistryClaim, error) {
