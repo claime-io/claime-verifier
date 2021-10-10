@@ -56,7 +56,7 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 			log.Error("", err)
 			return unauthorized()
 		}
-		err = interactor.RegisterContract(ctx, interaction.ChannelID, interaction.GuildID, interaction.Member.Permissions, input)
+		err = interactor.RegisterContract(interaction.ChannelID, interaction.GuildID, interaction.Member.Permissions, input)
 		if err != nil {
 			log.Error("RegisterContract", err)
 		}

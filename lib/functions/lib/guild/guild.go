@@ -89,7 +89,7 @@ func New(r KeyResolver, rep Repository) (GuildInteractor, error) {
 	}, nil
 }
 
-func (i GuildInteractor) RegisterContract(ctx context.Context, channelID, guildID string, permission int64, in ContractInfo) error {
+func (i GuildInteractor) RegisterContract(channelID, guildID string, permission int64, in NFTInfo) error {
 	if err := in.validate(); err != nil {
 		return i.error(channelID, err)
 	}
@@ -106,7 +106,7 @@ func (i GuildInteractor) RegisterContract(ctx context.Context, channelID, guildI
 	return i.notify(channelID, in)
 }
 
-func (i GuildInteractor) GrantRole(ctx context.Context, userID string, in ContractInfo) error {
+func (i GuildInteractor) GrantRole(userID string, in NFTInfo) error {
 	err := i.dg.GuildMemberRoleAdd(in.GuildID, userID, in.RoleID)
 	if err != nil {
 		log.Error("role add failed", err)

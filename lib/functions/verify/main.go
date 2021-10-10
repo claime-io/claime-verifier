@@ -41,7 +41,8 @@ type (
 )
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	key, err := ssm.New(ctx).ClaimePublicKey()
+	ssmClient := ssm.New(ctx)
+	key, err := ssmClient.ClaimePublicKey()
 	if err != nil {
 		log.Error("get pubkey failed", err)
 		return response(500), err
@@ -80,9 +81,15 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return response(400), nil
 	}
 	granted := false
+	guild, err := guild.New(ssmClient, rep)
+	if err != nil {
+		log.Error("", err)
+		return response(401), nil
+	}
+
 	for _, c := range cs {
-		if isOwner(ctx, c, address) {
-			if err = grantRole(ctx, in.Discord.UserID, c); err != nil {
+		if isOwner(ssmClient, c, address) {
+			if err = guild.GrantRole(in.Discord.UserID, c); err != nil {
 				log.Error("", err)
 			}
 			granted = true
@@ -94,17 +101,8 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	return response(401), nil
 }
 
-func grantRole(ctx context.Context, userID string, c guild.ContractInfo) error {
-	act, err := guild.New(ssm.New(ctx), guildrep.New(ctx))
-	if err != nil {
-		return err
-	}
-	return act.GrantRole(ctx, userID, c)
-}
-
-func isOwner(ctx context.Context, i guild.ContractInfo, address common.Address) bool {
+func isOwner(ssm ssm.Client, i guild.NFTInfo, address common.Address) bool {
 	network := i.Network
-	ssm := ssm.New(ctx)
 	var endpoint string
 	fmt.Println("network")
 	fmt.Println(network)
