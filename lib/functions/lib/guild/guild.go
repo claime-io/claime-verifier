@@ -109,7 +109,8 @@ func (i GuildInteractor) Grant(ctx context.Context, in GrantRoleInput) (out Gran
 		return GrantRoleOutput{}, err
 	}
 	if claim.PropertyId != in.Discord.UserID {
-		log.Error("", errors.New("invalid userID"))
+		err = errors.New("invalid userID")
+		return GrantRoleOutput{}, err
 	}
 	nfts, err := i.rep.ListContracts(ctx, in.Discord.GuildID)
 	if err != nil {

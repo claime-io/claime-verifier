@@ -42,10 +42,10 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return response(500), nil
 	}
 	out, err := guild.Grant(ctx, in)
-	return handle(out, err)
+	return handleResponse(out, err)
 }
 
-func handle(out guild.GrantRoleOutput, err error) (events.APIGatewayProxyResponse, error) {
+func handleResponse(out guild.GrantRoleOutput, err error) (events.APIGatewayProxyResponse, error) {
 	if err != nil {
 		return response(400), nil
 	}
@@ -55,7 +55,10 @@ func handle(out guild.GrantRoleOutput, err error) (events.APIGatewayProxyRespons
 	if out.Expired {
 		return response(403), nil
 	}
-	return response(200), nil
+	if out.Granted {
+		return response(200), nil
+	}
+	return response(401), nil
 }
 
 func main() {
