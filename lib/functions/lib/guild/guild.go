@@ -2,6 +2,7 @@ package guild
 
 import (
 	"claime-verifier/lib/functions/lib/common/log"
+	"claime-verifier/lib/functions/lib/guild"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"context"
 	"crypto/ed25519"
@@ -47,6 +48,7 @@ type (
 		RegisterContract(in NFTInfo) error
 		ListContracts(guildID string) ([]NFTInfo, error)
 		DeleteContract(guildID string, contractAddress common.Address) error
+		GetContract(guildID string, contractAddress common.Address) (NFTInfo, error)
 	}
 )
 
@@ -116,7 +118,14 @@ func (i GuildInteractor) ListNFTs(channelID, guildID string) error {
 }
 
 func (i GuildInteractor) DeleteNFT(channelID, guildID string, contractAddress common.Address) error {
-	err := i.rep.DeleteContract(guildID, contractAddress)
+	nft, err := i.rep.GetContract(guildID, contractAddress)
+	if err != nil {
+		return i.error(channelID, err)
+	}
+	if nft == (guild.NFTInfo{}) {
+		return i.error(channelID, errors.New(fmt.Sprintf("Not registered. contract address: %s", contractAddress.Hex())))
+	}
+	err = i.rep.DeleteContract(guildID, contractAddress)
 	if err != nil {
 		return i.error(channelID, err)
 	}

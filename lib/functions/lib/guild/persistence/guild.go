@@ -66,6 +66,18 @@ func (r Repository) DeleteContract(guildID string, contractAddress common.Addres
 	return err
 }
 
+func (r Repository) GetContract(guildID string, contractAddress common.Address) (guild.NFTInfo, error) {
+	res := []Contract{}
+	err := r.ddb.Table(table()).Get("PK", toPK(guildID)).Range("SK", dynamo.Equal, toSK(contractAddress.Hex())).AllWithContext(r.ctx, &res)
+	if err != nil {
+		log.Error("query failed", err)
+	}
+	if len(res) == 0 {
+		return guild.NFTInfo{}, err
+	}
+	return fromDDB(res)[0], nil
+}
+
 func fromDDB(vals []Contract) []guild.NFTInfo {
 	res := []guild.NFTInfo{}
 	for _, v := range vals {
