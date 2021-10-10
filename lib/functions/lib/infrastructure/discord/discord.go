@@ -38,30 +38,7 @@ func (i InteractionResponse) ShouldProcess() bool {
 	return i.Type == 5
 }
 
-func NewConverter(ctx context.Context, r KeyResolver) (InteractionConverter, error) {
-	pub, err := r.DiscordPublicKey(ctx)
-	if err != nil {
-		log.Error("", err)
-		return InteractionConverter{}, err
-	}
-	t, err := r.DiscordBotToken(ctx)
-	if err != nil {
-		log.Error("", err)
-		return InteractionConverter{}, err
-	}
-	pri, err := r.ClaimePrivateKey(ctx)
-	if err != nil {
-		log.Error("", err)
-		return InteractionConverter{}, err
-	}
-	return InteractionConverter{
-		pubkey:    pub,
-		bottoken:  t,
-		claimeKey: pri,
-	}, nil
-}
-
-func (s InteractionConverter) HandleInteractionResponse(request map[string]interface{}) (InteractionResponse, error) {
+func HandleInteractionResponse(request map[string]interface{}) (InteractionResponse, error) {
 	req, err := json.Marshal(request["jsonBody"])
 	if err != nil {
 		return InteractionResponse{}, err

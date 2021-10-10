@@ -6,28 +6,19 @@ import (
 	"claime-verifier/lib/functions/lib/guild"
 	guildrep "claime-verifier/lib/functions/lib/guild/persistence"
 	"claime-verifier/lib/functions/lib/infrastructure/discord"
-	slackclient "claime-verifier/lib/functions/lib/infrastructure/slack"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"context"
 	"errors"
 	"fmt"
 
 	"claime-verifier/lib/functions/lib/subscribe"
-	repository "claime-verifier/lib/functions/lib/subscribe/persistence"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/bwmarrin/discordgo"
 )
 
 const (
-	requiredArgs     = 3
-	mockGuildID      = "892441777808765049"
 	SET_COMMAND_NAME = "set"
-)
-
-var (
-	token string
 )
 
 type (
@@ -45,12 +36,7 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 	if !discord.VerifyInteractionRequest(ctx, request, keyresolver) {
 		return unauthorized()
 	}
-	converter, err := discord.NewConverter(ctx, keyresolver)
-	if err != nil {
-		return unauthorized()
-	}
-
-	res, err := converter.HandleInteractionResponse(request)
+	res, err := discord.HandleInteractionResponse(request)
 	if err != nil {
 		log.Error("", err)
 		return unauthorized()
@@ -102,19 +88,4 @@ func errorResponse(request events.APIGatewayProxyRequest, output subscribe.Outpu
 
 func main() {
 	lambda.Start(handler)
-}
-
-func newApp(ctx context.Context, slcli slackclient.Client) subscribe.Registrar {
-	return subscribe.NewRegistrar(slcli, repository.New())
-}
-
-func toInput(d discordgo.ApplicationCommandInteractionData) RegisterContractInput {
-	if len(d.Options) < 3 {
-		return RegisterContractInput{}
-	}
-	return RegisterContractInput{
-		RoleID:          d.Options[0].Value.(string),
-		ContractAddress: d.Options[1].Value.(string),
-		Network:         d.Options[2].Value.(string),
-	}
 }
