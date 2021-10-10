@@ -18,9 +18,9 @@ import (
 )
 
 const (
-	SET_COMMAND_NAME    = "set"
-	LIST_COMMAND_NAME   = "list"
-	DELETE_COMMAND_NAME = "delete"
+	setCommandName    = "set"
+	listCommandName   = "list"
+	deleteCommandName = "delete"
 )
 
 type (
@@ -56,22 +56,22 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 		log.Error("", err)
 		return unauthorized()
 	}
-	if interaction.ApplicationCommandData().Name == SET_COMMAND_NAME {
+	if interaction.ApplicationCommandData().Name == setCommandName {
 		input := discord.ToRegisterContractInput(interaction.ApplicationCommandData(), interaction.GuildID)
-		err = interactor.RegisterContract(ctx, interaction.ChannelID, interaction.GuildID, interaction.Member.Permissions, input)
+		err = interactor.RegisterContract(ctx, interaction, input)
 		if err != nil {
 			log.Error("RegisterContract", err)
 		}
 	}
-	if interaction.ApplicationCommandData().Name == LIST_COMMAND_NAME {
-		err = interactor.ListNFTs(ctx, interaction.ChannelID, interaction.GuildID)
+	if interaction.ApplicationCommandData().Name == listCommandName {
+		err = interactor.ListNFTs(ctx, interaction)
 		if err != nil {
 			log.Error("List NFTs", err)
 		}
 	}
-	if interaction.ApplicationCommandData().Name == DELETE_COMMAND_NAME {
+	if interaction.ApplicationCommandData().Name == deleteCommandName {
 		address := discord.ToDeleteContractAddressInput(interaction.ApplicationCommandData())
-		err = interactor.DeleteNFT(ctx, interaction.ChannelID, interaction.GuildID, address)
+		err = interactor.DeleteNFT(ctx, interaction, address)
 		if err != nil {
 			log.Error("Delete NFT", err)
 		}

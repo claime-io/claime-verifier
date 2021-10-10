@@ -91,44 +91,44 @@ func New(r KeyResolver, rep Repository) (GuildInteractor, error) {
 	}, nil
 }
 
-func (i GuildInteractor) RegisterContract(ctx context.Context, channelID, guildID string, permission int64, in NFTInfo) error {
+func (i GuildInteractor) RegisterContract(ctx context.Context, interaction discordgo.Interaction, in NFTInfo) error {
 	if err := in.validate(); err != nil {
-		return i.error(channelID, err)
+		return i.error(interaction, err)
 	}
 	if !common.IsHexAddress(in.ContractAddress) {
-		return i.error(channelID, errors.New("Contract address should be hex string"))
+		return i.error(interaction, errors.New("Contract address should be hex string"))
 	}
-	if !HasPermissionAdministrator(permission) {
-		return i.error(channelID, errors.New("Only administrator can configure contracts"))
+	if !HasPermissionAdministrator(interaction.Member.Permissions) {
+		return i.error(interaction, errors.New("Only administrator can configure contracts"))
 	}
 
 	if err := i.rep.RegisterContract(ctx, in); err != nil {
-		return i.error(channelID, err)
+		return i.error(interaction, err)
 	}
-	return i.notify(channelID, in)
+	return i.notify(interaction, in)
 }
 
-func (i GuildInteractor) ListNFTs(ctx context.Context, channelID, guildID string) error {
-	nfts, err := i.rep.ListContracts(ctx, guildID)
+func (i GuildInteractor) ListNFTs(ctx context.Context, interaction discordgo.Interaction) error {
+	nfts, err := i.rep.ListContracts(ctx, interaction.GuildID)
 	if err != nil {
-		return i.error(channelID, err)
+		return i.error(interaction, err)
 	}
-	return i.notifyNFTs(channelID, nfts)
+	return i.notifyNFTs(interaction, nfts)
 }
 
-func (i GuildInteractor) DeleteNFT(ctx context.Context, channelID, guildID string, contractAddress common.Address) error {
-	nft, err := i.rep.GetContract(ctx, guildID, contractAddress)
+func (i GuildInteractor) DeleteNFT(ctx context.Context, interaction discordgo.Interaction, contractAddress common.Address) error {
+	nft, err := i.rep.GetContract(ctx, interaction.GuildID, contractAddress)
 	if err != nil {
-		return i.error(channelID, err)
+		return i.error(interaction, err)
 	}
 	if nft == (NFTInfo{}) {
-		return i.error(channelID, errors.New(fmt.Sprintf("Not registered. contract address: %s", contractAddress.Hex())))
+		return i.error(interaction, errors.New(fmt.Sprintf("Not registered. contract address: %s", contractAddress.Hex())))
 	}
-	err = i.rep.DeleteContract(ctx, guildID, contractAddress)
+	err = i.rep.DeleteContract(ctx, interaction.GuildID, contractAddress)
 	if err != nil {
-		return i.error(channelID, err)
+		return i.error(interaction, err)
 	}
-	return i.notifyDelete(channelID, contractAddress)
+	return i.notifyDelete(interaction, contractAddress)
 }
 
 func (i GuildInteractor) GrantRole(userID string, in NFTInfo) error {
@@ -152,46 +152,62 @@ func (i GuildInteractor) existsRole(guildID, roleID string) error {
 	return errors.New("Role with ID " + roleID + " does not exist.")
 }
 
-func (i GuildInteractor) error(channelID string, cause error) error {
-	_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
-		Embed: &discordgo.MessageEmbed{
-			Title:       "Something went wrong",
-			Description: cause.Error(),
-			Color:       int(0xFF0000),
-		},
-	})
-	return err
-}
-
-func (i GuildInteractor) notify(channelID string, in NFTInfo) error {
-	_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
-		Embed: &discordgo.MessageEmbed{
-			Title:       "Set contract address Succeeded!",
-			Description: "Configure contract address succeeded with following properties:",
-			Color:       int(0x0000FF),
-			Fields: []*discordgo.MessageEmbedField{
+func (i GuildInteractor) error(interaction discordgo.Interaction, cause error) error {
+	err := i.dg.InteractionRespond(&interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Embeds: []*discordgo.MessageEmbed{
 				{
-					Name:  "ContractAddress",
-					Value: in.ContractAddress,
-				},
-				{
-					Name:  "Network",
-					Value: in.Network,
-				},
-				{
-					Value: in.RoleID,
-					Name:  "RoleID",
+					Title:       "Something went wrong",
+					Description: cause.Error(),
+					Color:       int(0xFF0000),
 				},
 			},
 		},
 	})
+	if err != nil {
+		log.Error("interaction respond failed", err)
+	}
 	return err
 }
 
-func (i GuildInteractor) notifyNFTs(channelID string, nfts []NFTInfo) error {
+func (i GuildInteractor) notify(interaction discordgo.Interaction, in NFTInfo) error {
+	err := i.dg.InteractionRespond(&interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Embeds: []*discordgo.MessageEmbed{
+				{
+					Title:       "Set contract address Succeeded!",
+					Description: "Configure contract address succeeded with following properties:",
+					Color:       int(0x0000FF),
+					Fields: []*discordgo.MessageEmbedField{
+						{
+							Name:  "ContractAddress",
+							Value: in.ContractAddress,
+						},
+						{
+							Name:  "Network",
+							Value: in.Network,
+						},
+						{
+							Value: in.RoleID,
+							Name:  "RoleID",
+						},
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		log.Error("notify failed", err)
+	}
+	return err
+}
+
+func (i GuildInteractor) notifyNFTs(interaction discordgo.Interaction, nfts []NFTInfo) error {
 	var err error
 	if len(nfts) == 0 {
-		_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
+		_, err := i.dg.ChannelMessageSendComplex(interaction.ChannelID, &discordgo.MessageSend{
 			Embed: &discordgo.MessageEmbed{
 				Title:       "Registered NFTs",
 				Description: "No NFTs registered in this guild.",
@@ -201,7 +217,7 @@ func (i GuildInteractor) notifyNFTs(channelID string, nfts []NFTInfo) error {
 		return err
 	}
 	for _, nft := range nfts {
-		_, err = i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
+		_, err = i.dg.ChannelMessageSendComplex(interaction.ChannelID, &discordgo.MessageSend{
 			Embed: &discordgo.MessageEmbed{
 				Title: "Registered NFTs",
 				Color: int(0x0000FF),
@@ -225,8 +241,8 @@ func (i GuildInteractor) notifyNFTs(channelID string, nfts []NFTInfo) error {
 	return err
 }
 
-func (i GuildInteractor) notifyDelete(channelID string, contractAddress common.Address) error {
-	_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
+func (i GuildInteractor) notifyDelete(interaction discordgo.Interaction, contractAddress common.Address) error {
+	_, err := i.dg.ChannelMessageSendComplex(interaction.ChannelID, &discordgo.MessageSend{
 		Embed: &discordgo.MessageEmbed{
 			Title: "Delete contract address Succeeded!",
 			Color: int(0x808080),
