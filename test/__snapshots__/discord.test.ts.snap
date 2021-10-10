@@ -523,6 +523,16 @@ Object {
         "ContainerDefinitions": Array [
           Object {
             "Cpu": 256,
+            "Environment": Array [
+              Object {
+                "Name": "AllowedOrigin",
+                "Value": "",
+              },
+              Object {
+                "Name": "EnvironmentId",
+                "Value": "test",
+              },
+            ],
             "Essential": true,
             "Image": Object {
               "Fn::Join": Array [
@@ -658,6 +668,7 @@ Object {
         },
         "Environment": Object {
           "Variables": Object {
+            "AllowedOrigin": "",
             "EnvironmentId": "test",
           },
         },

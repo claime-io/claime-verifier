@@ -9,6 +9,7 @@ import (
 	"crypto/ed25519"
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -21,10 +22,7 @@ import (
 var (
 	// SupportedChains supported chains
 	SupportedChains = []string{"mainnet", "rinkeby", "polygon"}
-)
-
-const (
-	discordAuthURL = "https://claime-webfront-git-feature-discord-squard.vercel.app/claim/discord"
+	discordAuthURL  = os.Getenv("AllowedOrigin") + "/claim/discord"
 )
 
 type (

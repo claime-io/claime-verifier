@@ -27,6 +27,7 @@ import { RemovalPolicy } from '@aws-cdk/core'
 import { resolve } from 'path'
 import { dataSourceReadWritePolicyStatement } from './datasource'
 import * as environment from './env'
+import { environmentVariables } from './restapi'
 
 export class DiscordStack extends cdk.Stack {
   constructor(
@@ -116,6 +117,7 @@ export class DiscordStack extends cdk.Stack {
         streamPrefix: 'claime',
         logGroup,
       }),
+      environment: environmentVariables(target),
     })
     const cluster = new Cluster(this, 'claime-cluster', {
       clusterName: environment.withEnvPrefix(target, 'cluster'),
@@ -148,9 +150,7 @@ const discordFunction = (
     timeout: cdk.Duration.minutes(1),
     runtime: Runtime.GO_1_X,
     tracing: Tracing.ACTIVE,
-    environment: {
-      EnvironmentId: target,
-    },
+    environment: environmentVariables(target),
   })
   basicPolicytStatements(region, account, target).forEach((s) =>
     func.addToRolePolicy(s),

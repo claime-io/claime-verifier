@@ -57,10 +57,7 @@ const discordFunction = (
     handler: 'bin/main',
     timeout: cdk.Duration.minutes(1),
     runtime: Runtime.GO_1_X,
-    environment: {
-      AllowedOrigin: environment.valueOf(target).allowedOrigin,
-      EnvironmentId: target,
-    },
+    environment: environmentVariables(target),
     tracing: Tracing.ACTIVE,
   })
   basicPolicytStatements(region, account, target).forEach((s) =>
@@ -70,6 +67,12 @@ const discordFunction = (
   rs.addMethod('POST', new LambdaIntegration(func))
   addCorsOptions(rs, environment.valueOf(target).allowedOrigin)
   return func
+}
+export const environmentVariables = (target: environment.Environments) => {
+  return {
+    AllowedOrigin: environment.valueOf(target).allowedOrigin,
+    EnvironmentId: target,
+  }
 }
 
 const code = (dirname: string) => {
