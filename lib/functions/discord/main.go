@@ -21,8 +21,9 @@ import (
 )
 
 const (
-	requiredArgs = 3
-	mockGuildID  = "892441777808765049"
+	requiredArgs     = 3
+	mockGuildID      = "892441777808765049"
+	SET_COMMAND_NAME = "set"
 )
 
 var (
@@ -51,27 +52,32 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 
 	res, err := converter.HandleInteractionResponse(request)
 	if err != nil {
+		log.Error("", err)
 		return unauthorized()
 	}
 	if !res.ShouldProcess() {
 		return res, err
 	}
-	req, interaction, err := converter.ToRegisterContractInput(request)
+	interaction, err := discord.ToInteraction(request)
 	if err != nil {
 		log.Error("", err)
 		return unauthorized()
 	}
-	i, err := guild.New(ctx, keyresolver, guildrep.New())
-	if err != nil {
-		log.Error("", err)
-		return unauthorized()
-	}
-	err = i.RegisterContract(ctx, interaction.ChannelID, interaction.GuildID, interaction.Member.Permissions, req)
-	if err != nil {
-		log.Error("RegisterContract", err)
+	if interaction.ApplicationCommandData().Name == SET_COMMAND_NAME {
+		input := discord.ToRegisterContractInput(interaction.ApplicationCommandData(), interaction.GuildID)
+		interactor, err := guild.New(ctx, keyresolver, guildrep.New())
+		if err != nil {
+			log.Error("", err)
+			return unauthorized()
+		}
+		err = interactor.RegisterContract(ctx, interaction.ChannelID, interaction.GuildID, interaction.Member.Permissions, input)
+		if err != nil {
+			log.Error("RegisterContract", err)
+		}
 	}
 	return res, err
 }
+
 func unauthorized() (interface{}, error) {
 	return `[UNAUTHORIZED] invalid request signature`, errors.New("[UNAUTHORIZED] invalid request signature")
 }

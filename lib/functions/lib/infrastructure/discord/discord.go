@@ -80,7 +80,7 @@ func (s InteractionConverter) HandleInteractionResponse(request map[string]inter
 	return InteractionResponse{}, errors.New("unknown type:" + strconv.Itoa(int(webhook.Type)))
 }
 
-func toInteraction(request map[string]interface{}) (discordgo.Interaction, error) {
+func ToInteraction(request map[string]interface{}) (discordgo.Interaction, error) {
 	req, err := json.Marshal(request["jsonBody"])
 	if err != nil {
 		log.Error("", err)
@@ -92,14 +92,6 @@ func toInteraction(request map[string]interface{}) (discordgo.Interaction, error
 		return discordgo.Interaction{}, err
 	}
 	return interaction, nil
-}
-
-func (s InteractionConverter) ToRegisterContractInput(request map[string]interface{}) (guild.ContractInfo, discordgo.Interaction, error) {
-	interaction, err := toInteraction(request)
-	if err != nil {
-		return guild.ContractInfo{}, interaction, err
-	}
-	return toInput(interaction.ApplicationCommandData(), interaction.GuildID), interaction, err
 }
 
 // VerifyInteractionRequest verify signature of interaction request
@@ -144,7 +136,7 @@ func verify(request map[string]interface{}, publicKey string) bool {
 	return discordgo.VerifyInteraction(httpreq, key)
 }
 
-func toInput(d discordgo.ApplicationCommandInteractionData, guildID string) guild.ContractInfo {
+func ToRegisterContractInput(d discordgo.ApplicationCommandInteractionData, guildID string) guild.ContractInfo {
 	if len(d.Options) < 3 {
 		return guild.ContractInfo{}
 	}
