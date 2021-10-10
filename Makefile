@@ -5,7 +5,6 @@ setup:
 	export GO111MODULE=on
 	go mod vendor
 	go get github.com/aws/aws-lambda-go/cmd/build-lambda-zip
-	cdk8s import
 build: 
 	export GO111MODULE=on
 	for module_dir in $$(ls lib/functions | grep -v lib); do\

@@ -13,6 +13,7 @@ export class CertificateStack extends Stack {
   constructor(scope: Construct, id: string, target: environment.Environments) {
     super(scope, id)
     const { hostedZoneId } = environment.valueOf(target)
+    if (environment.isProd(target)) return
     if (!hostedZoneId) throw new Error('env.hostedZoneId is requied')
     this.certificate = certificate(this, target)
   }

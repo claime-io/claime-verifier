@@ -20,6 +20,9 @@ export class Route53Stack extends Stack {
   ) {
     super(scope, id, props)
     const { rootDomain } = environment.valueOf(target)
+    if (environment.isProd(target)) {
+      return
+    }
     this.hostedZone = hostedZone(this, target)
     // Vercel Domain Verification
     const vercelARecordProps: ARecordProps = {
