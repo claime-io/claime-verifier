@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/guregu/dynamo"
 )
 
@@ -55,6 +56,14 @@ func (r Repository) ListContracts(guildID string) ([]guild.NFTInfo, error) {
 		log.Error("query failed", err)
 	}
 	return fromDDB(res), err
+}
+
+func (r Repository) DeleteContract(guildID string, contractAddress common.Address) error {
+	err := r.ddb.Table(table()).Delete("PK", toPK(guildID)).Range("SK", toSK(contractAddress.Hex())).RunWithContext(r.ctx)
+	if err != nil {
+		log.Error("delete failed", err)
+	}
+	return err
 }
 
 func fromDDB(vals []Contract) []guild.NFTInfo {

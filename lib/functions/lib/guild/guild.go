@@ -46,6 +46,7 @@ type (
 	Repository interface {
 		RegisterContract(in NFTInfo) error
 		ListContracts(guildID string) ([]NFTInfo, error)
+		DeleteContract(guildID string, contractAddress common.Address) error
 	}
 )
 
@@ -112,6 +113,14 @@ func (i GuildInteractor) ListNFTs(channelID, guildID string) error {
 		return i.error(channelID, err)
 	}
 	return i.notifyNFTs(channelID, nfts)
+}
+
+func (i GuildInteractor) DeleteNFT(channelID, guildID string, contractAddress common.Address) error {
+	err := i.rep.DeleteContract(guildID, contractAddress)
+	if err != nil {
+		return i.error(channelID, err)
+	}
+	return i.notifyDelete(channelID, contractAddress)
 }
 
 func (i GuildInteractor) GrantRole(userID string, in NFTInfo) error {
@@ -205,6 +214,22 @@ func (i GuildInteractor) notifyNFTs(channelID string, nfts []NFTInfo) error {
 			},
 		})
 	}
+	return err
+}
+
+func (i GuildInteractor) notifyDelete(channelID string, contractAddress common.Address) error {
+	_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
+		Embed: &discordgo.MessageEmbed{
+			Title: "Delete contract address Succeeded!",
+			Color: int(0x808080),
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:  "ContractAddress",
+					Value: contractAddress.Hex(),
+				},
+			},
+		},
+	})
 	return err
 }
 

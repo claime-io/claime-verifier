@@ -12,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type (
@@ -122,4 +123,8 @@ func ToRegisterContractInput(d discordgo.ApplicationCommandInteractionData, guil
 		Network:         d.Options[2].Value.(string),
 		GuildID:         guildID,
 	}
+}
+
+func ToDeleteContractAddressInput(d discordgo.ApplicationCommandInteractionData) common.Address {
+	return common.HexToAddress(d.Options[0].Value.(string))
 }
