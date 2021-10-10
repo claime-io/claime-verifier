@@ -58,20 +58,20 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 	}
 	if interaction.ApplicationCommandData().Name == SET_COMMAND_NAME {
 		input := discord.ToRegisterContractInput(interaction.ApplicationCommandData(), interaction.GuildID)
-		err = interactor.RegisterContract(interaction.ChannelID, interaction.GuildID, interaction.Member.Permissions, input)
+		err = interactor.RegisterContract(ctx, interaction.ChannelID, interaction.GuildID, interaction.Member.Permissions, input)
 		if err != nil {
 			log.Error("RegisterContract", err)
 		}
 	}
 	if interaction.ApplicationCommandData().Name == LIST_COMMAND_NAME {
-		err = interactor.ListNFTs(interaction.ChannelID, interaction.GuildID)
+		err = interactor.ListNFTs(ctx, interaction.ChannelID, interaction.GuildID)
 		if err != nil {
 			log.Error("List NFTs", err)
 		}
 	}
 	if interaction.ApplicationCommandData().Name == DELETE_COMMAND_NAME {
 		address := discord.ToDeleteContractAddressInput(interaction.ApplicationCommandData())
-		err = interactor.DeleteNFT(interaction.ChannelID, interaction.GuildID, address)
+		err = interactor.DeleteNFT(ctx, interaction.ChannelID, interaction.GuildID, address)
 		if err != nil {
 			log.Error("Delete NFT", err)
 		}

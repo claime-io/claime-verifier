@@ -79,7 +79,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return response(403), nil
 	}
 
-	nfts, err := rep.ListContracts(in.Discord.GuildID)
+	nfts, err := rep.ListContracts(ctx, in.Discord.GuildID)
 	if err != nil {
 		log.Error("", err)
 

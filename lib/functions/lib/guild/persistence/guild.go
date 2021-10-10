@@ -20,7 +20,6 @@ const (
 type (
 	Repository struct {
 		ddb *dynamo.DB
-		ctx context.Context
 	}
 
 	Contract struct {
@@ -36,39 +35,38 @@ type (
 func New(ctx context.Context) Repository {
 	return Repository{
 		ddb: dynamo.New(session.New()),
-		ctx: ctx,
 	}
 }
 
-func (r Repository) RegisterContract(in guild.NFTInfo) error {
+func (r Repository) RegisterContract(ctx context.Context, in guild.NFTInfo) error {
 	item := toContract(in)
-	err := r.ddb.Table(table()).Put(&item).RunWithContext(r.ctx)
+	err := r.ddb.Table(table()).Put(&item).RunWithContext(ctx)
 	if err != nil {
 		log.Error("put item failed", err)
 	}
 	return err
 }
 
-func (r Repository) ListContracts(guildID string) ([]guild.NFTInfo, error) {
+func (r Repository) ListContracts(ctx context.Context, guildID string) ([]guild.NFTInfo, error) {
 	res := []Contract{}
-	err := r.ddb.Table(table()).Get("PK", toPK(guildID)).AllWithContext(r.ctx, &res)
+	err := r.ddb.Table(table()).Get("PK", toPK(guildID)).AllWithContext(ctx, &res)
 	if err != nil {
 		log.Error("query failed", err)
 	}
 	return fromDDB(res), err
 }
 
-func (r Repository) DeleteContract(guildID string, contractAddress common.Address) error {
-	err := r.ddb.Table(table()).Delete("PK", toPK(guildID)).Range("SK", toSK(contractAddress.Hex())).RunWithContext(r.ctx)
+func (r Repository) DeleteContract(ctx context.Context, guildID string, contractAddress common.Address) error {
+	err := r.ddb.Table(table()).Delete("PK", toPK(guildID)).Range("SK", toSK(contractAddress.Hex())).RunWithContext(ctx)
 	if err != nil {
 		log.Error("delete failed", err)
 	}
 	return err
 }
 
-func (r Repository) GetContract(guildID string, contractAddress common.Address) (guild.NFTInfo, error) {
+func (r Repository) GetContract(ctx context.Context, guildID string, contractAddress common.Address) (guild.NFTInfo, error) {
 	res := []Contract{}
-	err := r.ddb.Table(table()).Get("PK", toPK(guildID)).Range("SK", dynamo.Equal, toSK(contractAddress.Hex())).AllWithContext(r.ctx, &res)
+	err := r.ddb.Table(table()).Get("PK", toPK(guildID)).Range("SK", dynamo.Equal, toSK(contractAddress.Hex())).AllWithContext(ctx, &res)
 	if err != nil {
 		log.Error("query failed", err)
 	}

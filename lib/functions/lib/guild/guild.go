@@ -44,10 +44,10 @@ type (
 		GuildID         string `json:"guildId" validate:"required"`
 	}
 	Repository interface {
-		RegisterContract(in NFTInfo) error
-		ListContracts(guildID string) ([]NFTInfo, error)
-		DeleteContract(guildID string, contractAddress common.Address) error
-		GetContract(guildID string, contractAddress common.Address) (NFTInfo, error)
+		RegisterContract(ctx context.Context, in NFTInfo) error
+		ListContracts(ctx context.Context, guildID string) ([]NFTInfo, error)
+		DeleteContract(ctx context.Context, guildID string, contractAddress common.Address) error
+		GetContract(ctx context.Context, guildID string, contractAddress common.Address) (NFTInfo, error)
 	}
 )
 
@@ -91,7 +91,7 @@ func New(r KeyResolver, rep Repository) (GuildInteractor, error) {
 	}, nil
 }
 
-func (i GuildInteractor) RegisterContract(channelID, guildID string, permission int64, in NFTInfo) error {
+func (i GuildInteractor) RegisterContract(ctx context.Context, channelID, guildID string, permission int64, in NFTInfo) error {
 	if err := in.validate(); err != nil {
 		return i.error(channelID, err)
 	}
@@ -102,29 +102,29 @@ func (i GuildInteractor) RegisterContract(channelID, guildID string, permission 
 		return i.error(channelID, errors.New("Only administrator can configure contracts"))
 	}
 
-	if err := i.rep.RegisterContract(in); err != nil {
+	if err := i.rep.RegisterContract(ctx, in); err != nil {
 		return i.error(channelID, err)
 	}
 	return i.notify(channelID, in)
 }
 
-func (i GuildInteractor) ListNFTs(channelID, guildID string) error {
-	nfts, err := i.rep.ListContracts(guildID)
+func (i GuildInteractor) ListNFTs(ctx context.Context, channelID, guildID string) error {
+	nfts, err := i.rep.ListContracts(ctx, guildID)
 	if err != nil {
 		return i.error(channelID, err)
 	}
 	return i.notifyNFTs(channelID, nfts)
 }
 
-func (i GuildInteractor) DeleteNFT(channelID, guildID string, contractAddress common.Address) error {
-	nft, err := i.rep.GetContract(guildID, contractAddress)
+func (i GuildInteractor) DeleteNFT(ctx context.Context, channelID, guildID string, contractAddress common.Address) error {
+	nft, err := i.rep.GetContract(ctx, guildID, contractAddress)
 	if err != nil {
 		return i.error(channelID, err)
 	}
 	if nft == (NFTInfo{}) {
 		return i.error(channelID, errors.New(fmt.Sprintf("Not registered. contract address: %s", contractAddress.Hex())))
 	}
-	err = i.rep.DeleteContract(guildID, contractAddress)
+	err = i.rep.DeleteContract(ctx, guildID, contractAddress)
 	if err != nil {
 		return i.error(channelID, err)
 	}
