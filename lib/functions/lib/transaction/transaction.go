@@ -26,30 +26,35 @@ type (
 	}
 )
 
+// Recover recover EOA And Claim information from input
 func Recover(in EOAInput) (common.Address, contracts.IClaimRegistryClaim, error) {
 	if in.RawTx != "" {
-		address, err := RecoverAddressFromTx(in.RawTx, in.Signature)
-		if err != nil {
-			return common.Address{}, contracts.IClaimRegistryClaim{}, err
-		}
-		claim, err := RecoverClaimFromTx(in.RawTx)
-		if err != nil {
-			return common.Address{}, contracts.IClaimRegistryClaim{}, err
-		}
-		return address, claim, nil
+		return recoverFromRawTx(in.RawTx, in.Signature)
 	}
-	address, err := RecoverAddressFromMessage(in.Message, in.Signature)
-	if err != nil {
-		return common.Address{}, contracts.IClaimRegistryClaim{}, err
-	}
-	claim, err := RecoverClaimFromMessage(in.Message)
-	if err != nil {
-		return common.Address{}, contracts.IClaimRegistryClaim{}, err
-	}
-	return address, claim, nil
+	return recoverFromMessage(in.Message, in.Signature)
 }
 
-func RecoverAddressFromTx(rawTx string, signature string) (common.Address, error) {
+func recoverFromRawTx(raw, sig string) (common.Address, contracts.IClaimRegistryClaim, error) {
+	return recoverFrom(raw, sig, recoverAddressFromTx, recoverClaimFromTx)
+}
+
+func recoverFrom(from, sig string, recoverAddress func(from, sig string) (common.Address, error), recoverClaim func(from string) (contracts.IClaimRegistryClaim, error)) (common.Address, contracts.IClaimRegistryClaim, error) {
+	recovered, err := recoverAddress(from, sig)
+	if err != nil {
+		return common.Address{}, contracts.IClaimRegistryClaim{}, err
+	}
+	claim, err := recoverClaim(from)
+	if err != nil {
+		return common.Address{}, contracts.IClaimRegistryClaim{}, err
+	}
+	return recovered, claim, err
+}
+
+func recoverFromMessage(message, sig string) (common.Address, contracts.IClaimRegistryClaim, error) {
+	return recoverFrom(message, sig, recoverAddressFromMessage, recoverClaimFromMessage)
+}
+
+func recoverAddressFromTx(rawTx string, signature string) (common.Address, error) {
 	txBytes, err := hexutil.Decode(rawTx)
 	if err != nil {
 		return common.Address{}, err
@@ -57,7 +62,7 @@ func RecoverAddressFromTx(rawTx string, signature string) (common.Address, error
 	return recover(crypto.Keccak256(txBytes), signature)
 }
 
-func RecoverClaimFromTx(rawTx string) (contracts.IClaimRegistryClaim, error) {
+func recoverClaimFromTx(rawTx string) (contracts.IClaimRegistryClaim, error) {
 	var result []interface{}
 	arr, err := hexutil.Decode(rawTx)
 	if err != nil {
@@ -88,11 +93,11 @@ func RecoverClaimFromTx(rawTx string) (contracts.IClaimRegistryClaim, error) {
 	}, nil
 }
 
-func RecoverAddressFromMessage(message string, signature string) (common.Address, error) {
+func recoverAddressFromMessage(message string, signature string) (common.Address, error) {
 	return recover(signHash([]byte(message)), signature)
 }
 
-func RecoverClaimFromMessage(message string) (contracts.IClaimRegistryClaim, error) {
+func recoverClaimFromMessage(message string) (contracts.IClaimRegistryClaim, error) {
 	var val map[string]string
 	err := json.Unmarshal([]byte(message), &val)
 	return contracts.IClaimRegistryClaim{
