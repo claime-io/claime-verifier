@@ -190,7 +190,7 @@ func (i GuildInteractor) respond(interaction discordgo.Interaction, embeds []*di
 func (i GuildInteractor) notify(interaction discordgo.Interaction, in NFTInfo) error {
 	return i.respond(interaction, []*discordgo.MessageEmbed{
 		{
-			Title:       "Set contract address Succeeded!",
+			Title:       "Contract Address Registration Succeeded!",
 			Description: "Configure contract address succeeded with following properties:",
 			Color:       int(0x0000FF),
 			Fields: []*discordgo.MessageEmbedField{
