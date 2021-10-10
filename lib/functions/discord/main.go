@@ -18,7 +18,8 @@ import (
 )
 
 const (
-	SET_COMMAND_NAME = "set"
+	SET_COMMAND_NAME  = "set"
+	LIST_COMMAND_NAME = "list"
 )
 
 type (
@@ -59,6 +60,17 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 		err = interactor.RegisterContract(interaction.ChannelID, interaction.GuildID, interaction.Member.Permissions, input)
 		if err != nil {
 			log.Error("RegisterContract", err)
+		}
+	}
+	if interaction.ApplicationCommandData().Name == LIST_COMMAND_NAME {
+		interactor, err := guild.New(keyresolver, guildrep.New(ctx))
+		if err != nil {
+			log.Error("", err)
+			return unauthorized()
+		}
+		err = interactor.ListNFTs(interaction.ChannelID, interaction.GuildID)
+		if err != nil {
+			log.Error("List NFTs", err)
 		}
 	}
 	return res, err

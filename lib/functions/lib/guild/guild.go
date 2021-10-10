@@ -106,6 +106,14 @@ func (i GuildInteractor) RegisterContract(channelID, guildID string, permission 
 	return i.notify(channelID, in)
 }
 
+func (i GuildInteractor) ListNFTs(channelID, guildID string) error {
+	nfts, err := i.rep.ListContracts(guildID)
+	if err != nil {
+		return i.error(channelID, err)
+	}
+	return i.notifyNFTs(channelID, nfts)
+}
+
 func (i GuildInteractor) GrantRole(userID string, in NFTInfo) error {
 	err := i.dg.GuildMemberRoleAdd(in.GuildID, userID, in.RoleID)
 	if err != nil {
@@ -160,6 +168,43 @@ func (i GuildInteractor) notify(channelID string, in NFTInfo) error {
 			},
 		},
 	})
+	return err
+}
+
+func (i GuildInteractor) notifyNFTs(channelID string, nfts []NFTInfo) error {
+	var err error
+	if len(nfts) == 0 {
+		_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
+			Embed: &discordgo.MessageEmbed{
+				Title:       "Registered NFTs",
+				Description: "No NFTs registered in this guild.",
+				Color:       int(0x0000FF),
+			},
+		})
+		return err
+	}
+	for _, nft := range nfts {
+		_, err = i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
+			Embed: &discordgo.MessageEmbed{
+				Title: "Registered NFTs",
+				Color: int(0x0000FF),
+				Fields: []*discordgo.MessageEmbedField{
+					{
+						Name:  "ContractAddress",
+						Value: nft.ContractAddress,
+					},
+					{
+						Name:  "Network",
+						Value: nft.Network,
+					},
+					{
+						Value: nft.RoleID,
+						Name:  "RoleID",
+					},
+				},
+			},
+		})
+	}
 	return err
 }
 
