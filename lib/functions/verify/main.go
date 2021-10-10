@@ -57,7 +57,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		log.Error("", errors.New("invalid signature"))
 		return response(403), nil
 	}
-	rep := guildrep.New(ctx)
+	rep := guildrep.New()
 	guild, err := guild.New(ssmClient, rep)
 	if err != nil {
 		log.Error("", err)

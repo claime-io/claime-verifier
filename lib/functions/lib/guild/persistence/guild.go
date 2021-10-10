@@ -32,7 +32,7 @@ type (
 	}
 )
 
-func New(ctx context.Context) Repository {
+func New() Repository {
 	return Repository{
 		ddb: dynamo.New(session.New()),
 	}

@@ -51,7 +51,7 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 		log.Error("", err)
 		return unauthorized()
 	}
-	interactor, err := guild.New(keyresolver, guildrep.New(ctx))
+	interactor, err := guild.New(keyresolver, guildrep.New())
 	if err != nil {
 		log.Error("", err)
 		return unauthorized()
