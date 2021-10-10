@@ -2,11 +2,14 @@ package guild
 
 import (
 	"claime-verifier/lib/functions/lib/common/log"
+	"claime-verifier/lib/functions/lib/infrastructure/ethclient"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
+	"claime-verifier/lib/functions/lib/transaction"
 	"context"
 	"crypto/ed25519"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -26,22 +29,41 @@ const (
 
 type (
 	KeyResolver interface {
-		DiscordPublicKey() (val string, err error)
-		DiscordBotToken() (val string, err error)
-		ClaimePrivateKey() (val ed25519.PrivateKey, err error)
+		DiscordPublicKey(ctx context.Context) (val string, err error)
+		DiscordBotToken(ctx context.Context) (val string, err error)
+		ClaimePrivateKey(ctx context.Context) (val ed25519.PrivateKey, err error)
+		ClaimePublicKey(ctx context.Context) (val ed25519.PublicKey, err error)
+		EndpointByNetwork(ctx context.Context, network string) (val string, err error)
 	}
 	GuildInteractor struct {
 		discordPublicKey string
 		discordBotToken  string
 		claimePrivateKey ed25519.PrivateKey
+		claimePublicKey  ed25519.PublicKey
 		rep              Repository
 		dg               *discordgo.Session
+		res              KeyResolver
 	}
 	NFTInfo struct {
 		RoleID          string `json:"roleId" validate:"required"`
 		ContractAddress string `json:"contract_address" validate:"required"`
 		Network         string `json:"network" validate:"required"`
 		GuildID         string `json:"guildId" validate:"required"`
+	}
+	GrantRoleInput struct {
+		Discord GrantRoleDiscordInput `json:"discord"`
+		EOA     transaction.EOAInput  `json:"eoa"`
+	}
+	GrantRoleOutput struct {
+		ValidSig bool
+		Expired  bool
+		Granted  bool
+	}
+	GrantRoleDiscordInput struct {
+		UserID    string `json:"userId"`
+		GuildID   string `json:"guildId"`
+		Validity  string `json:"validity"`
+		Signature string `json:"signature"`
 	}
 	Repository interface {
 		RegisterContract(ctx context.Context, in NFTInfo) error
@@ -50,6 +72,70 @@ type (
 		GetContract(ctx context.Context, guildID string, contractAddress common.Address) (NFTInfo, error)
 	}
 )
+
+func toVerificationInput(in GrantRoleInput) VerificationInput {
+	vali, _ := strconv.ParseInt(in.Discord.Validity, 10, 64)
+	return VerificationInput{
+		SignatureInput: SignatureInput{
+			UserID:   in.Discord.UserID,
+			GuildID:  in.Discord.GuildID,
+			Validity: time.Unix(0, vali),
+		}, Sign: in.Discord.Signature,
+	}
+}
+
+func hasSignatureExpired(in GrantRoleDiscordInput) bool {
+	vali, _ := strconv.ParseInt(in.Validity, 10, 64)
+	return time.Now().After(time.Unix(0, vali))
+}
+
+func (i GuildInteractor) Grant(ctx context.Context, in GrantRoleInput) (out GrantRoleOutput, err error) {
+	if !verify(toVerificationInput(in), i.claimePublicKey) {
+		return GrantRoleOutput{
+			ValidSig: false,
+			Expired:  false,
+			Granted:  false,
+		}, nil
+	}
+	if hasSignatureExpired(in.Discord) {
+		return GrantRoleOutput{
+			ValidSig: true,
+			Expired:  true,
+			Granted:  false,
+		}, i.ResendVerifyMessage(in.Discord.UserID, in.Discord.GuildID)
+	}
+	address, claim, err := transaction.Recover(in.EOA)
+	if err != nil {
+		return GrantRoleOutput{}, err
+	}
+	if claim.PropertyId != in.Discord.UserID {
+		err = errors.New("invalid userID")
+		return GrantRoleOutput{}, err
+	}
+	nfts, err := i.rep.ListContracts(ctx, in.Discord.GuildID)
+	if err != nil {
+		return GrantRoleOutput{}, err
+	}
+	granted := false
+	for _, nft := range nfts {
+		endpoint, err := i.res.EndpointByNetwork(ctx, nft.Network)
+		if err != nil {
+			log.Error("", err)
+			continue
+		}
+		if ethclient.IsOwner(endpoint, common.HexToAddress(nft.ContractAddress), address) {
+			if err = i.GrantRole(in.Discord.UserID, nft); err != nil {
+				log.Error("", err)
+			}
+			granted = true
+		}
+	}
+	return GrantRoleOutput{
+		ValidSig: true,
+		Expired:  false,
+		Granted:  granted,
+	}, err
+}
 
 func (in NFTInfo) validate() error {
 	err := validate.New().Struct(in)
@@ -65,16 +151,20 @@ func (in NFTInfo) validate() error {
 	return errors.New(in.Network + " is not currently supported")
 }
 
-func New(r KeyResolver, rep Repository) (GuildInteractor, error) {
-	pub, err := r.DiscordPublicKey()
+func New(ctx context.Context, r KeyResolver, rep Repository) (GuildInteractor, error) {
+	pub, err := r.DiscordPublicKey(ctx)
 	if err != nil {
 		return GuildInteractor{}, err
 	}
-	t, err := r.DiscordBotToken()
+	t, err := r.DiscordBotToken(ctx)
 	if err != nil {
 		return GuildInteractor{}, err
 	}
-	pri, err := r.ClaimePrivateKey()
+	pri, err := r.ClaimePrivateKey(ctx)
+	if err != nil {
+		return GuildInteractor{}, err
+	}
+	cpub, err := r.ClaimePublicKey(ctx)
 	if err != nil {
 		return GuildInteractor{}, err
 	}
@@ -85,9 +175,11 @@ func New(r KeyResolver, rep Repository) (GuildInteractor, error) {
 	return GuildInteractor{
 		discordPublicKey: pub,
 		discordBotToken:  t,
+		claimePublicKey:  cpub,
 		claimePrivateKey: pri,
 		rep:              rep,
 		dg:               sess,
+		res:              r,
 	}, nil
 }
 
@@ -127,7 +219,7 @@ func (i GuildInteractor) DeleteNFT(ctx context.Context, interaction discordgo.In
 		return i.error(interaction, err)
 	}
 	if nft == (NFTInfo{}) {
-		return i.error(interaction, errors.New(fmt.Sprintf("Not registered. contract address: %s", contractAddress.Hex())))
+		return i.error(interaction, fmt.Errorf("Not registered. contract address: %s", contractAddress.Hex()))
 	}
 	err = i.rep.DeleteContract(ctx, interaction.GuildID, contractAddress)
 	if err != nil {
@@ -287,8 +379,8 @@ func sendSignature(s *discordgo.Session, userID, guildID, messagePrefix string) 
 		GuildID:  guildID,
 		Validity: time.Now().Add(time.Minute * 10),
 	}
-	cli := ssm.New(context.Background())
-	pk, err := cli.ClaimePrivateKey()
+	cli := ssm.New()
+	pk, err := cli.ClaimePrivateKey(context.Background())
 	if err != nil {
 		log.Error("get claime public key failed", err)
 		return err
@@ -303,4 +395,16 @@ func sendSignature(s *discordgo.Session, userID, guildID, messagePrefix string) 
 
 func url(in SignatureInput, sig string) string {
 	return fmt.Sprintf("%s?userId=%s&guildId=%s&validity=%d&signature=%s", discordAuthURL, in.UserID, in.GuildID, in.Validity.UnixNano(), sig)
+}
+
+func verifyDiscordAppSignature(in GrantRoleDiscordInput, key ed25519.PublicKey) bool {
+	vali, _ := strconv.ParseInt(in.Validity, 10, 64)
+	return Verify(VerificationInput{
+		SignatureInput: SignatureInput{
+			UserID:   in.UserID,
+			GuildID:  in.GuildID,
+			Validity: time.Unix(0, vali),
+		},
+		Sign: in.Signature,
+	}, key)
 }

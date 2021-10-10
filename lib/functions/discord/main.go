@@ -33,9 +33,9 @@ type (
 )
 
 func handler(ctx context.Context, request map[string]interface{}) (interface{}, error) {
-	keyresolver := ssm.New(ctx)
+	keyresolver := ssm.New()
 	fmt.Println(request)
-	if !discord.VerifyInteractionRequest(request, keyresolver) {
+	if !discord.VerifyInteractionRequest(ctx, request, keyresolver) {
 		return unauthorized()
 	}
 	res, err := discord.HandleInteractionResponse(request)
@@ -51,7 +51,7 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 		log.Error("", err)
 		return unauthorized()
 	}
-	interactor, err := guild.New(keyresolver, guildrep.New())
+	interactor, err := guild.New(ctx, keyresolver, guildrep.New())
 	if err != nil {
 		log.Error("", err)
 		return unauthorized()

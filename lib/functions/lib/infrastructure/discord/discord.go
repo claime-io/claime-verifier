@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"claime-verifier/lib/functions/lib/common/log"
 	"claime-verifier/lib/functions/lib/guild"
+	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"encoding/json"
@@ -17,12 +18,12 @@ import (
 
 type (
 	PubKeyResolver interface {
-		DiscordPublicKey() (val string, err error)
+		DiscordPublicKey(ctx context.Context) (val string, err error)
 	}
 	KeyResolver interface {
 		PubKeyResolver
-		DiscordBotToken() (val string, err error)
-		ClaimePrivateKey() (val ed25519.PrivateKey, err error)
+		DiscordBotToken(ctx context.Context) (val string, err error)
+		ClaimePrivateKey(ctx context.Context) (val ed25519.PrivateKey, err error)
 	}
 	InteractionConverter struct {
 		pubkey    string
@@ -72,8 +73,8 @@ func ToInteraction(request map[string]interface{}) (discordgo.Interaction, error
 }
 
 // VerifyInteractionRequest verify signature of interaction request
-func VerifyInteractionRequest(request map[string]interface{}, r PubKeyResolver) bool {
-	pubkey, err := r.DiscordPublicKey()
+func VerifyInteractionRequest(ctx context.Context, request map[string]interface{}, r PubKeyResolver) bool {
+	pubkey, err := r.DiscordPublicKey(ctx)
 	if err != nil {
 		log.Error("", err)
 		return false

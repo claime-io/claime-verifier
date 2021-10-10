@@ -19,7 +19,7 @@ const (
 
 func TestRecoverAddressFromTx(t *testing.T) {
 	t.Run("recover address", func(t *testing.T) {
-		addr, err := RecoverAddressFromTx(rawTx, signature)
+		addr, err := recoverAddressFromTx(rawTx, signature)
 		if err != nil {
 			t.Error(err)
 		}
@@ -29,7 +29,7 @@ func TestRecoverAddressFromTx(t *testing.T) {
 
 func TestRecoverClaimFromTx(t *testing.T) {
 	t.Run("recover claim", func(t *testing.T) {
-		res, err := RecoverClaimFromTx(rawTx)
+		res, err := recoverClaimFromTx(rawTx)
 		if err != nil {
 			t.Error(err)
 		}
@@ -41,7 +41,7 @@ func TestRecoverClaimFromTx(t *testing.T) {
 
 func TestRecoverAddressFromMessage(t *testing.T) {
 	t.Run("recover address", func(t *testing.T) {
-		addr, err := RecoverAddressFromMessage(message, messageSignature)
+		addr, err := recoverAddressFromMessage(message, messageSignature)
 		if err != nil {
 			t.Error(err)
 		}
@@ -50,7 +50,7 @@ func TestRecoverAddressFromMessage(t *testing.T) {
 }
 func TestRecoverClaimFromMessage(t *testing.T) {
 	t.Run("recover address", func(t *testing.T) {
-		res, err := RecoverClaimFromMessage(message)
+		res, err := recoverClaimFromMessage(message)
 		if err != nil {
 			t.Error(err)
 		}
