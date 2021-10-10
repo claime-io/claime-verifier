@@ -36,7 +36,7 @@ while getopts "${OPTIONS}" option; do
       ;;
     d)
       COMMAND_ID=$OPTARG
-      curl -X DELETE -H "${MIME_TYPE}" -H "${AUTHORIZATION}"
+      curl -X DELETE -H "${MIME_TYPE}" -H "${AUTHORIZATION}" \
         "${ENDPOINT}/${COMMAND_ID}"
       exit 0
       ;;
