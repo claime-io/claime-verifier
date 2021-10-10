@@ -31,7 +31,8 @@ while getopts "${OPTIONS}" option; do
   case "$option" in
     l)
       curl -X GET -H "${MIME_TYPE}" -H "${AUTHORIZATION}" \
-        "${ENDPOINT}"
+        "${ENDPOINT}" \
+        | python -m json.tool
       exit 0
       ;;
     d)
@@ -55,4 +56,5 @@ body=$(cat "${command}.json" | tr -d '\n')
 
 curl -X POST -H "${MIME_TYPE}" -H "${AUTHORIZATION}" \
   "${ENDPOINT}" \
-  -d "${body}" 
+  -d "${body}"  \
+  | python -m json.tool
