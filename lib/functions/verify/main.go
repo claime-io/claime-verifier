@@ -62,6 +62,8 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		// TODO resend if expired
 		return response(403), nil
 	}
+	rep := guildrep.New(ctx)
+	guild, err := guild.New(ssmClient, rep)
 
 	address, claim, err := recoverAddressAndClaim(in.EOA)
 	if err != nil {
@@ -73,15 +75,14 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return response(403), nil
 	}
 
-	rep := guildrep.New(ctx)
 	nfts, err := rep.ListContracts(in.Discord.GuildID)
 	if err != nil {
 		log.Error("", err)
-		// TODO send messsage to admin to set contract address
+		guild.ResendVerifyMessage(in.Discord.UserID, in.Discord.GuildID)
 		return response(400), nil
 	}
 	granted := false
-	guild, err := guild.New(ssmClient, rep)
+
 	if err != nil {
 		log.Error("", err)
 		return response(401), nil

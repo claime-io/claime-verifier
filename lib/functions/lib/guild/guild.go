@@ -166,41 +166,36 @@ func (i GuildInteractor) notify(channelID string, in NFTInfo) error {
 // GuildMemberAdd This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the authenticated bot has access to.
 func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
-	fmt.Println(m.GuildID)
-	fmt.Println(m.User.ID)
-	channel, err := s.UserChannelCreate(m.User.ID)
+	sendSignature(s, m.User.ID, m.GuildID, "Please complete sign to prove you have a NFT:")
+}
+
+func (i GuildInteractor) ResendVerifyMessage(userID, guildID string) error {
+	return sendSignature(i.dg, userID, guildID, "URL has been expired. Please sign with this url again:")
+}
+
+func sendSignature(s *discordgo.Session, userID, guildID, messagePrefix string) error {
+	channel, err := s.UserChannelCreate(userID)
 	if err != nil {
-		// If an error occurred, we failed to create the channel.
-		//
-		// Some common causes are:
-		// 1. We don't share a server with the user (not possible here).
-		// 2. We opened enough DM channels quickly enough for Discord to
-		//    label us as abusing the endpoint, blocking us from opening
-		//    new ones.
 		log.Error("error creating channel:", err)
-		return
+		return err
 	}
 	in := SignatureInput{
-		UserID:   m.User.ID,
-		GuildID:  m.GuildID,
+		UserID:   userID,
+		GuildID:  guildID,
 		Validity: time.Now().Add(time.Minute * 10),
 	}
 	cli := ssm.New(context.Background())
 	pk, err := cli.ClaimePrivateKey()
-	sig := Sign(in, pk)
-
-	_, err = s.ChannelMessageSend(channel.ID, "Please complete sign to prove you have a NFT: "+url(in, sig))
 	if err != nil {
-		// If an error occurred, we failed to send the message.
-		//
-		// It may occur either when we do not share a server with the
-		// user (highly unlikely as we just received a message) or
-		// the user disabled DM in their settings (more likely).
+		log.Error("get claime public key failed", err)
+		return err
+	}
+	sig := Sign(in, pk)
+	_, err = s.ChannelMessageSend(channel.ID, messagePrefix+" "+url(in, sig))
+	if err != nil {
 		log.Error("error sending DM message:", err)
 	}
-
-	fmt.Println(m)
-	s.UserChannels()
+	return err
 }
 
 func url(in SignatureInput, sig string) string {
