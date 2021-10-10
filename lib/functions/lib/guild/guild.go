@@ -117,6 +117,9 @@ func (i GuildInteractor) ListNFTs(ctx context.Context, interaction discordgo.Int
 }
 
 func (i GuildInteractor) DeleteNFT(ctx context.Context, interaction discordgo.Interaction, contractAddress common.Address) error {
+	if !HasPermissionAdministrator(interaction.Member.Permissions) {
+		return i.error(interaction, errors.New("Only administrator can configure contracts"))
+	}
 	nft, err := i.rep.GetContract(ctx, interaction.GuildID, contractAddress)
 	if err != nil {
 		return i.error(interaction, err)
