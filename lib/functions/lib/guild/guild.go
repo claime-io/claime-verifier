@@ -273,7 +273,7 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 }
 
 func (i GuildInteractor) ResendVerifyMessage(userID, guildID string) error {
-	return sendSignature(i.dg, userID, guildID, "URL has been expired. Please sign with this url again:")
+	return sendSignature(i.dg, userID, guildID, "URL has been expired. Please sign again on this url:")
 }
 
 func sendSignature(s *discordgo.Session, userID, guildID, messagePrefix string) error {
