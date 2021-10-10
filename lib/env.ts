@@ -16,10 +16,11 @@ const EnvironmentVariablesSetting: {
   [key in Environments]: EnvironmentVariables
 } = {
   [Environments.PROD]: {
-    allowedOrigin: '',
-    rootDomain: '',
-    hostedZoneId: '',
-    certificateArn: '',
+    allowedOrigin: 'https://claime.io',
+    rootDomain: 'claime.io',
+    hostedZoneId: 'Z08305602GK0LP28IOTQ3',
+    certificateArn:
+      'arn:aws:acm:us-east-1:495476032358:certificate/4da06504-10a6-4231-8200-5581568a907c',
   },
   [Environments.DEV]: {
     allowedOrigin:

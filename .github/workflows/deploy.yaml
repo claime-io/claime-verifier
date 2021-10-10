@@ -1,6 +1,7 @@
 on:
   push:
     branches:
+      - main
       - dev
 concurrency: this_is_concurrency_workflow
 
@@ -34,6 +35,9 @@ jobs:
       - name: CDK deploy dev
         if: github.ref == 'refs/heads/dev'
         run: make deploy
+      - name: CDK deploy prod
+        if: github.ref == 'refs/heads/main'
+        run: cdk deploy -c target=prod --all --require-approval never
       - name: Slack Notification on Success
         if: success()
         uses: rtCamp/action-slack-notify@v2.0.2
