@@ -101,7 +101,9 @@ func (i GuildInteractor) RegisterContract(ctx context.Context, interaction disco
 	if !common.IsHexAddress(in.ContractAddress) {
 		return i.error(interaction, errors.New("Contract address should be hex string"))
 	}
-
+	if err := i.existsRole(interaction.GuildID, in.RoleID); err != nil {
+		return i.error(interaction, err)
+	}
 	if err := i.rep.RegisterContract(ctx, in); err != nil {
 		return i.error(interaction, err)
 	}
