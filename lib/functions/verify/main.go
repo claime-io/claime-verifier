@@ -88,7 +88,12 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	}
 
 	for _, nft := range nfts {
-		if isOwner(ssmClient, nft, address) {
+		endpoint, err := ssmClient.EndpointByNetwork(nft.Network)
+		if err != nil {
+			log.Error("", err)
+			continue
+		}
+		if isOwner(endpoint, nft, address) {
 			if err = guild.GrantRole(in.Discord.UserID, nft); err != nil {
 				log.Error("", err)
 			}
@@ -101,26 +106,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	return response(401), nil
 }
 
-func isOwner(ssm ssm.Client, nft guild.NFTInfo, address common.Address) bool {
-	network := nft.Network
-	var endpoint string
-	fmt.Println("network")
-	fmt.Println(network)
-	if network == "rinkeby" {
-		e, err := ssm.EndpointRinkeby()
-		if err != nil {
-			log.Error("", err)
-			return false
-		}
-		endpoint = e
-	} else {
-		e, err := ssm.EndpointMainnet()
-		if err != nil {
-			log.Error("", err)
-			return false
-		}
-		endpoint = e
-	}
+func isOwner(endpoint string, nft guild.NFTInfo, address common.Address) bool {
 	cl, err := ethclient.NewERC721Client(endpoint)
 	if err != nil {
 		log.Error("", err)

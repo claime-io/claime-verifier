@@ -4,6 +4,9 @@ import (
 	"context"
 	"crypto/ed25519"
 	"encoding/hex"
+	"fmt"
+
+	"github.com/pkg/errors"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -57,12 +60,14 @@ func (c Client) DiscordPublicKey() (val string, err error) {
 	return c.get(discordPublicKey)
 }
 
-func (c Client) EndpointRinkeby() (val string, err error) {
-	return c.get(endpointRinkeby)
-}
-
-func (c Client) EndpointMainnet() (val string, err error) {
-	return c.get(endpointMainnet)
+func (c Client) EndpointByNetwork(network string) (val string, err error) {
+	if network == "rinkeby" {
+		return c.get(endpointRinkeby)
+	}
+	if network == "mainnet" {
+		return c.get(endpointMainnet)
+	}
+	return "", errors.New(fmt.Sprintf("Unsupported network : %s", network))
 }
 
 func (c Client) ClaimePublicKey() (val ed25519.PublicKey, err error) {
