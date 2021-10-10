@@ -92,14 +92,14 @@ func New(r KeyResolver, rep Repository) (GuildInteractor, error) {
 }
 
 func (i GuildInteractor) RegisterContract(ctx context.Context, interaction discordgo.Interaction, in NFTInfo) error {
+	if !HasPermissionAdministrator(interaction.Member.Permissions) {
+		return i.error(interaction, errors.New("Only administrator can configure contracts"))
+	}
 	if err := in.validate(); err != nil {
 		return i.error(interaction, err)
 	}
 	if !common.IsHexAddress(in.ContractAddress) {
 		return i.error(interaction, errors.New("Contract address should be hex string"))
-	}
-	if !HasPermissionAdministrator(interaction.Member.Permissions) {
-		return i.error(interaction, errors.New("Only administrator can configure contracts"))
 	}
 
 	if err := i.rep.RegisterContract(ctx, in); err != nil {
