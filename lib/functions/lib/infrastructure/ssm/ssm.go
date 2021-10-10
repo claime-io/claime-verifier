@@ -5,6 +5,7 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"fmt"
+	"os"
 
 	"github.com/pkg/errors"
 
@@ -25,17 +26,15 @@ type (
 )
 
 const (
-	keyPrefix             = "claime-verifier-"
-	infuraKeyPrefix       = keyPrefix + "infura-key-"
-	slackTokenKey         = keyPrefix + "slack-token"
-	slackSigningSecretKey = keyPrefix + "slack-signingsecret"
-	discordPublicKey      = keyPrefix + "discord-public-key"
-	discordBotToken       = keyPrefix + "discord-bot-token"
-	claimePublicKey       = keyPrefix + "public-key"
-	claimePrivateKey      = keyPrefix + "private-key"
-	endpointRinkeby       = keyPrefix + "endpoint-rinkeby"
-	endpointMainnet       = keyPrefix + "endpoint-mainnet"
-	endpointPolygon       = keyPrefix + "endpoint-polygon"
+	keyPrefix        = "claime-verifier-"
+	infuraKeyPrefix  = keyPrefix + "infura-key-"
+	discordPublicKey = keyPrefix + "discord-public-key"
+	discordBotToken  = keyPrefix + "discord-bot-token"
+	claimePublicKey  = keyPrefix + "public-key"
+	claimePrivateKey = keyPrefix + "private-key"
+	endpointRinkeby  = keyPrefix + "endpoint-rinkeby"
+	endpointMainnet  = keyPrefix + "endpoint-mainnet"
+	endpointPolygon  = keyPrefix + "endpoint-polygon"
 )
 
 func keyOf(network string) string {
@@ -56,7 +55,7 @@ func (c Client) WsEndpoint(ctx context.Context, network string) (val string, err
 
 // DiscordPublicKey get Discord public key
 func (c Client) DiscordPublicKey(ctx context.Context) (val string, err error) {
-	return c.get(ctx, discordPublicKey)
+	return c.get(ctx, withEnvSuffix(discordPublicKey))
 }
 
 func (c Client) EndpointByNetwork(ctx context.Context, network string) (val string, err error) {
@@ -73,11 +72,11 @@ func (c Client) EndpointByNetwork(ctx context.Context, network string) (val stri
 }
 
 func (c Client) ClaimePublicKey(ctx context.Context) (val ed25519.PublicKey, err error) {
-	return c.getKey(ctx, claimePublicKey)
+	return c.getKey(ctx, withEnvSuffix(claimePublicKey))
 }
 
 func (c Client) ClaimePrivateKey(ctx context.Context) (val ed25519.PrivateKey, err error) {
-	return c.getKey(ctx, claimePrivateKey)
+	return c.getKey(ctx, withEnvSuffix(claimePrivateKey))
 }
 
 func (c Client) getKey(ctx context.Context, key string) ([]byte, error) {
@@ -89,17 +88,7 @@ func (c Client) getKey(ctx context.Context, key string) ([]byte, error) {
 }
 
 func (c Client) DiscordBotToken(ctx context.Context) (val string, err error) {
-	return c.get(ctx, discordBotToken)
-}
-
-// SlackToken get slack token
-func (c Client) SlackToken(ctx context.Context) (val string, err error) {
-	return c.get(ctx, slackTokenKey)
-}
-
-// SlackSigningSecret get signing secret
-func (c Client) SlackSigningSecret(ctx context.Context) (val string, err error) {
-	return c.get(ctx, slackSigningSecretKey)
+	return c.get(ctx, withEnvSuffix(discordBotToken))
 }
 
 // Get get parameter
@@ -114,4 +103,15 @@ func (c Client) get(ctx context.Context, key string) (val string, err error) {
 	}
 
 	return *out.Parameter.Value, nil
+}
+
+func withEnvSuffix(key string) string {
+	env := os.Getenv("EnvironmentId")
+	if env == "" {
+		env = "dev"
+	}
+	if env == "prod" {
+		return key
+	}
+	return key + "-" + env
 }
