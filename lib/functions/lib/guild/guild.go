@@ -214,7 +214,6 @@ func (i GuildInteractor) notify(interaction discordgo.Interaction, in NFTInfo) e
 }
 
 func (i GuildInteractor) notifyNFTs(interaction discordgo.Interaction, nfts []NFTInfo) error {
-	var err error
 	if len(nfts) == 0 {
 		return i.respond(interaction, []*discordgo.MessageEmbed{
 			{
@@ -224,29 +223,32 @@ func (i GuildInteractor) notifyNFTs(interaction discordgo.Interaction, nfts []NF
 			},
 		})
 	}
+	var fields []*discordgo.MessageEmbedField
 	for _, nft := range nfts {
-		err = i.respond(interaction, []*discordgo.MessageEmbed{
-			{
-				Title: "Registered NFTs",
-				Color: int(0x0000FF),
-				Fields: []*discordgo.MessageEmbedField{
-					{
-						Name:  "ContractAddress",
-						Value: nft.ContractAddress,
-					},
-					{
-						Name:  "Network",
-						Value: nft.Network,
-					},
-					{
-						Value: nft.RoleID,
-						Name:  "RoleID",
-					},
-				},
+		fields = append(fields,
+			&discordgo.MessageEmbedField{
+				Name:  "ContractAddress",
+				Value: nft.ContractAddress,
 			},
-		})
+			&discordgo.MessageEmbedField{
+				Name:   "Network",
+				Value:  nft.Network,
+				Inline: true,
+			},
+			&discordgo.MessageEmbedField{
+				Value:  nft.RoleID,
+				Name:   "RoleID",
+				Inline: true,
+			},
+		)
 	}
-	return err
+	return i.respond(interaction, []*discordgo.MessageEmbed{
+		{
+			Title:  "Registered NFTs",
+			Color:  int(0x0000FF),
+			Fields: fields,
+		},
+	})
 }
 
 func (i GuildInteractor) notifyDelete(interaction discordgo.Interaction, contractAddress common.Address) error {
