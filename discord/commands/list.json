@@ -1,6 +1,6 @@
 {
-  "name": "list",
+  "name": "{COMMAND_NAME}",
   "type": 1,
-  "application_id": "892321773981421568",
+  "application_id": "{APPLICATION_ID}",
   "description": "List the contract address and role ID pairs"
 }

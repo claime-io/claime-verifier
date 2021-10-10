@@ -1,7 +1,7 @@
 {
-  "name": "set",
+  "name": "{COMMAND_NAME}",
   "type": 1,
-  "application_id": "892321773981421568",
+  "application_id": "{APPLICATION_ID}",
   "description": "Set a role to the holders of the NFT",
   "options": [
     {
