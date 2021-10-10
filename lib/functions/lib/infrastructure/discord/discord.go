@@ -112,11 +112,11 @@ func verify(request map[string]interface{}, publicKey string) bool {
 	return discordgo.VerifyInteraction(httpreq, key)
 }
 
-func ToRegisterContractInput(d discordgo.ApplicationCommandInteractionData, guildID string) guild.ContractInfo {
+func ToRegisterContractInput(d discordgo.ApplicationCommandInteractionData, guildID string) guild.NFTInfo {
 	if len(d.Options) < 3 {
-		return guild.ContractInfo{}
+		return guild.NFTInfo{}
 	}
-	return guild.ContractInfo{
+	return guild.NFTInfo{
 		RoleID:          d.Options[0].Value.(string),
 		ContractAddress: d.Options[1].Value.(string),
 		Network:         d.Options[2].Value.(string),

@@ -74,7 +74,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	}
 
 	rep := guildrep.New(ctx)
-	cs, err := rep.ListContracts(in.Discord.GuildID)
+	nfts, err := rep.ListContracts(in.Discord.GuildID)
 	if err != nil {
 		log.Error("", err)
 		// TODO send messsage to admin to set contract address
@@ -87,9 +87,9 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return response(401), nil
 	}
 
-	for _, c := range cs {
-		if isOwner(ssmClient, c, address) {
-			if err = guild.GrantRole(in.Discord.UserID, c); err != nil {
+	for _, nft := range nfts {
+		if isOwner(ssmClient, nft, address) {
+			if err = guild.GrantRole(in.Discord.UserID, nft); err != nil {
 				log.Error("", err)
 			}
 			granted = true
@@ -101,8 +101,8 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	return response(401), nil
 }
 
-func isOwner(ssm ssm.Client, i guild.NFTInfo, address common.Address) bool {
-	network := i.Network
+func isOwner(ssm ssm.Client, nft guild.NFTInfo, address common.Address) bool {
+	network := nft.Network
 	var endpoint string
 	fmt.Println("network")
 	fmt.Println(network)
@@ -127,8 +127,8 @@ func isOwner(ssm ssm.Client, i guild.NFTInfo, address common.Address) bool {
 		return false
 	}
 	fmt.Println("contractaddress")
-	fmt.Println(i.ContractAddress)
-	caller, err := cl.Caller(common.HexToAddress(i.ContractAddress))
+	fmt.Println(nft.ContractAddress)
+	caller, err := cl.Caller(common.HexToAddress(nft.ContractAddress))
 	if err != nil {
 		log.Error("", err)
 		return false

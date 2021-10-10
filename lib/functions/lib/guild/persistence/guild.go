@@ -39,7 +39,7 @@ func New(ctx context.Context) Repository {
 	}
 }
 
-func (r Repository) RegisterContract(in guild.ContractInfo) error {
+func (r Repository) RegisterContract(in guild.NFTInfo) error {
 	item := toContract(in)
 	err := r.ddb.Table(table()).Put(&item).RunWithContext(r.ctx)
 	if err != nil {
@@ -48,7 +48,7 @@ func (r Repository) RegisterContract(in guild.ContractInfo) error {
 	return err
 }
 
-func (r Repository) ListContracts(guildID string) ([]guild.ContractInfo, error) {
+func (r Repository) ListContracts(guildID string) ([]guild.NFTInfo, error) {
 	res := []Contract{}
 	err := r.ddb.Table(table()).Get("PK", toPK(guildID)).AllWithContext(r.ctx, &res)
 	if err != nil {
@@ -57,16 +57,16 @@ func (r Repository) ListContracts(guildID string) ([]guild.ContractInfo, error) 
 	return fromDDB(res), err
 }
 
-func fromDDB(vals []Contract) []guild.ContractInfo {
-	res := []guild.ContractInfo{}
+func fromDDB(vals []Contract) []guild.NFTInfo {
+	res := []guild.NFTInfo{}
 	for _, v := range vals {
-		res = append(res, toContractInfo(v))
+		res = append(res, toNFTInfo(v))
 	}
 	return res
 }
 
-func toContractInfo(in Contract) guild.ContractInfo {
-	return guild.ContractInfo{
+func toNFTInfo(in Contract) guild.NFTInfo {
+	return guild.NFTInfo{
 		GuildID:         fromPK(in.PK),
 		ContractAddress: fromSK(in.SK),
 		Network:         in.Network,
@@ -78,7 +78,7 @@ func table() string {
 	return "claime-verifier-main-" + os.Getenv("EnvironmentId")
 }
 
-func toContract(in guild.ContractInfo) Contract {
+func toContract(in guild.NFTInfo) Contract {
 	return Contract{
 		PK:      toPK(in.GuildID),
 		SK:      toSK(in.ContractAddress),

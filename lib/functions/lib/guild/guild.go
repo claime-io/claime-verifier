@@ -37,19 +37,19 @@ type (
 		rep              Repository
 		dg               *discordgo.Session
 	}
-	ContractInfo struct {
+	NFTInfo struct {
 		RoleID          string `json:"roleId" validate:"required"`
 		ContractAddress string `json:"contract_address" validate:"required"`
 		Network         string `json:"network" validate:"required"`
 		GuildID         string `json:"guildId" validate:"required"`
 	}
 	Repository interface {
-		RegisterContract(in ContractInfo) error
-		ListContracts(guildID string) ([]ContractInfo, error)
+		RegisterContract(in NFTInfo) error
+		ListContracts(guildID string) ([]NFTInfo, error)
 	}
 )
 
-func (in ContractInfo) validate() error {
+func (in NFTInfo) validate() error {
 	err := validate.New().Struct(in)
 	if err != nil {
 		log.Error("", err)
@@ -138,7 +138,7 @@ func (i GuildInteractor) error(channelID string, cause error) error {
 	return err
 }
 
-func (i GuildInteractor) notify(channelID string, in ContractInfo) error {
+func (i GuildInteractor) notify(channelID string, in NFTInfo) error {
 	_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
 		Embed: &discordgo.MessageEmbed{
 			Title:       "Set contract address Succeeded!",

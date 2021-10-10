@@ -34,8 +34,8 @@ func TestValidate(t *testing.T) {
 	})
 }
 
-func in() ContractInfo {
-	return ContractInfo{
+func in() NFTInfo {
+	return NFTInfo{
 		RoleID:          "test",
 		ContractAddress: "test",
 		Network:         "mainnet",
@@ -48,7 +48,7 @@ func in() ContractInfo {
 //	if err != nil {
 //		t.Error(err)
 //	}
-//	err = svc.notify(context.Background(), "892441777808765052", ContractInfo{
+//	err = svc.notify(context.Background(), "892441777808765052", NFTInfo{
 //		RoleID:          "test",
 //		ContractAddress: "test",
 //		Network:         "rinkeby",
