@@ -57,13 +57,17 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		log.Error("", errors.New("invalid signature"))
 		return response(403), nil
 	}
-	if hasSignatureExpired(in.Discord) {
-		log.Error("", errors.New("signature expired"))
-		// TODO resend if expired
-		return response(403), nil
-	}
 	rep := guildrep.New(ctx)
 	guild, err := guild.New(ssmClient, rep)
+	if err != nil {
+		log.Error("", err)
+		return response(500), nil
+	}
+	if hasSignatureExpired(in.Discord) {
+		log.Error("", errors.New("signature expired"))
+		guild.ResendVerifyMessage(in.Discord.UserID, in.Discord.GuildID)
+		return response(403), nil
+	}
 
 	address, claim, err := recoverAddressAndClaim(in.EOA)
 	if err != nil {
@@ -78,7 +82,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	nfts, err := rep.ListContracts(in.Discord.GuildID)
 	if err != nil {
 		log.Error("", err)
-		guild.ResendVerifyMessage(in.Discord.UserID, in.Discord.GuildID)
+
 		return response(400), nil
 	}
 	granted := false
