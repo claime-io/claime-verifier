@@ -19,6 +19,7 @@ const (
 type (
 	Repository struct {
 		ddb *dynamo.DB
+		ctx context.Context
 	}
 
 	Contract struct {
@@ -31,24 +32,25 @@ type (
 	}
 )
 
-func New() Repository {
+func New(ctx context.Context) Repository {
 	return Repository{
 		ddb: dynamo.New(session.New()),
+		ctx: ctx,
 	}
 }
 
-func (r Repository) RegisterContract(ctx context.Context, in guild.ContractInfo) error {
+func (r Repository) RegisterContract(in guild.ContractInfo) error {
 	item := toContract(in)
-	err := r.ddb.Table(table()).Put(&item).RunWithContext(ctx)
+	err := r.ddb.Table(table()).Put(&item).RunWithContext(r.ctx)
 	if err != nil {
 		log.Error("put item failed", err)
 	}
 	return err
 }
 
-func (r Repository) ListContracts(ctx context.Context, guildID string) ([]guild.ContractInfo, error) {
+func (r Repository) ListContracts(guildID string) ([]guild.ContractInfo, error) {
 	res := []Contract{}
-	err := r.ddb.Table(table()).Get("PK", toPK(guildID)).AllWithContext(ctx, &res)
+	err := r.ddb.Table(table()).Get("PK", toPK(guildID)).AllWithContext(r.ctx, &res)
 	if err != nil {
 		log.Error("query failed", err)
 	}

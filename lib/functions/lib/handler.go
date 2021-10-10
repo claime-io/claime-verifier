@@ -22,7 +22,7 @@ func Headers() map[string]string {
 
 // NewParameterStore new parameter store
 func NewParameterStore(ctx context.Context) (ssm.Client, error) {
-	return ssm.New(), nil
+	return ssm.New(ctx), nil
 }
 
 // Verify verify slack message
@@ -31,12 +31,12 @@ func Verify(request events.APIGatewayProxyRequest, cli slackclient.Client) error
 }
 
 // Slackcli new slack client
-func Slackcli(ctx context.Context, parameterstore ssm.Client) (slackclient.Client, error) {
-	token, err := parameterstore.SlackToken(ctx)
+func Slackcli(parameterstore ssm.Client) (slackclient.Client, error) {
+	token, err := parameterstore.SlackToken()
 	if err != nil {
 		log.Error("retrive token failed", err)
 	}
-	signingsecret, err := parameterstore.SlackSigningSecret(ctx)
+	signingsecret, err := parameterstore.SlackSigningSecret()
 	if err != nil {
 		log.Error("retrive sign secret failed", err)
 	}

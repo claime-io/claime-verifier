@@ -41,7 +41,7 @@ type (
 )
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	key, err := ssm.New().ClaimePublicKey(ctx)
+	key, err := ssm.New(ctx).ClaimePublicKey()
 	if err != nil {
 		log.Error("get pubkey failed", err)
 		return response(500), err
@@ -72,8 +72,8 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return response(403), nil
 	}
 
-	rep := guildrep.New()
-	cs, err := rep.ListContracts(ctx, in.Discord.GuildID)
+	rep := guildrep.New(ctx)
+	cs, err := rep.ListContracts(in.Discord.GuildID)
 	if err != nil {
 		log.Error("", err)
 		// TODO send messsage to admin to set contract address
@@ -95,7 +95,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 }
 
 func grantRole(ctx context.Context, userID string, c guild.ContractInfo) error {
-	act, err := guild.New(ctx, ssm.New(), guildrep.New())
+	act, err := guild.New(ssm.New(ctx), guildrep.New(ctx))
 	if err != nil {
 		return err
 	}
@@ -104,19 +104,19 @@ func grantRole(ctx context.Context, userID string, c guild.ContractInfo) error {
 
 func isOwner(ctx context.Context, i guild.ContractInfo, address common.Address) bool {
 	network := i.Network
-	ssm := ssm.New()
+	ssm := ssm.New(ctx)
 	var endpoint string
 	fmt.Println("network")
 	fmt.Println(network)
 	if network == "rinkeby" {
-		e, err := ssm.EndpointRinkeby(ctx)
+		e, err := ssm.EndpointRinkeby()
 		if err != nil {
 			log.Error("", err)
 			return false
 		}
 		endpoint = e
 	} else {
-		e, err := ssm.EndpointMainnet(ctx)
+		e, err := ssm.EndpointMainnet()
 		if err != nil {
 			log.Error("", err)
 			return false

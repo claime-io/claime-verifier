@@ -31,9 +31,9 @@ type (
 )
 
 func handler(ctx context.Context, request map[string]interface{}) (interface{}, error) {
-	keyresolver := ssm.New()
+	keyresolver := ssm.New(ctx)
 	fmt.Println(request)
-	if !discord.VerifyInteractionRequest(ctx, request, keyresolver) {
+	if !discord.VerifyInteractionRequest(request, keyresolver) {
 		return unauthorized()
 	}
 	res, err := discord.HandleInteractionResponse(request)
@@ -51,7 +51,7 @@ func handler(ctx context.Context, request map[string]interface{}) (interface{}, 
 	}
 	if interaction.ApplicationCommandData().Name == SET_COMMAND_NAME {
 		input := discord.ToRegisterContractInput(interaction.ApplicationCommandData(), interaction.GuildID)
-		interactor, err := guild.New(ctx, keyresolver, guildrep.New())
+		interactor, err := guild.New(keyresolver, guildrep.New(ctx))
 		if err != nil {
 			log.Error("", err)
 			return unauthorized()

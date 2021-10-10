@@ -26,9 +26,9 @@ const (
 
 type (
 	KeyResolver interface {
-		DiscordPublicKey(ctx context.Context) (val string, err error)
-		DiscordBotToken(ctx context.Context) (val string, err error)
-		ClaimePrivateKey(ctx context.Context) (val ed25519.PrivateKey, err error)
+		DiscordPublicKey() (val string, err error)
+		DiscordBotToken() (val string, err error)
+		ClaimePrivateKey() (val ed25519.PrivateKey, err error)
 	}
 	GuildInteractor struct {
 		discordPublicKey string
@@ -44,8 +44,8 @@ type (
 		GuildID         string `json:"guildId" validate:"required"`
 	}
 	Repository interface {
-		RegisterContract(ctx context.Context, in ContractInfo) error
-		ListContracts(ctx context.Context, guildID string) ([]ContractInfo, error)
+		RegisterContract(in ContractInfo) error
+		ListContracts(guildID string) ([]ContractInfo, error)
 	}
 )
 
@@ -63,16 +63,16 @@ func (in ContractInfo) validate() error {
 	return errors.New(in.Network + " is not currently supported")
 }
 
-func New(ctx context.Context, r KeyResolver, rep Repository) (GuildInteractor, error) {
-	pub, err := r.DiscordPublicKey(ctx)
+func New(r KeyResolver, rep Repository) (GuildInteractor, error) {
+	pub, err := r.DiscordPublicKey()
 	if err != nil {
 		return GuildInteractor{}, err
 	}
-	t, err := r.DiscordBotToken(ctx)
+	t, err := r.DiscordBotToken()
 	if err != nil {
 		return GuildInteractor{}, err
 	}
-	pri, err := r.ClaimePrivateKey(ctx)
+	pri, err := r.ClaimePrivateKey()
 	if err != nil {
 		return GuildInteractor{}, err
 	}
@@ -91,19 +91,19 @@ func New(ctx context.Context, r KeyResolver, rep Repository) (GuildInteractor, e
 
 func (i GuildInteractor) RegisterContract(ctx context.Context, channelID, guildID string, permission int64, in ContractInfo) error {
 	if err := in.validate(); err != nil {
-		return i.error(ctx, channelID, err)
+		return i.error(channelID, err)
 	}
 	if !common.IsHexAddress(in.ContractAddress) {
-		return i.error(ctx, channelID, errors.New("Contract address should be hex string"))
+		return i.error(channelID, errors.New("Contract address should be hex string"))
 	}
 	if !HasPermissionAdministrator(permission) {
-		return i.error(ctx, channelID, errors.New("Only administrator can configure contracts"))
+		return i.error(channelID, errors.New("Only administrator can configure contracts"))
 	}
 
-	if err := i.rep.RegisterContract(ctx, in); err != nil {
-		return i.error(ctx, channelID, err)
+	if err := i.rep.RegisterContract(in); err != nil {
+		return i.error(channelID, err)
 	}
-	return i.notify(ctx, channelID, in)
+	return i.notify(channelID, in)
 }
 
 func (i GuildInteractor) GrantRole(ctx context.Context, userID string, in ContractInfo) error {
@@ -127,8 +127,7 @@ func (i GuildInteractor) existsRole(guildID, roleID string) error {
 	return errors.New("Role with ID " + roleID + " does not exist.")
 }
 
-func (i GuildInteractor) error(ctx context.Context, channelID string, cause error) error {
-
+func (i GuildInteractor) error(channelID string, cause error) error {
 	_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
 		Embed: &discordgo.MessageEmbed{
 			Title:       "Something went wrong",
@@ -139,8 +138,7 @@ func (i GuildInteractor) error(ctx context.Context, channelID string, cause erro
 	return err
 }
 
-func (i GuildInteractor) notify(ctx context.Context, channelID string, in ContractInfo) error {
-
+func (i GuildInteractor) notify(channelID string, in ContractInfo) error {
 	_, err := i.dg.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
 		Embed: &discordgo.MessageEmbed{
 			Title:       "Set contract address Succeeded!",
@@ -187,8 +185,8 @@ func GuildMemberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 		GuildID:  m.GuildID,
 		Validity: time.Now().Add(time.Minute * 10),
 	}
-	cli := ssm.New()
-	pk, err := cli.ClaimePrivateKey(context.Background())
+	cli := ssm.New(context.Background())
+	pk, err := cli.ClaimePrivateKey()
 	sig := Sign(in, pk)
 
 	_, err = s.ChannelMessageSend(channel.ID, "Please complete sign to prove you have a NFT: "+url(in, sig))

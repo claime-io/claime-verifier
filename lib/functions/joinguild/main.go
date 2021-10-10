@@ -24,7 +24,7 @@ func init() {
 
 func main() {
 
-	token, err := ssm.New().DiscordBotToken(context.Background())
+	token, err := ssm.New(context.Background()).DiscordBotToken()
 	if err != nil {
 		log.Error("error get bot token", err)
 		return
