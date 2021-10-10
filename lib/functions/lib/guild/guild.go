@@ -171,31 +171,11 @@ func (i GuildInteractor) error(interaction discordgo.Interaction, cause error) e
 	return err
 }
 
-func (i GuildInteractor) notify(interaction discordgo.Interaction, in NFTInfo) error {
+func (i GuildInteractor) respond(interaction discordgo.Interaction, embeds []*discordgo.MessageEmbed) error {
 	err := i.dg.InteractionRespond(&interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Embeds: []*discordgo.MessageEmbed{
-				{
-					Title:       "Set contract address Succeeded!",
-					Description: "Configure contract address succeeded with following properties:",
-					Color:       int(0x0000FF),
-					Fields: []*discordgo.MessageEmbedField{
-						{
-							Name:  "ContractAddress",
-							Value: in.ContractAddress,
-						},
-						{
-							Name:  "Network",
-							Value: in.Network,
-						},
-						{
-							Value: in.RoleID,
-							Name:  "RoleID",
-						},
-					},
-				},
-			},
+			Embeds: embeds,
 		},
 	})
 	if err != nil {
@@ -204,21 +184,44 @@ func (i GuildInteractor) notify(interaction discordgo.Interaction, in NFTInfo) e
 	return err
 }
 
+func (i GuildInteractor) notify(interaction discordgo.Interaction, in NFTInfo) error {
+	return i.respond(interaction, []*discordgo.MessageEmbed{
+		{
+			Title:       "Set contract address Succeeded!",
+			Description: "Configure contract address succeeded with following properties:",
+			Color:       int(0x0000FF),
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:  "ContractAddress",
+					Value: in.ContractAddress,
+				},
+				{
+					Name:  "Network",
+					Value: in.Network,
+				},
+				{
+					Value: in.RoleID,
+					Name:  "RoleID",
+				},
+			},
+		},
+	})
+}
+
 func (i GuildInteractor) notifyNFTs(interaction discordgo.Interaction, nfts []NFTInfo) error {
 	var err error
 	if len(nfts) == 0 {
-		_, err := i.dg.ChannelMessageSendComplex(interaction.ChannelID, &discordgo.MessageSend{
-			Embed: &discordgo.MessageEmbed{
+		return i.respond(interaction, []*discordgo.MessageEmbed{
+			{
 				Title:       "Registered NFTs",
 				Description: "No NFTs registered in this guild.",
 				Color:       int(0x0000FF),
 			},
 		})
-		return err
 	}
 	for _, nft := range nfts {
-		_, err = i.dg.ChannelMessageSendComplex(interaction.ChannelID, &discordgo.MessageSend{
-			Embed: &discordgo.MessageEmbed{
+		err = i.respond(interaction, []*discordgo.MessageEmbed{
+			{
 				Title: "Registered NFTs",
 				Color: int(0x0000FF),
 				Fields: []*discordgo.MessageEmbedField{
@@ -242,8 +245,8 @@ func (i GuildInteractor) notifyNFTs(interaction discordgo.Interaction, nfts []NF
 }
 
 func (i GuildInteractor) notifyDelete(interaction discordgo.Interaction, contractAddress common.Address) error {
-	_, err := i.dg.ChannelMessageSendComplex(interaction.ChannelID, &discordgo.MessageSend{
-		Embed: &discordgo.MessageEmbed{
+	return i.respond(interaction, []*discordgo.MessageEmbed{
+		{
 			Title: "Delete contract address Succeeded!",
 			Color: int(0x808080),
 			Fields: []*discordgo.MessageEmbedField{
@@ -254,7 +257,6 @@ func (i GuildInteractor) notifyDelete(interaction discordgo.Interaction, contrac
 			},
 		},
 	})
-	return err
 }
 
 // GuildMemberAdd This function will be called (due to AddHandler above) every time a new
