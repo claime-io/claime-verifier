@@ -93,7 +93,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			log.Error("", err)
 			continue
 		}
-		if isOwner(endpoint, nft, address) {
+		if isOwner(endpoint, common.HexToAddress(nft.ContractAddress), address) {
 			if err = guild.GrantRole(in.Discord.UserID, nft); err != nil {
 				log.Error("", err)
 			}
@@ -106,15 +106,13 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	return response(401), nil
 }
 
-func isOwner(endpoint string, nft guild.NFTInfo, address common.Address) bool {
+func isOwner(endpoint string, contractAddress common.Address, address common.Address) bool {
 	cl, err := ethclient.NewERC721Client(endpoint)
 	if err != nil {
 		log.Error("", err)
 		return false
 	}
-	fmt.Println("contractaddress")
-	fmt.Println(nft.ContractAddress)
-	caller, err := cl.Caller(common.HexToAddress(nft.ContractAddress))
+	caller, err := cl.Caller(contractAddress)
 	if err != nil {
 		log.Error("", err)
 		return false
