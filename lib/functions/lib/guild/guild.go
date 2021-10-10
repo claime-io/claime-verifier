@@ -17,7 +17,7 @@ import (
 
 var (
 	// SupportedChains supported chains
-	SupportedChains = []string{"mainnet", "rinkeby"}
+	SupportedChains = []string{"mainnet", "rinkeby", "polygon"}
 )
 
 const (

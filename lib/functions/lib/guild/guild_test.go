@@ -18,9 +18,16 @@ func TestValidate(t *testing.T) {
 			t.Error(err)
 		}
 	})
-	t.Run("polygon should not be supported", func(t *testing.T) {
+	t.Run("polygon should be supported", func(t *testing.T) {
 		in := in()
 		in.Network = "polygon"
+		if err := in.validate(); err != nil {
+			t.Error(err)
+		}
+	})
+	t.Run("munbai should not be supported", func(t *testing.T) {
+		in := in()
+		in.Network = "munbai"
 		if err := in.validate(); err == nil {
 			t.Error("unexpected")
 		}

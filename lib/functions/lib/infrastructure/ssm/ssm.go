@@ -36,6 +36,7 @@ const (
 	claimePrivateKey      = keyPrefix + "private-key"
 	endpointRinkeby       = keyPrefix + "endpoint-rinkeby"
 	endpointMainnet       = keyPrefix + "endpoint-mainnet"
+	endpointPolygon       = keyPrefix + "endpoint-polygon"
 )
 
 func keyOf(network string) string {
@@ -66,6 +67,9 @@ func (c Client) EndpointByNetwork(network string) (val string, err error) {
 	}
 	if network == "mainnet" {
 		return c.get(endpointMainnet)
+	}
+	if network == "polygon" {
+		return c.get(endpointPolygon)
 	}
 	return "", errors.New(fmt.Sprintf("Unsupported network : %s", network))
 }
