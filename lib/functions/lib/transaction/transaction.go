@@ -17,6 +17,38 @@ const (
 	messagePrefix = "\x19Ethereum Signed Message:\n"
 )
 
+type (
+	// EOAInput eoa input
+	EOAInput struct {
+		Signature string `json:"signature"`
+		Message   string `json:"message"`
+		RawTx     string `json:"rawTx"`
+	}
+)
+
+func Recover(in EOAInput) (common.Address, contracts.IClaimRegistryClaim, error) {
+	if in.RawTx != "" {
+		address, err := RecoverAddressFromTx(in.RawTx, in.Signature)
+		if err != nil {
+			return common.Address{}, contracts.IClaimRegistryClaim{}, err
+		}
+		claim, err := RecoverClaimFromTx(in.RawTx)
+		if err != nil {
+			return common.Address{}, contracts.IClaimRegistryClaim{}, err
+		}
+		return address, claim, nil
+	}
+	address, err := RecoverAddressFromMessage(in.Message, in.Signature)
+	if err != nil {
+		return common.Address{}, contracts.IClaimRegistryClaim{}, err
+	}
+	claim, err := RecoverClaimFromMessage(in.Message)
+	if err != nil {
+		return common.Address{}, contracts.IClaimRegistryClaim{}, err
+	}
+	return address, claim, nil
+}
+
 func RecoverAddressFromTx(rawTx string, signature string) (common.Address, error) {
 	txBytes, err := hexutil.Decode(rawTx)
 	if err != nil {

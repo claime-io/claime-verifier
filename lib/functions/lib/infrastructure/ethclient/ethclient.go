@@ -52,3 +52,18 @@ func (c *Caller) TokenOwner(owner common.Address) bool {
 	balance, err := c.BalanceOf(nil, owner)
 	return err == nil && balance.Cmp(common.Big0) > 0
 }
+
+// IsOwner given EOA Address has NFT of given contract?
+func IsOwner(endpoint string, contractAddress common.Address, eoa common.Address) bool {
+	cl, err := NewERC721Client(endpoint)
+	if err != nil {
+		log.Error("", err)
+		return false
+	}
+	caller, err := cl.Caller(contractAddress)
+	if err != nil {
+		log.Error("", err)
+		return false
+	}
+	return caller.TokenOwner(eoa)
+}
