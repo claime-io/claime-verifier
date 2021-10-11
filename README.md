@@ -1,12 +1,45 @@
 # claime-verifier
 
 ## Supported Property Types
+- [Discord User](#Discord%20AUser)
+
+### To Be Supported...
 
 - [Domain](#Domain)
 - [Website](#Website)
 - [Twitter Account](#Twitter%20Account)
+- and more...
 
 ## Verification Methods
+
+### Discord User
+
+<details><summary>Claime Discord App verification</summary>
+<br/>
+Claims of this type are only available for the Claime discord app.
+  
+##### Evidence format
+None.
+
+##### Claim format
+
+- `propertyType`: `Discord User ID`
+- `propertyId`: `${your_discord_user_id}`
+- `evidence`: `(blank)`
+- `method`: `Claime Discord App`
+
+example:
+
+```json
+{
+  "propertyType": "Discord User ID",
+  "propertyId": "000000000000000000",
+  "Method": "Claime Discord App",
+}
+```
+
+</details>
+
 
 ### Domain
 
