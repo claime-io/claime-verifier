@@ -18,7 +18,7 @@ import { basicPolicytStatements } from './discord'
 import * as environment from './env'
 import { hostedZoneFromId } from './route53'
 
-export class RestApiStack extends cdk.Stack {
+export class DiscordApiStack extends cdk.Stack {
   constructor(
     scope: cdk.Construct,
     id: string,
@@ -27,7 +27,7 @@ export class RestApiStack extends cdk.Stack {
   ) {
     super(scope, id, props)
     const api = new RestApi(this, 'RestApi', {
-      restApiName: environment.withEnvPrefix(target, 'verification-restapi'),
+      restApiName: environment.withEnvPrefix(target, 'discord-restapi'),
     })
     const func = discordFunction(
       this,
@@ -42,7 +42,9 @@ export class RestApiStack extends cdk.Stack {
     aRecord(this, target, customDomain)
   }
 }
-
+// GET /${eoa}?type=domain
+// -> いったんbool,at,actual
+// -> (ゆくゆくは検証NGだった場合に理由出したい)
 const discordFunction = (
   scope: cdk.Construct,
   region: string,
@@ -120,7 +122,7 @@ function addCorsOptions(apiResource: Resource, allowedOrigin: string) {
   )
 }
 const aRecord = (
-  stack: RestApiStack,
+  stack: DiscordApiStack,
   target: environment.Environments,
   customDomain: DomainName,
 ) => {

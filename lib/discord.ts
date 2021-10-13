@@ -26,8 +26,8 @@ import * as cdk from '@aws-cdk/core'
 import { RemovalPolicy } from '@aws-cdk/core'
 import { resolve } from 'path'
 import { dataSourceReadWritePolicyStatement } from './datasource'
+import { environmentVariables } from './discordapi'
 import * as environment from './env'
-import { environmentVariables } from './restapi'
 
 export class DiscordStack extends cdk.Stack {
   constructor(

@@ -2,9 +2,10 @@ import * as cdk from '@aws-cdk/core'
 import { CertificateStack } from '../lib/certificate'
 import { DatasourceStack } from '../lib/datasource'
 import { DiscordStack } from '../lib/discord'
+import { DiscordApiStack } from '../lib/discordapi'
 import * as environment from '../lib/env'
-import { RestApiStack } from '../lib/restapi'
 import { Route53Stack } from '../lib/route53'
+import { VerifierApiStack } from '../lib/verifierapi'
 
 const app = new cdk.App()
 const target: environment.Environments = app.node.tryGetContext(
@@ -18,7 +19,18 @@ new CertificateStack(
   environment.withEnvPrefix(target, 'certificate'),
   target,
 )
-new RestApiStack(app, environment.withEnvPrefix(target, 'restapi'), target, {})
+new VerifierApiStack(
+  app,
+  environment.withEnvPrefix(target, 'verifierapi'),
+  target,
+  {},
+)
+new DiscordApiStack(
+  app,
+  environment.withEnvPrefix(target, 'restapi'),
+  target,
+  {},
+)
 new DatasourceStack(
   app,
   environment.withEnvPrefix(target, 'datasource'),
