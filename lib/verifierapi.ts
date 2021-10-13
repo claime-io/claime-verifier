@@ -1,22 +1,14 @@
-import {
-  DomainName,
-  EndpointType,
-  IResource,
-  LambdaIntegration,
-  MockIntegration,
-  PassthroughBehavior,
-  RestApi,
-  SecurityPolicy,
-} from '@aws-cdk/aws-apigateway'
-import * as certificatemanager from '@aws-cdk/aws-certificatemanager'
-import { Code, Function, Runtime, Tracing } from '@aws-cdk/aws-lambda'
-import * as route53 from '@aws-cdk/aws-route53'
-import * as alias from '@aws-cdk/aws-route53-targets'
+import { LambdaIntegration, RestApi } from '@aws-cdk/aws-apigateway'
+import { Function, Runtime, Tracing } from '@aws-cdk/aws-lambda'
 import * as cdk from '@aws-cdk/core'
-import { resolve } from 'path'
+import {
+  addCorsOptions,
+  code,
+  environmentVariables,
+  withCustomDomain,
+} from './api'
 import { basicPolicytStatements } from './discord'
 import * as environment from './env'
-import { hostedZoneFromId } from './route53'
 
 export class VerifierApiStack extends cdk.Stack {
   constructor(
@@ -29,19 +21,11 @@ export class VerifierApiStack extends cdk.Stack {
     const api = new RestApi(this, 'RestApi', {
       restApiName: environment.withEnvPrefix(target, 'verifier'),
     })
-    const func = discordFunction(
-      this,
-      this.region,
-      this.account,
-      'verify',
-      target,
-      api,
-    )
-    const customDomain = withCustomDomain(this, api, target)
-
-    aRecord(this, target, customDomain)
+    addCorsOptions(api.root, target)
+    withCustomDomain(this, api, restApiDomainName(target), target)
   }
 }
+
 // GET /${eoa}?type=domain
 // -> いったんbool,at,actual
 // -> (ゆくゆくは検証NGだった場合に理由出したい)
@@ -66,101 +50,10 @@ const discordFunction = (
     func.addToRolePolicy(s),
   )
   api.root.addMethod('GET', new LambdaIntegration(func))
-  addCorsOptions(api.root, environment.valueOf(target).allowedOrigin)
+  addCorsOptions(api.root, target)
   return func
 }
 
-export const environmentVariables = (target: environment.Environments) => {
-  return {
-    AllowedOrigin: environment.valueOf(target).allowedOrigin,
-    EnvironmentId: target,
-  }
-}
-
-const code = (dirname: string) => {
-  return Code.fromAsset(
-    resolve(`${__dirname}/../`, 'lib', 'functions', dirname, 'bin', 'main.zip'),
-  )
-}
-
-function addCorsOptions(apiResource: IResource, allowedOrigin: string) {
-  apiResource.addMethod(
-    'OPTIONS',
-    new MockIntegration({
-      integrationResponses: [
-        {
-          statusCode: '200',
-          responseParameters: {
-            'method.response.header.Access-Control-Allow-Headers':
-              "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-            'method.response.header.Access-Control-Allow-Origin': `'${allowedOrigin}'`,
-            'method.response.header.Access-Control-Allow-Credentials':
-              "'false'",
-            'method.response.header.Access-Control-Allow-Methods':
-              "'OPTIONS,GET,PUT,POST,DELETE'",
-          },
-        },
-      ],
-      passthroughBehavior: PassthroughBehavior.NEVER,
-      requestTemplates: {
-        'application/json': '{"statusCode": 200}',
-      },
-    }),
-    {
-      methodResponses: [
-        {
-          statusCode: '200',
-          responseParameters: {
-            'method.response.header.Access-Control-Allow-Headers': true,
-            'method.response.header.Access-Control-Allow-Methods': true,
-            'method.response.header.Access-Control-Allow-Credentials': true,
-            'method.response.header.Access-Control-Allow-Origin': true,
-          },
-        },
-      ],
-    },
-  )
-}
-const aRecord = (
-  stack: VerifierApiStack,
-  target: environment.Environments,
-  customDomain: DomainName,
-) => {
-  new route53.ARecord(stack, 'RestApiARecord', {
-    zone: hostedZoneFromId(stack, target),
-    recordName: restApiDomainName(target),
-    target: route53.RecordTarget.fromAlias(
-      new alias.ApiGatewayDomain(customDomain),
-    ),
-  })
-}
 const restApiDomainName = (target: environment.Environments) => {
   return `verifier.` + environment.valueOf(target).rootDomain
-}
-
-const withCustomDomain = (
-  stack: cdk.Stack,
-  api: RestApi,
-  target: environment.Environments,
-) => {
-  const customDomain = api.addDomainName(
-    environment.withEnvPrefix(target, 'domain'),
-    customDomainProps(stack, target),
-  )
-  return customDomain
-}
-const customDomainProps = (
-  stack: cdk.Stack,
-  target: environment.Environments,
-) => {
-  return {
-    domainName: restApiDomainName(target),
-    certificate: certificatemanager.Certificate.fromCertificateArn(
-      stack,
-      'Cert',
-      environment.valueOf(target).certificateArn,
-    ),
-    securityPolicy: SecurityPolicy.TLS_1_2,
-    endpointType: EndpointType.REGIONAL,
-  }
 }
