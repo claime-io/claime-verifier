@@ -25,9 +25,9 @@ import { Secret } from '@aws-cdk/aws-secretsmanager'
 import * as cdk from '@aws-cdk/core'
 import { RemovalPolicy } from '@aws-cdk/core'
 import { resolve } from 'path'
+import { environmentVariables } from './api'
 import { dataSourceReadWritePolicyStatement } from './datasource'
 import * as environment from './env'
-import { environmentVariables } from './restapi'
 
 export class DiscordStack extends cdk.Stack {
   constructor(
@@ -38,7 +38,7 @@ export class DiscordStack extends cdk.Stack {
   ) {
     super(scope, id, props)
     const api = new RestApi(this, 'RestApi', {
-      restApiName: environment.withEnvPrefix(target, 'restapi'),
+      restApiName: environment.withEnvPrefix(target, 'discord-interaction'),
       apiKeySourceType: ApiKeySourceType.HEADER,
     })
     const discordAPISecrets = new Secret(

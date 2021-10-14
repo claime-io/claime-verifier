@@ -15,8 +15,16 @@ import (
 )
 
 type (
+	DiscordInput struct {
+		UserID    string `json:"userId"`
+		GuildID   string `json:"guildId"`
+		Validity  string `json:"validity"`
+		Signature string `json:"signature"`
+	}
+
 	Input struct {
-		EOA transaction.EOAInput `json:"eoa"`
+		Discord DiscordInput         `json:"discord"`
+		EOA     transaction.EOAInput `json:"eoa"`
 	}
 )
 
