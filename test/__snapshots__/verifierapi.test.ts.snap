@@ -120,8 +120,9 @@ Object {
     },
     "[HASH REMOVED]": Object {
       "DependsOn": Array [
-        "RestApiGET0F59260B",
-        "RestApiOPTIONS6AA64D2D",
+        "RestApieoaGET5B3E5E0E",
+        "RestApieoaOPTIONS7CB4A00C",
+        "RestApieoa93F8128F",
       ],
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
@@ -143,7 +144,49 @@ Object {
       },
       "Type": "AWS::ApiGateway::Stage",
     },
-    "RestApiGET0F59260B": Object {
+    "RestApiclaimeverifierdomaintest8DF44C4D": Object {
+      "Properties": Object {
+        "DomainName": "verifier.test",
+        "EndpointConfiguration": Object {
+          "Types": Array [
+            "REGIONAL",
+          ],
+        },
+        "RegionalCertificateArn": "",
+        "SecurityPolicy": "TLS_1_2",
+      },
+      "Type": "AWS::ApiGateway::DomainName",
+    },
+    "RestApiclaimeverifierdomaintestMaptestRestApi41EB688D8756FA87": Object {
+      "Properties": Object {
+        "DomainName": Object {
+          "Ref": "RestApiclaimeverifierdomaintest8DF44C4D",
+        },
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+        "Stage": Object {
+          "Ref": "[HASH REMOVED]",
+        },
+      },
+      "Type": "AWS::ApiGateway::BasePathMapping",
+    },
+    "RestApieoa93F8128F": Object {
+      "Properties": Object {
+        "ParentId": Object {
+          "Fn::GetAtt": Array [
+            "RestApi0C43BF4B",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "{eoa}",
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "RestApieoaGET5B3E5E0E": Object {
       "Properties": Object {
         "AuthorizationType": "NONE",
         "HttpMethod": "GET",
@@ -175,10 +218,7 @@ Object {
           },
         },
         "ResourceId": Object {
-          "Fn::GetAtt": Array [
-            "RestApi0C43BF4B",
-            "RootResourceId",
-          ],
+          "Ref": "RestApieoa93F8128F",
         },
         "RestApiId": Object {
           "Ref": "RestApi0C43BF4B",
@@ -186,7 +226,7 @@ Object {
       },
       "Type": "AWS::ApiGateway::Method",
     },
-    "RestApiGETApiPermissionTesttestRestApi41EB688DGET329349C0": Object {
+    "RestApieoaGETApiPermissionTesttestRestApi41EB688DGETeoa2B511B42": Object {
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -216,14 +256,14 @@ Object {
               Object {
                 "Ref": "RestApi0C43BF4B",
               },
-              "/test-invoke-stage/GET/",
+              "/test-invoke-stage/GET/*",
             ],
           ],
         },
       },
       "Type": "AWS::Lambda::Permission",
     },
-    "RestApiGETApiPermissiontestRestApi41EB688DGET84B30175": Object {
+    "RestApieoaGETApiPermissiontestRestApi41EB688DGETeoaC1906188": Object {
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -257,14 +297,14 @@ Object {
               Object {
                 "Ref": "[HASH REMOVED]",
               },
-              "/GET/",
+              "/GET/*",
             ],
           ],
         },
       },
       "Type": "AWS::Lambda::Permission",
     },
-    "RestApiOPTIONS6AA64D2D": Object {
+    "RestApieoaOPTIONS7CB4A00C": Object {
       "Properties": Object {
         "AuthorizationType": "NONE",
         "HttpMethod": "OPTIONS",
@@ -298,43 +338,13 @@ Object {
           },
         ],
         "ResourceId": Object {
-          "Fn::GetAtt": Array [
-            "RestApi0C43BF4B",
-            "RootResourceId",
-          ],
+          "Ref": "RestApieoa93F8128F",
         },
         "RestApiId": Object {
           "Ref": "RestApi0C43BF4B",
         },
       },
       "Type": "AWS::ApiGateway::Method",
-    },
-    "RestApiclaimeverifierdomaintest8DF44C4D": Object {
-      "Properties": Object {
-        "DomainName": "verifier.test",
-        "EndpointConfiguration": Object {
-          "Types": Array [
-            "REGIONAL",
-          ],
-        },
-        "RegionalCertificateArn": "",
-        "SecurityPolicy": "TLS_1_2",
-      },
-      "Type": "AWS::ApiGateway::DomainName",
-    },
-    "RestApiclaimeverifierdomaintestMaptestRestApi41EB688D8756FA87": Object {
-      "Properties": Object {
-        "DomainName": Object {
-          "Ref": "RestApiclaimeverifierdomaintest8DF44C4D",
-        },
-        "RestApiId": Object {
-          "Ref": "RestApi0C43BF4B",
-        },
-        "Stage": Object {
-          "Ref": "[HASH REMOVED]",
-        },
-      },
-      "Type": "AWS::ApiGateway::BasePathMapping",
     },
     "verify2EA97391": Object {
       "DependsOn": Array [
