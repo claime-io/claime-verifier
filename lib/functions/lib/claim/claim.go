@@ -11,11 +11,12 @@ type (
 	// Claim claim
 	Claim struct {
 		PropertyType string `json:"propertyType"`
-		PropertyId   string `json:"propertyId"`
+		PropertyID   string `json:"propertyId"`
 		Evidence     string `json:"evidence"`
 		Method       string `json:"method"`
 	}
 
+	// VerifiedOutput output
 	VerifiedOutput struct {
 		Claim
 		Verified bool      `json:"verified"`
@@ -23,35 +24,41 @@ type (
 		At       time.Time `json:"at"`
 	}
 
+	// Verifier verifier
 	Verifier struct {
 		PropertyType, Method string
 		Default              bool
 	}
 
-	PropertyType string
-	Method       string
+	// EOAOutput eoa
+	EOAOutput struct {
+		Actual     string
+		Got        common.Address
+		PropertyID string
+	}
 
+	// Repository repository
 	Repository interface {
 		ClaimsOf(ctx context.Context, eoa common.Address) ([]Claim, error)
 	}
+
+	// Service service
 	Service struct {
 		rep       Repository
 		verifiers map[Verifier]EvidenceRepository
 	}
+	// EvidenceRepository evidence repository
 	EvidenceRepository interface {
-		EOA(ctx context.Context, propertyID string) (common.Address, error)
+		EOA(ctx context.Context, cl Claim) (EOAOutput, error)
 	}
 )
 
+// NewService new service
 func NewService(rep Repository, supported map[Verifier]EvidenceRepository) Service {
 	return Service{
 		rep:       rep,
 		verifiers: supported,
 	}
-}
-
-func (s Service) Of(ctx context.Context, eoa common.Address) ([]Claim, error) {
-	return s.rep.ClaimsOf(ctx, eoa)
 }
 
 // VerifiedClaims list verified claims of eoa.
@@ -66,15 +73,15 @@ func (s Service) VerifiedClaims(ctx context.Context, eoa common.Address) ([]Veri
 		if !ok {
 			continue
 		}
-		got, err := s.verifiers[verifier].EOA(ctx, cl.PropertyId)
+		got, err := s.verifiers[verifier].EOA(ctx, cl)
 		if err != nil {
 			continue
 		}
 		res = append(res, VerifiedOutput{
 			Claim:    cl,
-			Actual:   got.Hex(),
+			Actual:   got.Actual,
 			At:       time.Now(),
-			Verified: verified(eoa, got),
+			Verified: verified(cl, eoa, got),
 		})
 	}
 	return res, nil
@@ -95,8 +102,8 @@ func supportedVerifier(c Claim, verifiers map[Verifier]EvidenceRepository) (Veri
 	return Verifier{}, false
 }
 
-func verified(want, got common.Address) bool {
-	return want.String() == got.String()
+func verified(cl Claim, eoa common.Address, got EOAOutput) bool {
+	return (cl.PropertyID == got.PropertyID) && (eoa == got.Got)
 }
 
 func (s Service) claimsOf(ctx context.Context, eoa common.Address) ([]Claim, error) {
