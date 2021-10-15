@@ -2,9 +2,9 @@ package main
 
 import (
 	"claime-verifier/lib/functions/lib"
+	"claime-verifier/lib/functions/lib/claim"
 	"claime-verifier/lib/functions/lib/common/log"
-	"claime-verifier/lib/functions/lib/guild"
-	guildrep "claime-verifier/lib/functions/lib/guild/persistence"
+	"claime-verifier/lib/functions/lib/infrastructure/registry"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"claime-verifier/lib/functions/lib/transaction"
 	"context"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type (
@@ -22,45 +23,43 @@ type (
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	ssmClient := ssm.New()
-	var in guild.GrantRoleInput
-	if err := json.Unmarshal([]byte(request.Body), &in); err != nil {
-		log.Error("json unmarshal failed", err)
-		return response(403), nil
-	}
-	rep := guildrep.New()
-	guild, err := guild.New(ctx, ssmClient, rep)
+	rep, err := registry.NewProvider(ctx, "rinkeby", ssmClient)
 	if err != nil {
-		log.Error("", err)
-		return response(500), nil
+		log.Error("client initialize failed", err)
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Headers:    lib.Headers(),
+			Body:       "{}",
+		}, nil
 	}
-	out, err := guild.Grant(ctx, in)
-	return handleResponse(out, err)
-}
-
-func handleResponse(out guild.GrantRoleOutput, err error) (events.APIGatewayProxyResponse, error) {
+	eoa := request.PathParameters["eoa"]
+	address := common.HexToAddress(eoa)
+	service := claim.NewService(rep)
+	claims, err := service.Of(ctx, address)
 	if err != nil {
-		return response(400), nil
+		log.Error("get claim failed", err)
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Headers:    lib.Headers(),
+			Body:       "{}",
+		}, nil
 	}
-	if !out.ValidSig {
-		return response(403), nil
+	res, err := json.Marshal(&claims)
+	if err != nil {
+		log.Error("json marshal failed", err)
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Headers:    lib.Headers(),
+			Body:       "{}",
+		}, nil
 	}
-	if out.Expired {
-		return response(403), nil
-	}
-	if out.Granted {
-		return response(200), nil
-	}
-	return response(401), nil
+	return events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Headers:    lib.Headers(),
+		Body:       string(res),
+	}, err
 }
 
 func main() {
 	lambda.Start(handler)
-}
-
-func response(statusCode int) events.APIGatewayProxyResponse {
-	return events.APIGatewayProxyResponse{
-		StatusCode: statusCode,
-		Body:       "{}",
-		Headers:    lib.Headers(),
-	}
 }
