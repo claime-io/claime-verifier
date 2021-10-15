@@ -1,6 +1,11 @@
 package lib
 
 import (
+	"claime-verifier/lib/functions/lib/claim"
+	"claime-verifier/lib/functions/lib/infrastructure/ssm"
+	"claime-verifier/lib/functions/lib/infrastructure/verifiers/twitter"
+	"claime-verifier/lib/functions/lib/infrastructure/verifiers/txt"
+	"context"
 	"os"
 )
 
@@ -12,4 +17,10 @@ func Headers() map[string]string {
 		"Access-Control-Allow-Credentials": "true",
 		"Access-Control-Allow-Origin":      os.Getenv("AllowedOrigin"),
 	}
+}
+
+// SupportedVerifiers list supported verifiers by Verify Methods
+func SupportedVerifiers(ctx context.Context, ssm ssm.Client) (map[string]claim.EvidenceRepository, error) {
+	tw, err := twitter.New(ctx, ssm)
+	return map[string]claim.EvidenceRepository{"TXT": txt.New(), "Tweet": tw}, err
 }

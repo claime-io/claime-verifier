@@ -33,14 +33,14 @@ func TestEoa(t *testing.T) {
 	}
 }
 
-func TestGet(t *testing.T) {
+func TestEOA(t *testing.T) {
 	t.Run("get eoa", func(t *testing.T) {
 		resolver := ssm.New()
 		target, err := New(context.Background(), resolver)
 		if err != nil {
 			t.Error(err)
 		}
-		got, err := target.Get(context.Background(), int64(1448877989106651140))
+		got, err := target.EOA(context.Background(), "1448877989106651140")
 		if err != nil {
 			t.Error(err)
 		}

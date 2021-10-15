@@ -3,6 +3,7 @@ package twitter
 import (
 	"claime-verifier/lib/functions/lib/common/log"
 	"context"
+	"strconv"
 	"strings"
 
 	"github.com/dghubble/go-twitter/twitter"
@@ -53,9 +54,14 @@ func new(cons, sec string) Client {
 	}
 }
 
-// Get get eoa from twitter
-func (c Client) Get(ctx context.Context, id int64) (common.Address, error) {
-	ts, _, err := c.svc.Statuses.Lookup([]int64{id}, nil)
+// EOA get eoa from twitter
+func (c Client) EOA(ctx context.Context, id string) (common.Address, error) {
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		log.Error("id should be int64", err)
+		return common.Address{}, err
+	}
+	ts, _, err := c.svc.Statuses.Lookup([]int64{i}, nil)
 	if err != nil {
 		log.Error("lookup tweet failed", err)
 		return common.Address{}, err
