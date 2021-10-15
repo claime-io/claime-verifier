@@ -30,8 +30,8 @@ func TestClaimsOf(t *testing.T) {
 		if claime.PropertyType != "Domain" {
 			t.Error("got", claime.PropertyType)
 		}
-		if claime.PropertyId != "claime-dev.tk" {
-			t.Error("got", claime.PropertyId)
+		if claime.PropertyID != "claime-dev.tk" {
+			t.Error("got", claime.PropertyID)
 		}
 		if claime.Method != "TXT" {
 			t.Error("got", claime.Method)

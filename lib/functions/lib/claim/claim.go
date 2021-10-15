@@ -11,11 +11,12 @@ type (
 	// Claim claim
 	Claim struct {
 		PropertyType string `json:"propertyType"`
-		PropertyId   string `json:"propertyId"`
+		PropertyID   string `json:"propertyId"`
 		Evidence     string `json:"evidence"`
 		Method       string `json:"method"`
 	}
 
+	// VerifiedOutput output
 	VerifiedOutput struct {
 		Claim
 		Verified bool      `json:"verified"`
@@ -23,35 +24,34 @@ type (
 		At       time.Time `json:"at"`
 	}
 
+	// Verifier verifier
 	Verifier struct {
 		PropertyType, Method string
 		Default              bool
 	}
 
-	PropertyType string
-	Method       string
-
+	// Repository repository
 	Repository interface {
 		ClaimsOf(ctx context.Context, eoa common.Address) ([]Claim, error)
 	}
+
+	// Service service
 	Service struct {
 		rep       Repository
 		verifiers map[Verifier]EvidenceRepository
 	}
+	// EvidenceRepository evidence repository
 	EvidenceRepository interface {
 		EOA(ctx context.Context, propertyID string) (common.Address, error)
 	}
 )
 
+// NewService new service
 func NewService(rep Repository, supported map[Verifier]EvidenceRepository) Service {
 	return Service{
 		rep:       rep,
 		verifiers: supported,
 	}
-}
-
-func (s Service) Of(ctx context.Context, eoa common.Address) ([]Claim, error) {
-	return s.rep.ClaimsOf(ctx, eoa)
 }
 
 // VerifiedClaims list verified claims of eoa.
@@ -66,7 +66,7 @@ func (s Service) VerifiedClaims(ctx context.Context, eoa common.Address) ([]Veri
 		if !ok {
 			continue
 		}
-		got, err := s.verifiers[verifier].EOA(ctx, cl.PropertyId)
+		got, err := s.verifiers[verifier].EOA(ctx, cl.PropertyID)
 		if err != nil {
 			continue
 		}

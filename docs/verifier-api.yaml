@@ -18,7 +18,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VerifierOutput'
+                type: array
+                items:
+                  $ref: '#/components/schemas/VerifierOutput'
     parameters:
       - schema:
           type: string

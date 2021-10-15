@@ -69,7 +69,7 @@ func (p Provider) ClaimsOf(ctx context.Context, eoa common.Address) ([]claim.Cla
 		}
 		res = append(res, claim.Claim{
 			PropertyType: c.PropertyType,
-			PropertyId:   c.PropertyId,
+			PropertyID:   c.PropertyId,
 			Evidence:     c.Evidence,
 			Method:       c.Method,
 		})
