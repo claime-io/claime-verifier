@@ -56,8 +56,8 @@ func new(cons, sec string) Client {
 }
 
 // EOA get eoa from twitter
-func (c Client) EOA(ctx context.Context, id string) (claim.EOAOutput, error) {
-	i, err := strconv.ParseInt(id, 10, 64)
+func (c Client) EOA(ctx context.Context, cl claim.Claim) (claim.EOAOutput, error) {
+	i, err := strconv.ParseInt(cl.Evidence, 10, 64)
 	if err != nil {
 		log.Error("id should be int64", err)
 		return claim.EOAOutput{}, err
@@ -83,5 +83,5 @@ func eoa(rawMessage string) common.Address {
 
 func eoaRaw(raw string) string {
 	exp := strings.TrimLeft(raw, evidencePrefix)
-	return strings.TrimRight(strings.TrimLeft(exp, `"`), `"`)
+	return strings.TrimRight(strings.TrimLeft(exp, `\"`), `\"`)
 }

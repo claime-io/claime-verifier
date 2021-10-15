@@ -26,8 +26,8 @@ func New() Client {
 }
 
 // EOA get eoa from domain
-func (c Client) EOA(ctx context.Context, domain string) (claim.EOAOutput, error) {
-	txtrecords, err := net.LookupTXT(domain)
+func (c Client) EOA(ctx context.Context, cl claim.Claim) (claim.EOAOutput, error) {
+	txtrecords, err := net.LookupTXT(cl.PropertyID)
 	if err != nil {
 		log.Error("nslookup failed", err)
 	}
@@ -37,7 +37,7 @@ func (c Client) EOA(ctx context.Context, domain string) (claim.EOAOutput, error)
 			return claim.EOAOutput{
 				Actual:     txt,
 				Got:        common.HexToAddress(address),
-				PropertyID: domain,
+				PropertyID: cl.PropertyID,
 			}, nil
 		}
 	}

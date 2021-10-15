@@ -49,7 +49,7 @@ type (
 	}
 	// EvidenceRepository evidence repository
 	EvidenceRepository interface {
-		EOA(ctx context.Context, propertyID string) (EOAOutput, error)
+		EOA(ctx context.Context, cl Claim) (EOAOutput, error)
 	}
 )
 
@@ -73,7 +73,7 @@ func (s Service) VerifiedClaims(ctx context.Context, eoa common.Address) ([]Veri
 		if !ok {
 			continue
 		}
-		got, err := s.verifiers[verifier].EOA(ctx, cl.PropertyID)
+		got, err := s.verifiers[verifier].EOA(ctx, cl)
 		if err != nil {
 			continue
 		}
