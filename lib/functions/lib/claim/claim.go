@@ -15,6 +15,12 @@ type (
 		Method       string `json:"method"`
 	}
 
+	VerifiedOutput struct {
+		Claim
+		Verified bool   `json:"verified"`
+		Actual   string `json:"actual"`
+	}
+
 	Verifier struct {
 		PropertyType, Method string
 		Default              bool
@@ -47,12 +53,12 @@ func (s Service) Of(ctx context.Context, eoa common.Address) ([]Claim, error) {
 }
 
 // VerifiedClaims list verified claims of eoa.
-func (s Service) VerifiedClaims(ctx context.Context, eoa common.Address) ([]Claim, error) {
+func (s Service) VerifiedClaims(ctx context.Context, eoa common.Address) ([]VerifiedOutput, error) {
 	claims, err := s.claimsOf(ctx, eoa)
 	if err != nil {
-		return []Claim{}, err
+		return []VerifiedOutput{}, err
 	}
-	res := []Claim{}
+	res := []VerifiedOutput{}
 	for _, cl := range claims {
 		verifier, ok := supportedVerifier(cl, s.verifiers)
 		if !ok {
@@ -62,9 +68,16 @@ func (s Service) VerifiedClaims(ctx context.Context, eoa common.Address) ([]Clai
 		if err != nil {
 			continue
 		}
+		out := VerifiedOutput{}
 		if verified(eoa, got) {
-			res = append(res, cl)
+			out.Verified = true
+			out.Actual = eoa.String()
+			res = append(res, out)
+			continue
 		}
+		out.Verified = false
+		out.Actual = got.String()
+		res = append(res, out)
 	}
 	return res, nil
 }
