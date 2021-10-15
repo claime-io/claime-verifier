@@ -49,8 +49,9 @@ const apifunction = (
   basicPolicytStatements(region, account, target).forEach((s) =>
     func.addToRolePolicy(s),
   )
-  api.root.addMethod('GET', new LambdaIntegration(func))
-  addCorsOptions(api.root, target)
+  const re = api.root.addResource('{eoa}')
+  re.addMethod('GET', new LambdaIntegration(func))
+  addCorsOptions(re, target)
   return func
 }
 

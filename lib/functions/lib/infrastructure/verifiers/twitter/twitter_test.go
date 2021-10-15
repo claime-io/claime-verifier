@@ -44,8 +44,8 @@ func TestEOA(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		if got.String() != "0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb" {
-			t.Error("got:", got.String())
+		if got.Got.String() != "0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb" {
+			t.Error("got:", got.Got.String())
 		}
 	})
 }

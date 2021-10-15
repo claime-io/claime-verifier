@@ -1,6 +1,7 @@
 package twitter
 
 import (
+	"claime-verifier/lib/functions/lib/claim"
 	"claime-verifier/lib/functions/lib/common/log"
 	"context"
 	"strconv"
@@ -55,21 +56,25 @@ func new(cons, sec string) Client {
 }
 
 // EOA get eoa from twitter
-func (c Client) EOA(ctx context.Context, id string) (common.Address, error) {
+func (c Client) EOA(ctx context.Context, id string) (claim.EOAOutput, error) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		log.Error("id should be int64", err)
-		return common.Address{}, err
+		return claim.EOAOutput{}, err
 	}
 	ts, _, err := c.svc.Statuses.Lookup([]int64{i}, nil)
 	if err != nil {
 		log.Error("lookup tweet failed", err)
-		return common.Address{}, err
+		return claim.EOAOutput{}, err
 	}
 	if len(ts) == 0 {
-		return common.Address{}, err
+		return claim.EOAOutput{}, err
 	}
-	return eoa(ts[0].Text), nil
+	return claim.EOAOutput{
+		Actual:     ts[0].Text,
+		Got:        eoa(ts[0].Text),
+		PropertyID: ts[0].User.IDStr,
+	}, nil
 }
 
 func eoa(rawMessage string) common.Address {

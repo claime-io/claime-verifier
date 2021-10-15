@@ -30,6 +30,13 @@ type (
 		Default              bool
 	}
 
+	// EOAOutput eoa
+	EOAOutput struct {
+		Actual     string
+		Got        common.Address
+		PropertyID string
+	}
+
 	// Repository repository
 	Repository interface {
 		ClaimsOf(ctx context.Context, eoa common.Address) ([]Claim, error)
@@ -42,7 +49,7 @@ type (
 	}
 	// EvidenceRepository evidence repository
 	EvidenceRepository interface {
-		EOA(ctx context.Context, propertyID string) (common.Address, error)
+		EOA(ctx context.Context, propertyID string) (EOAOutput, error)
 	}
 )
 
@@ -72,9 +79,9 @@ func (s Service) VerifiedClaims(ctx context.Context, eoa common.Address) ([]Veri
 		}
 		res = append(res, VerifiedOutput{
 			Claim:    cl,
-			Actual:   got.Hex(),
+			Actual:   got.Actual,
 			At:       time.Now(),
-			Verified: verified(eoa, got),
+			Verified: verified(cl, eoa, got),
 		})
 	}
 	return res, nil
@@ -95,8 +102,8 @@ func supportedVerifier(c Claim, verifiers map[Verifier]EvidenceRepository) (Veri
 	return Verifier{}, false
 }
 
-func verified(want, got common.Address) bool {
-	return want.String() == got.String()
+func verified(cl Claim, eoa common.Address, got EOAOutput) bool {
+	return (cl.PropertyID == got.PropertyID) && (eoa == got.Got)
 }
 
 func (s Service) claimsOf(ctx context.Context, eoa common.Address) ([]Claim, error) {
