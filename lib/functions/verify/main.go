@@ -6,19 +6,12 @@ import (
 	"claime-verifier/lib/functions/lib/common/log"
 	"claime-verifier/lib/functions/lib/infrastructure/registry"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
-	"claime-verifier/lib/functions/lib/transaction"
 	"context"
 	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/ethereum/go-ethereum/common"
-)
-
-type (
-	Input struct {
-		EOA transaction.EOAInput `json:"eoa"`
-	}
 )
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -34,8 +27,17 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	}
 	eoa := request.PathParameters["eoa"]
 	address := common.HexToAddress(eoa)
-	service := claim.NewService(rep)
-	claims, err := service.Of(ctx, address)
+	verifiers, err := lib.SupportedVerifiers(ctx, ssmClient)
+	if err != nil {
+		log.Error("client initialize failed", err)
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Headers:    lib.Headers(),
+			Body:       "{}",
+		}, nil
+	}
+	service := claim.NewService(rep, verifiers)
+	claims, err := service.VerifiedClaims(ctx, address)
 	if err != nil {
 		log.Error("get claim failed", err)
 		return events.APIGatewayProxyResponse{
