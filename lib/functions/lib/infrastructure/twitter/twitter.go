@@ -3,33 +3,46 @@ package twitter
 import (
 	"claime-verifier/lib/functions/lib/common/log"
 	"context"
+	"strings"
 
 	"github.com/dghubble/go-twitter/twitter"
+	"github.com/ethereum/go-ethereum/common"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 )
 
+const (
+	evidencePrefix = "claime-ownership-claim="
+)
+
 type (
+	// Client client
 	Client struct {
 		svc *twitter.Client
 	}
+	// Resolver resolver consumer key & secret
 	Resolver interface {
 		TwitterConsumerKey(ctx context.Context) (string, error)
-		TwitterComsumerSecret(ctx context.Context) (string, error)
+		TwitterConsumerSecret(ctx context.Context) (string, error)
 	}
 )
 
+// New new client
 func New(ctx context.Context, r Resolver) (Client, error) {
 	key, err := r.TwitterConsumerKey(ctx)
 	if err != nil {
 		return Client{}, err
 	}
-	sec, err := r.TwitterComsumerSecret(ctx)
+	sec, err := r.TwitterConsumerSecret(ctx)
 	if err != nil {
 		return Client{}, err
 	}
+	return new(key, sec), err
+}
+
+func new(cons, sec string) Client {
 	config := &clientcredentials.Config{
-		ClientID:     key,
+		ClientID:     cons,
 		ClientSecret: sec,
 		TokenURL:     "https://api.twitter.com/oauth2/token",
 	}
@@ -37,17 +50,27 @@ func New(ctx context.Context, r Resolver) (Client, error) {
 	client := twitter.NewClient(httpClient)
 	return Client{
 		svc: client,
-	}, nil
+	}
 }
 
-func (c Client) Get(ctx context.Context, id int64) (twitter.Tweet, error) {
+// Get get eoa from twitter
+func (c Client) Get(ctx context.Context, id int64) (common.Address, error) {
 	ts, _, err := c.svc.Statuses.Lookup([]int64{id}, nil)
 	if err != nil {
 		log.Error("lookup tweet failed", err)
-		return twitter.Tweet{}, err
+		return common.Address{}, err
 	}
 	if len(ts) == 0 {
-		return twitter.Tweet{}, err
+		return common.Address{}, err
 	}
-	return ts[0], nil
+	return eoa(ts[0].Text), nil
+}
+
+func eoa(rawMessage string) common.Address {
+	return common.HexToAddress(eoaRaw(rawMessage))
+}
+
+func eoaRaw(raw string) string {
+	exp := strings.TrimLeft(raw, evidencePrefix)
+	return strings.TrimRight(strings.TrimLeft(exp, `"`), `"`)
 }

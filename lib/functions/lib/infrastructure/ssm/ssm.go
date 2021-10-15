@@ -26,15 +26,17 @@ type (
 )
 
 const (
-	keyPrefix        = "claime-verifier-"
-	infuraKeyPrefix  = keyPrefix + "infura-key-"
-	discordPublicKey = keyPrefix + "discord-public-key"
-	discordBotToken  = keyPrefix + "discord-bot-token"
-	claimePublicKey  = keyPrefix + "public-key"
-	claimePrivateKey = keyPrefix + "private-key"
-	endpointRinkeby  = keyPrefix + "endpoint-rinkeby"
-	endpointMainnet  = keyPrefix + "endpoint-mainnet"
-	endpointPolygon  = keyPrefix + "endpoint-polygon"
+	keyPrefix             = "claime-verifier-"
+	infuraKeyPrefix       = keyPrefix + "infura-key-"
+	discordPublicKey      = keyPrefix + "discord-public-key"
+	discordBotToken       = keyPrefix + "discord-bot-token"
+	claimePublicKey       = keyPrefix + "public-key"
+	claimePrivateKey      = keyPrefix + "private-key"
+	endpointRinkeby       = keyPrefix + "endpoint-rinkeby"
+	endpointMainnet       = keyPrefix + "endpoint-mainnet"
+	endpointPolygon       = keyPrefix + "endpoint-polygon"
+	twitterConsumerKey    = keyPrefix + "twitter-consumer-key"
+	twitterConsumerSecret = keyPrefix + "twitter-consumer-secret"
 )
 
 func keyOf(network string) string {
@@ -77,6 +79,14 @@ func (c Client) ClaimePublicKey(ctx context.Context) (val ed25519.PublicKey, err
 
 func (c Client) ClaimePrivateKey(ctx context.Context) (val ed25519.PrivateKey, err error) {
 	return c.getKey(ctx, withEnvSuffix(claimePrivateKey))
+}
+
+func (c Client) TwitterConsumerKey(ctx context.Context) (val string, err error) {
+	return c.get(ctx, withEnvSuffix(twitterConsumerKey))
+}
+
+func (c Client) TwitterConsumerSecret(ctx context.Context) (val string, err error) {
+	return c.get(ctx, withEnvSuffix(twitterConsumerSecret))
 }
 
 func (c Client) getKey(ctx context.Context, key string) ([]byte, error) {
