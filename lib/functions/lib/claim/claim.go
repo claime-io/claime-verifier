@@ -2,6 +2,7 @@ package claim
 
 import (
 	"context"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -17,8 +18,9 @@ type (
 
 	VerifiedOutput struct {
 		Claim
-		Verified bool   `json:"verified"`
-		Actual   string `json:"actual"`
+		Verified bool      `json:"verified"`
+		Actual   string    `json:"actual"`
+		At       time.Time `json:"at"`
 	}
 
 	Verifier struct {
@@ -68,16 +70,12 @@ func (s Service) VerifiedClaims(ctx context.Context, eoa common.Address) ([]Veri
 		if err != nil {
 			continue
 		}
-		out := VerifiedOutput{}
-		if verified(eoa, got) {
-			out.Verified = true
-			out.Actual = eoa.String()
-			res = append(res, out)
-			continue
-		}
-		out.Verified = false
-		out.Actual = got.String()
-		res = append(res, out)
+		res = append(res, VerifiedOutput{
+			Claim:    cl,
+			Actual:   got.Hex(),
+			At:       time.Now(),
+			Verified: verified(eoa, got),
+		})
 	}
 	return res, nil
 }
