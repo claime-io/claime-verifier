@@ -6,19 +6,12 @@ import (
 	"claime-verifier/lib/functions/lib/common/log"
 	"claime-verifier/lib/functions/lib/infrastructure/registry"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
-	"claime-verifier/lib/functions/lib/transaction"
 	"context"
 	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/ethereum/go-ethereum/common"
-)
-
-type (
-	Input struct {
-		EOA transaction.EOAInput `json:"eoa"`
-	}
 )
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {

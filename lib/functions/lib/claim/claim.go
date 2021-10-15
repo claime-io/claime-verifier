@@ -15,6 +15,11 @@ type (
 		Method       string `json:"method"`
 	}
 
+	Verifier struct {
+		PropertyType, Method string
+		Default              bool
+	}
+
 	PropertyType string
 	Method       string
 
@@ -23,19 +28,14 @@ type (
 	}
 	Service struct {
 		rep       Repository
-		verifiers map[string]EvidenceRepository
+		verifiers map[Verifier]EvidenceRepository
 	}
 	EvidenceRepository interface {
 		EOA(ctx context.Context, propertyID string) (common.Address, error)
 	}
 )
 
-var (
-	SupportedPropertyTypes = []PropertyType{"Domain"}
-	SupportedMethods       = []Method{"TXT", "Tweet"}
-)
-
-func NewService(rep Repository, supported map[string]EvidenceRepository) Service {
+func NewService(rep Repository, supported map[Verifier]EvidenceRepository) Service {
 	return Service{
 		rep:       rep,
 		verifiers: supported,
@@ -54,12 +54,11 @@ func (s Service) VerifiedClaims(ctx context.Context, eoa common.Address) ([]Clai
 	}
 	res := []Claim{}
 	for _, cl := range claims {
-		m := cl.Method
-		verifier, ok := s.verifiers[m]
+		verifier, ok := supportedVerifier(cl, s.verifiers)
 		if !ok {
 			continue
 		}
-		got, err := verifier.EOA(ctx, cl.PropertyId)
+		got, err := s.verifiers[verifier].EOA(ctx, cl.PropertyId)
 		if err != nil {
 			continue
 		}
@@ -68,6 +67,21 @@ func (s Service) VerifiedClaims(ctx context.Context, eoa common.Address) ([]Clai
 		}
 	}
 	return res, nil
+}
+
+func supportedVerifier(c Claim, verifiers map[Verifier]EvidenceRepository) (Verifier, bool) {
+	for k := range verifiers {
+		if k.PropertyType != c.PropertyType {
+			continue
+		}
+		if c.Method == "" && k.Default {
+			return k, true
+		}
+		if c.Method == k.Method {
+			return k, true
+		}
+	}
+	return Verifier{}, false
 }
 
 func verified(want, got common.Address) bool {
