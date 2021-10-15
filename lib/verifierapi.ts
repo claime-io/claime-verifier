@@ -21,8 +21,7 @@ export class VerifierApiStack extends cdk.Stack {
     const api = new RestApi(this, 'RestApi', {
       restApiName: environment.withEnvPrefix(target, 'verifier'),
     })
-
-    addCorsOptions(api.root, target)
+    apifunction(this, this.region, this.account, 'verify', target, api)
     withCustomDomain(this, api, restApiDomainName(target), target)
   }
 }
@@ -30,7 +29,7 @@ export class VerifierApiStack extends cdk.Stack {
 // GET /${eoa}?type=domain
 // -> いったんbool,at,actual
 // -> (ゆくゆくは検証NGだった場合に理由出したい)
-const discordFunction = (
+const apifunction = (
   scope: cdk.Construct,
   region: string,
   account: string,

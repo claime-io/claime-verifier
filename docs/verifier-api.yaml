@@ -1,0 +1,88 @@
+openapi: 3.0.0
+info:
+  title: Claime Verifier for Discord App
+  version: '1.0'
+servers:
+  - url: 'https://verifier.claime.io'
+    description: prod
+  - url: 'https://verifier.claime-dev.tk'
+    description: ''
+paths:
+  '/{eoa}':
+    get:
+      summary: ''
+      operationId: get
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifierOutput'
+    parameters:
+      - schema:
+          type: string
+        name: eoa
+        in: path
+        required: true
+        description: eoa hex address
+components:
+  responses:
+    VerifierOutput:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              propertyType:
+                type: string
+              propertyId:
+                type: string
+              evidence:
+                type: string
+              method:
+                type: string
+              verified:
+                type: boolean
+              actual:
+                type: string
+                description: hex address got
+              at:
+                type: integer
+                description: unix timestamp verified at
+            required:
+              - propertyType
+              - propertyId
+              - evidence
+              - verified
+              - actual
+              - at
+  schemas:
+    VerifierOutput:
+      title: VerifierOutput
+      type: object
+      properties:
+        propertyType:
+          type: string
+        propertyId:
+          type: string
+        evidence:
+          type: string
+        method:
+          type: string
+        verified:
+          type: boolean
+        actual:
+          type: string
+          description: hex address got
+        at:
+          type: integer
+          description: unix timestamp verified at
+      required:
+        - propertyType
+        - propertyId
+        - evidence
+        - verified
+        - actual
+        - at
