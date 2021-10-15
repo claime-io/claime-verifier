@@ -21,6 +21,7 @@ export class VerifierApiStack extends cdk.Stack {
     const api = new RestApi(this, 'RestApi', {
       restApiName: environment.withEnvPrefix(target, 'verifier'),
     })
+
     addCorsOptions(api.root, target)
     withCustomDomain(this, api, restApiDomainName(target), target)
   }
