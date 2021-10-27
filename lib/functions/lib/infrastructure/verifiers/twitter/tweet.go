@@ -54,6 +54,6 @@ func toEvidence(tweets []twitter.Tweet, id int64) (tweetEvidence, error) {
 	}
 	return tweetEvidence{
 		text:   tweets[0].Text,
-		userID: tweets[0].User.IDStr,
+		userID: tweets[0].User.ScreenName,
 	}, nil
 }
