@@ -3,11 +3,9 @@ package twitter
 import (
 	"claime-verifier/lib/functions/lib/claim"
 	"context"
-	"net/http"
 	"strings"
 	"testing"
 
-	"github.com/dghubble/go-twitter/twitter"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -24,23 +22,20 @@ var (
 
 type fakeLookUpper struct {
 	twitterService
-	FaceLookup func(ids []int64, params *twitter.StatusLookupParams) ([]twitter.Tweet, *http.Response, error)
+	FaceLookup func(id int64) (tweetEvidence, error)
 }
 
-func (mock fakeLookUpper) Lookup(ids []int64, params *twitter.StatusLookupParams) ([]twitter.Tweet, *http.Response, error) {
-	return mock.FaceLookup(ids, params)
+func (mock fakeLookUpper) Lookup(id int64) (tweetEvidence, error) {
+	return mock.FaceLookup(id)
 }
 
-func newFakeLookUpper(tweet string, ID string, err error) fakeLookUpper {
+func newFakeLookUpper(tweet string, userID string, err error) fakeLookUpper {
 	return fakeLookUpper{
-		FaceLookup: func(ids []int64, params *twitter.StatusLookupParams) ([]twitter.Tweet, *http.Response, error) {
-			return []twitter.Tweet{
-				{
-					Text: tweet,
-					User: &twitter.User{
-						IDStr: ID,
-					},
-				}}, nil, err
+		FaceLookup: func(id int64) (tweetEvidence, error) {
+			return tweetEvidence{
+				text:   tweet,
+				userID: userID,
+			}, err
 		},
 	}
 }
@@ -85,17 +80,6 @@ func TestEOA(t *testing.T) {
 	})
 	t.Run("error if failed to lookup", func(t *testing.T) {
 		client := Client{lookupper: newFakeLookUpper("", "", errors.Errorf(""))}
-		_, err := client.EOA(context.Background(), claim.Claim{Evidence: validEvidence})
-		assert.Error(t, err)
-	})
-	t.Run("error if tweet not found", func(t *testing.T) {
-		client := Client{
-			lookupper: fakeLookUpper{
-				FaceLookup: func(ids []int64, params *twitter.StatusLookupParams) ([]twitter.Tweet, *http.Response, error) {
-					return []twitter.Tweet{}, nil, nil
-				},
-			},
-		}
 		_, err := client.EOA(context.Background(), claim.Claim{Evidence: validEvidence})
 		assert.Error(t, err)
 	})

@@ -7,11 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dghubble/go-twitter/twitter"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/pkg/errors"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
 )
 
 const (
@@ -40,22 +36,9 @@ func New(ctx context.Context, r Resolver) (Client, error) {
 	if err != nil {
 		return Client{}, err
 	}
-	return new(key, sec), err
-}
-
-func new(cons, sec string) Client {
-	config := &clientcredentials.Config{
-		ClientID:     cons,
-		ClientSecret: sec,
-		TokenURL:     "https://api.twitter.com/oauth2/token",
-	}
-	httpClient := config.Client(oauth2.NoContext)
-	client := twitter.NewClient(httpClient)
 	return Client{
-		lookupper: twitterService{
-			svc: client,
-		},
-	}
+		lookupper: newTwitterService(key, sec),
+	}, err
 }
 
 // EOA get eoa from twitter
@@ -65,18 +48,14 @@ func (c Client) EOA(ctx context.Context, cl claim.Claim) (claim.EOAOutput, error
 		log.Error("id should be int64", err)
 		return claim.EOAOutput{}, err
 	}
-	ts, _, err := c.lookupper.Lookup([]int64{i}, nil)
+	tweet, err := c.lookupper.Lookup(i)
 	if err != nil {
-		log.Error("lookup tweet failed", err)
 		return claim.EOAOutput{}, err
 	}
-	if len(ts) == 0 {
-		return claim.EOAOutput{}, errors.Errorf("Tweet not found: %d", i)
-	}
 	return claim.EOAOutput{
-		Actual:     ts[0].Text,
-		Got:        eoa(ts[0].Text),
-		PropertyID: ts[0].User.IDStr,
+		Actual:     tweet.text,
+		Got:        eoa(tweet.text),
+		PropertyID: tweet.userID,
 	}, nil
 }
 
