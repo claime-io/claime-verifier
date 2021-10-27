@@ -17,6 +17,7 @@
 
 <details><summary>Claime Discord App verification</summary>
 <br/>
+
 Claims of this type are only available for [the Claime discord app](discord).
   
 ##### Evidence format
