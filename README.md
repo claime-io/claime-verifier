@@ -1,6 +1,7 @@
 # claime-verifier
 
 ## Supported Property Types
+
 - [Discord User](#Discord%20AUser)
 
 ### To Be Supported...
@@ -16,7 +17,7 @@
 
 <details><summary>Claime Discord App verification</summary>
 <br/>
-Claims of this type are only available for the Claime discord app.
+Claims of this type are only available for [the Claime discord app](discord).
   
 ##### Evidence format
 None.
@@ -34,12 +35,11 @@ example:
 {
   "propertyType": "Discord User ID",
   "propertyId": "000000000000000000",
-  "Method": "Claime Discord App",
+  "Method": "Claime Discord App"
 }
 ```
 
 </details>
-
 
 ### Domain
 
@@ -104,7 +104,7 @@ example:
 ##### Evidence format
 
 ```
-claime-ownership-claim="${your_address}"
+claime-ownership-claim=${your_address}
 ```
 
 ##### Claim format
