@@ -9,6 +9,7 @@ import (
 
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 )
@@ -20,7 +21,7 @@ const (
 type (
 	// Client client
 	Client struct {
-		svc *twitter.Client
+		lookupper tweetLookUpper
 	}
 	// Resolver resolver consumer key & secret
 	Resolver interface {
@@ -51,7 +52,9 @@ func new(cons, sec string) Client {
 	httpClient := config.Client(oauth2.NoContext)
 	client := twitter.NewClient(httpClient)
 	return Client{
-		svc: client,
+		lookupper: twitterService{
+			svc: client,
+		},
 	}
 }
 
@@ -62,13 +65,13 @@ func (c Client) EOA(ctx context.Context, cl claim.Claim) (claim.EOAOutput, error
 		log.Error("id should be int64", err)
 		return claim.EOAOutput{}, err
 	}
-	ts, _, err := c.svc.Statuses.Lookup([]int64{i}, nil)
+	ts, _, err := c.lookupper.Lookup([]int64{i}, nil)
 	if err != nil {
 		log.Error("lookup tweet failed", err)
 		return claim.EOAOutput{}, err
 	}
 	if len(ts) == 0 {
-		return claim.EOAOutput{}, err
+		return claim.EOAOutput{}, errors.Errorf("Tweet not found: %d", i)
 	}
 	return claim.EOAOutput{
 		Actual:     ts[0].Text,
@@ -82,6 +85,5 @@ func eoa(rawMessage string) common.Address {
 }
 
 func eoaRaw(raw string) string {
-	exp := strings.TrimLeft(raw, evidencePrefix)
-	return strings.TrimRight(strings.TrimLeft(exp, `\"`), `\"`)
+	return strings.TrimPrefix(raw, evidencePrefix)
 }
