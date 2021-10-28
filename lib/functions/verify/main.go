@@ -37,7 +37,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}, nil
 	}
 	service := claim.NewService(rep, verifiers)
-	claims, err := service.VerifiedClaims(ctx, address)
+	claims, err := service.VerifyClaims(ctx, address)
 	if err != nil {
 		log.Error("get claim failed", err)
 		return events.APIGatewayProxyResponse{

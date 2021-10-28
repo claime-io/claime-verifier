@@ -19,8 +19,9 @@
 <br/>
 
 Claims of this type are only available for [the Claime discord app](discord).
-  
+
 ##### Evidence format
+
 None.
 
 ##### Claim format
@@ -56,8 +57,8 @@ example.com TXT "claime-ownership-claim=${your_address}"
 
 - `propertyType`: `Domain`
 - `propertyId`: `${your_domain_name}`
-- `evidence`: `${your_domain_name}` or blank
-- `method`: `TXT` or blank
+- `evidence`: `(blank)`
+- `method`: `TXT`
 
 example:
 
@@ -84,8 +85,8 @@ example:
 
 - `propertyType`: `Website`
 - `propertyId`: `${your_website_url}`
-- `evidence`: `${your_website_url}` or blank
-- `method`: `MetaTag` or blank
+- `evidence`: `(blank)`
+- `method`: `MetaTag`
 
 example:
 
@@ -113,7 +114,7 @@ claime-ownership-claim=${your_address}
 - `propertyType`: `Twitter Account`
 - `propertyId`: `${your_twitter_id}`
 - `evidence`: `${your_tweet_id}`
-- `method`: `Tweet` or blank
+- `method`: `Tweet`
 
 example:
 

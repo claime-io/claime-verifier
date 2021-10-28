@@ -22,5 +22,8 @@ func Headers() map[string]string {
 // SupportedVerifiers list supported verifiers by Verify Methods
 func SupportedVerifiers(ctx context.Context, ssm ssm.Client) (map[claim.Verifier]claim.EvidenceRepository, error) {
 	tw, err := twitter.New(ctx, ssm)
-	return map[claim.Verifier]claim.EvidenceRepository{{PropertyType: "Domain", Method: "TXT", Default: true}: txt.New(), {PropertyType: "Twitter Account", Method: "Tweet", Default: true}: tw}, err
+	return map[claim.Verifier]claim.EvidenceRepository{
+		{PropertyType: "Domain", Method: "TXT"}:            txt.New(),
+		{PropertyType: "Twitter Account", Method: "Tweet"}: tw,
+	}, err
 }
