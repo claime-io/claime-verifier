@@ -46,11 +46,14 @@ components:
         claim:
           $ref: '#/components/schemas/Claim'
         at:
-          type: integer
+          type: string
           description: unix timestamp verified at
         actual:
           type: object
           description: hex address got
+          required:
+            - propertyId
+            - evidence
           properties:
             propertyId:
               type: string
@@ -58,8 +61,8 @@ components:
               type: string
       required:
         - result
+        - claim
         - at
-        - actual
     Claim:
       title: Claim
       type: object
@@ -72,3 +75,8 @@ components:
           type: string
         evidence:
           type: string
+      required:
+        - propertyType
+        - propertyId
+        - method
+        - evidence
