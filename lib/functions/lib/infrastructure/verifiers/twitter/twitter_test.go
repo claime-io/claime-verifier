@@ -22,16 +22,16 @@ var (
 
 type fakeLookUpper struct {
 	twitterService
-	FaceLookup func(id int64) (tweetEvidence, error)
+	fakeLookup func(id int64) (tweetEvidence, error)
 }
 
 func (mock fakeLookUpper) Lookup(id int64) (tweetEvidence, error) {
-	return mock.FaceLookup(id)
+	return mock.fakeLookup(id)
 }
 
 func newFakeLookUpper(tweet string, userID string, err error) fakeLookUpper {
 	return fakeLookUpper{
-		FaceLookup: func(id int64) (tweetEvidence, error) {
+		fakeLookup: func(id int64) (tweetEvidence, error) {
 			return tweetEvidence{
 				text:   tweet,
 				userID: userID,
