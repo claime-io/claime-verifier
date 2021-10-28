@@ -71,9 +71,11 @@ var (
 		Method:       mockClaim.Method,
 	}
 	mockOutput = EOAOutput{
-		Actual:     "TestActual",
-		Got:        verifyingEOA,
-		PropertyID: mockClaim.PropertyID,
+		Actual: Actual{
+			PropertyID: mockClaim.PropertyID,
+			Evidence:   "TestEvidence",
+		},
+		EOA: verifyingEOA,
 	}
 )
 
@@ -92,9 +94,8 @@ func TestVerifyClaims(t *testing.T) {
 		service := NewService(
 			newFakeRepository([]Claim{mockClaim}, nil),
 			newFakeVerfiers(mockVerifier, EOAOutput{
-				Actual:     mockOutput.Actual,
-				Got:        common.HexToAddress("differentEOA"),
-				PropertyID: mockOutput.PropertyID,
+				Actual: mockOutput.Actual,
+				EOA:    common.HexToAddress("differentEOA"),
 			}, nil),
 		)
 		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA)
@@ -106,9 +107,11 @@ func TestVerifyClaims(t *testing.T) {
 		service := NewService(
 			newFakeRepository([]Claim{mockClaim}, nil),
 			newFakeVerfiers(mockVerifier, EOAOutput{
-				Actual:     mockOutput.Actual,
-				Got:        mockOutput.Got,
-				PropertyID: "differentID",
+				Actual: Actual{
+					Evidence:   mockOutput.Actual.Evidence,
+					PropertyID: "differentID",
+				},
+				EOA: mockOutput.EOA,
 			}, nil),
 		)
 		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA)
@@ -126,7 +129,7 @@ func TestVerifyClaims(t *testing.T) {
 		assert.Nil(t, err)
 		assert.NotEmpty(t, outputs)
 		assert.Equal(t, outputs[0].Result, failed)
-		assert.Equal(t, outputs[0].Actual, expectedMessage)
+		assert.Equal(t, outputs[0].Error, expectedMessage)
 	})
 	t.Run("return unsuported if verifier not found", func(t *testing.T) {
 		service := NewService(

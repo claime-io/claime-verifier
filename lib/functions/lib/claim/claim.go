@@ -18,10 +18,17 @@ type (
 
 	// VerifiedOutput output
 	VerifiedOutput struct {
-		Claim
+		Claim  Claim              `json:"claim"`
 		Result VerificationResult `json:"result"`
-		Actual string             `json:"actual"`
+		Actual Actual             `json:"actual"`
 		At     time.Time          `json:"at"`
+		Error  string             `json:"error"`
+	}
+
+	// Actual actual
+	Actual struct {
+		PropertyID string `json:"propertyId"`
+		Evidence   string `json:"evidence"`
 	}
 
 	// Verifier verifier
@@ -31,9 +38,8 @@ type (
 
 	// EOAOutput eoa
 	EOAOutput struct {
-		Actual     string
-		Got        common.Address
-		PropertyID string
+		Actual Actual
+		EOA    common.Address
 	}
 
 	// Repository repository
@@ -88,9 +94,9 @@ func (s Service) VerifyClaims(ctx context.Context, eoa common.Address) ([]Verifi
 		if err != nil {
 			res = append(res, VerifiedOutput{
 				Claim:  cl,
-				Actual: err.Error(),
 				At:     time.Now(),
 				Result: failed,
+				Error:  err.Error(),
 			})
 			continue
 		}
@@ -105,7 +111,7 @@ func (s Service) VerifyClaims(ctx context.Context, eoa common.Address) ([]Verifi
 }
 
 func verify(cl Claim, eoa common.Address, got EOAOutput) VerificationResult {
-	if (cl.PropertyID == got.PropertyID) && (eoa == got.Got) {
+	if (cl.PropertyID == got.Actual.PropertyID) && (eoa == got.EOA) {
 		return verified
 	}
 	return failed

@@ -69,9 +69,9 @@ func TestEOA(t *testing.T) {
 		}
 		got, err := client.EOA(context.Background(), claim.Claim{Evidence: validEvidence})
 		assert.Nil(t, err)
-		assert.Equal(t, got.Actual, validClaim)
-		assert.Equal(t, got.Got, verifyingEOA)
-		assert.Equal(t, got.PropertyID, propertyID)
+		assert.Equal(t, got.Actual.Evidence, validClaim)
+		assert.Equal(t, got.Actual.PropertyID, propertyID)
+		assert.Equal(t, got.EOA, verifyingEOA)
 	})
 	t.Run("error if evidence is not int64", func(t *testing.T) {
 		client := Client{lookupper: newFakeLookUpper("", "", nil)}

@@ -15,8 +15,8 @@ func TestEOA(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		if want != got.Got {
-			t.Error("got: ", got.Got.String())
+		if want != got.EOA {
+			t.Error("got: ", got.EOA.String())
 		}
 	})
 }

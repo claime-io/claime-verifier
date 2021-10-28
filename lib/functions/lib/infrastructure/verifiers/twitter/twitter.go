@@ -53,9 +53,11 @@ func (c Client) EOA(ctx context.Context, cl claim.Claim) (claim.EOAOutput, error
 		return claim.EOAOutput{}, err
 	}
 	return claim.EOAOutput{
-		Actual:     tweet.text,
-		Got:        eoa(tweet.text),
-		PropertyID: tweet.userID,
+		Actual: claim.Actual{
+			Evidence:   tweet.text,
+			PropertyID: tweet.userID,
+		},
+		EOA: eoa(tweet.text),
 	}, nil
 }
 

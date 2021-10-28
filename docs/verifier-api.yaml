@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Claime Verifier for Discord App
+  title: Claime Verifier
   version: '1.0'
 servers:
   - url: 'https://verifier.claime.io'
@@ -29,62 +29,46 @@ paths:
         required: true
         description: eoa hex address
 components:
-  responses:
-    VerifierOutput:
-      description: Example response
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              propertyType:
-                type: string
-              propertyId:
-                type: string
-              evidence:
-                type: string
-              method:
-                type: string
-              verified:
-                type: boolean
-              actual:
-                type: string
-                description: hex address got
-              at:
-                type: integer
-                description: unix timestamp verified at
-            required:
-              - propertyType
-              - propertyId
-              - evidence
-              - verified
-              - actual
-              - at
+  responses: {}
   schemas:
     VerifierOutput:
       title: VerifierOutput
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+            - Verified
+            - Failed
+            - Unsupported
+        error:
+          type: string
+        claim:
+          $ref: '#/components/schemas/Claim'
+        at:
+          type: integer
+          description: unix timestamp verified at
+        actual:
+          type: object
+          description: hex address got
+          properties:
+            propertyId:
+              type: string
+            evidence:
+              type: string
+      required:
+        - result
+        - at
+        - actual
+    Claim:
+      title: Claim
       type: object
       properties:
         propertyType:
           type: string
         propertyId:
           type: string
-        evidence:
-          type: string
         method:
           type: string
-        verified:
-          type: boolean
-        actual:
+        evidence:
           type: string
-          description: hex address got
-        at:
-          type: integer
-          description: unix timestamp verified at
-      required:
-        - propertyType
-        - propertyId
-        - evidence
-        - verified
-        - actual
-        - at

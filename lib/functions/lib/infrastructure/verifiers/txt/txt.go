@@ -35,9 +35,11 @@ func (c Client) EOA(ctx context.Context, cl claim.Claim) (claim.EOAOutput, error
 		if strings.HasPrefix(txt, recordPrefix) {
 			address := strings.ReplaceAll(txt, recordPrefix, "")
 			return claim.EOAOutput{
-				Actual:     txt,
-				Got:        common.HexToAddress(address),
-				PropertyID: cl.PropertyID,
+				Actual: claim.Actual{
+					PropertyID: cl.PropertyID,
+					Evidence:   txt,
+				},
+				EOA: common.HexToAddress(address),
 			}, nil
 		}
 	}
