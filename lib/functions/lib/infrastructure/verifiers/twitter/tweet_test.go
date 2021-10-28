@@ -15,7 +15,7 @@ func TestToEvidenve(t *testing.T) {
 			{
 				Text: "text",
 				User: &twitter.User{
-					IDStr: "userID",
+					ScreenName: "userID",
 				},
 			},
 		}, 0)
