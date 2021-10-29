@@ -33,42 +33,42 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	var in guild.GrantRoleInput
 	if err := json.Unmarshal([]byte(request.Body), &in); err != nil {
 		log.Error("json unmarshal failed", err)
-		return response(403), nil
+		return response(403, request), nil
 	}
 	rep := guildrep.New()
 	guild, err := guild.New(ctx, ssmClient, rep)
 	if err != nil {
 		log.Error("", err)
-		return response(500), nil
+		return response(500, request), nil
 	}
 	out, err := guild.Grant(ctx, in)
-	return handleResponse(out, err)
+	return handleResponse(out, request, err)
 }
 
-func handleResponse(out guild.GrantRoleOutput, err error) (events.APIGatewayProxyResponse, error) {
+func handleResponse(out guild.GrantRoleOutput, request events.APIGatewayProxyRequest, err error) (events.APIGatewayProxyResponse, error) {
 	if err != nil {
-		return response(400), nil
+		return response(400, request), nil
 	}
 	if !out.ValidSig {
-		return response(403), nil
+		return response(403, request), nil
 	}
 	if out.Expired {
-		return response(403), nil
+		return response(403, request), nil
 	}
 	if out.Granted {
-		return response(200), nil
+		return response(200, request), nil
 	}
-	return response(401), nil
+	return response(401, request), nil
 }
 
 func main() {
 	lambda.Start(handler)
 }
 
-func response(statusCode int) events.APIGatewayProxyResponse {
+func response(statusCode int, request events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
 	return events.APIGatewayProxyResponse{
 		StatusCode: statusCode,
 		Body:       "{}",
-		Headers:    lib.Headers(),
+		Headers:    lib.Headers(lib.Origin(request)),
 	}
 }

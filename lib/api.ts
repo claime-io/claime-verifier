@@ -38,6 +38,7 @@ export function addCorsOptions(
             'method.response.header.Access-Control-Allow-Methods':
               "'OPTIONS,GET,PUT,POST,DELETE'",
           },
+          responseTemplates: responseTemplates(target),
         },
       ],
       passthroughBehavior: PassthroughBehavior.NEVER,
@@ -60,6 +61,18 @@ export function addCorsOptions(
     },
   )
 }
+const responseTemplates = (target: environment.Environments) => {
+  if (environment.isProd(target)) {
+    return undefined
+  }
+  return {
+    'application/json': `
+    #set($origin = $input.params().header.get('origin'))
+    #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin)
+    `,
+  }
+}
+
 export const environmentVariables = (target: environment.Environments) => {
   return {
     AllowedOrigin: environment.valueOf(target).allowedOrigin,

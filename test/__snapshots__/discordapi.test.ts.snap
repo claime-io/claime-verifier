@@ -199,6 +199,12 @@ Object {
                 "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE'",
                 "method.response.header.Access-Control-Allow-Origin": "''",
               },
+              "ResponseTemplates": Object {
+                "application/json": "
+    #set($origin = $input.params().header.get('origin'))
+    #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin)
+    ",
+              },
               "StatusCode": "200",
             },
           ],
