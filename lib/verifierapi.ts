@@ -21,23 +21,20 @@ export class VerifierApiStack extends cdk.Stack {
     const api = new RestApi(this, 'RestApi', {
       restApiName: environment.withEnvPrefix(target, 'verifier'),
     })
-    apifunction(this, this.region, this.account, 'verify', target, api)
+    apifunction(this, 'verify', '/verify/{eoa}', target, api)
+    apifunction(this, 'testVerification', '/test/verify/{eoa}', target, api)
     withCustomDomain(this, api, restApiDomainName(target), target)
   }
 }
 
-// GET /${eoa}?type=domain
-// -> いったんbool,at,actual
-// -> (ゆくゆくは検証NGだった場合に理由出したい)
 const apifunction = (
-  scope: cdk.Construct,
-  region: string,
-  account: string,
+  stack: cdk.Stack,
   resource: string,
+  path: string,
   target: environment.Environments,
   api: RestApi,
 ) => {
-  const func = new Function(scope, resource, {
+  const func = new Function(stack, resource, {
     functionName: `${environment.withEnvPrefix(target, resource)}`,
     code: code(resource),
     handler: 'bin/main',
@@ -46,10 +43,10 @@ const apifunction = (
     environment: environmentVariables(target),
     tracing: Tracing.ACTIVE,
   })
-  basicPolicytStatements(region, account, target).forEach((s) =>
+  basicPolicytStatements(stack.region, stack.account, target).forEach((s) =>
     func.addToRolePolicy(s),
   )
-  const re = api.root.addResource('{eoa}')
+  const re = api.root.addResource(path)
   re.addMethod('GET', new LambdaIntegration(func))
   addCorsOptions(re, target)
   return func

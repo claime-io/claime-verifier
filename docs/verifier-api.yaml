@@ -8,7 +8,7 @@ servers:
   - url: 'https://verifier.claime-dev.tk'
     description: ''
 paths:
-  '/{eoa}':
+  '/verify/{eoa}':
     get:
       summary: ''
       operationId: get
@@ -28,6 +28,43 @@ paths:
         in: path
         required: true
         description: eoa hex address
+  '/test/verify/{eoa}':
+    parameters:
+      - schema:
+          type: string
+        name: eoa
+        in: path
+        required: true
+    get:
+      summary: ''
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VerifierOutput'
+      operationId: get-test-verify-eoa
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: propertyType
+        - schema:
+            type: string
+          in: query
+          name: propertyId
+        - schema:
+            type: string
+          in: query
+          name: method
+        - schema:
+            type: string
+          in: query
+          name: evidence
 components:
   responses: {}
   schemas:
