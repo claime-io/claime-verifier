@@ -37,11 +37,6 @@ export class Route53Stack extends Stack {
       recordName: `www.${rootDomain}`,
       domainName: 'cname.vercel-dns.com',
     })
-    new CnameRecord(this, 'VercelDevCNAMERecord', {
-      zone: this.hostedZone,
-      recordName: `dev.${rootDomain}`,
-      domainName: 'cname.vercel-dns.com',
-    })
   }
 }
 
