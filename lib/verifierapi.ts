@@ -21,14 +21,8 @@ export class VerifierApiStack extends cdk.Stack {
     const api = new RestApi(this, 'RestApi', {
       restApiName: environment.withEnvPrefix(target, 'verifier'),
     })
-    apifunction(this, 'verify', ['verify', '{eoa}'], target, api)
-    apifunction(
-      this,
-      'testVerification',
-      ['test', 'verify', '{eoa}'],
-      target,
-      api,
-    )
+    apifunction(this, 'verify', '/verify/{eoa}', target, api)
+    apifunction(this, 'testVerification', '/test/verify/{eoa}', target, api)
     withCustomDomain(this, api, restApiDomainName(target), target)
   }
 }
@@ -36,7 +30,7 @@ export class VerifierApiStack extends cdk.Stack {
 const apifunction = (
   stack: cdk.Stack,
   resource: string,
-  paths: string[],
+  path: string,
   target: environment.Environments,
   api: RestApi,
 ) => {
@@ -52,10 +46,7 @@ const apifunction = (
   basicPolicytStatements(stack.region, stack.account, target).forEach((s) =>
     func.addToRolePolicy(s),
   )
-  const re = paths.reduce(
-    (resource, path) => resource.addResource(path),
-    api.root,
-  )
+  const re = api.root.addResource(path)
   re.addMethod('GET', new LambdaIntegration(func))
   addCorsOptions(re, target)
   return func

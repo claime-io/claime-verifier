@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: "12"
+          node-version: '12'
       - name: Setup AWS CDK
         run: npm install -g aws-cdk@1.122.0
       - name: Setup typescript

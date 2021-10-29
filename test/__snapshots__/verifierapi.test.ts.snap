@@ -43,18 +43,6 @@ Object {
       "Description": "[HASH REMOVED]",
       "Type": "String",
     },
-    "[HASH REMOVED]": Object {
-      "Description": "[HASH REMOVED]",
-      "Type": "String",
-    },
-    "[HASH REMOVED]": Object {
-      "Description": "[HASH REMOVED]",
-      "Type": "String",
-    },
-    "[HASH REMOVED]": Object {
-      "Description": "[HASH REMOVED]",
-      "Type": "String",
-    },
   },
   "Resources": Object {
     "RestApi0C43BF4B": Object {
@@ -132,15 +120,9 @@ Object {
     },
     "[HASH REMOVED]": Object {
       "DependsOn": Array [
-        "RestApitest9059D171",
-        "RestApitestverifyeoaGETA37B8E1D",
-        "RestApitestverifyeoaOPTIONSAA88D55F",
-        "RestApitestverifyeoa7B79A4AB",
-        "RestApitestverify811AADE0",
-        "RestApiverifyeoaGET8F9A4083",
-        "RestApiverifyeoaOPTIONS1995E63A",
-        "RestApiverifyeoa0F5B975F",
-        "RestApiverifyBAACE9AF",
+        "RestApieoaGET5B3E5E0E",
+        "RestApieoaOPTIONS7CB4A00C",
+        "RestApieoa93F8128F",
       ],
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
@@ -189,37 +171,13 @@ Object {
       },
       "Type": "AWS::ApiGateway::BasePathMapping",
     },
-    "RestApitest9059D171": Object {
+    "RestApieoa93F8128F": Object {
       "Properties": Object {
         "ParentId": Object {
           "Fn::GetAtt": Array [
             "RestApi0C43BF4B",
             "RootResourceId",
           ],
-        },
-        "PathPart": "test",
-        "RestApiId": Object {
-          "Ref": "RestApi0C43BF4B",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "RestApitestverify811AADE0": Object {
-      "Properties": Object {
-        "ParentId": Object {
-          "Ref": "RestApitest9059D171",
-        },
-        "PathPart": "verify",
-        "RestApiId": Object {
-          "Ref": "RestApi0C43BF4B",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "RestApitestverifyeoa7B79A4AB": Object {
-      "Properties": Object {
-        "ParentId": Object {
-          "Ref": "RestApitestverify811AADE0",
         },
         "PathPart": "{eoa}",
         "RestApiId": Object {
@@ -228,194 +186,7 @@ Object {
       },
       "Type": "AWS::ApiGateway::Resource",
     },
-    "RestApitestverifyeoaGETA37B8E1D": Object {
-      "Properties": Object {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "GET",
-        "Integration": Object {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "arn:",
-                Object {
-                  "Ref": "AWS::Partition",
-                },
-                ":apigateway:",
-                Object {
-                  "Ref": "AWS::Region",
-                },
-                ":lambda:path/2015-03-31/functions/",
-                Object {
-                  "Fn::GetAtt": Array [
-                    "testVerification888035B9",
-                    "Arn",
-                  ],
-                },
-                "/invocations",
-              ],
-            ],
-          },
-        },
-        "ResourceId": Object {
-          "Ref": "RestApitestverifyeoa7B79A4AB",
-        },
-        "RestApiId": Object {
-          "Ref": "RestApi0C43BF4B",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "RestApitestverifyeoaGETApiPermissionTesttestRestApi41EB688DGETtestverifyeoaCE74D562": Object {
-      "Properties": Object {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": Object {
-          "Fn::GetAtt": Array [
-            "testVerification888035B9",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "arn:",
-              Object {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:",
-              Object {
-                "Ref": "AWS::Region",
-              },
-              ":",
-              Object {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              Object {
-                "Ref": "RestApi0C43BF4B",
-              },
-              "/test-invoke-stage/GET/test/verify/*",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "RestApitestverifyeoaGETApiPermissiontestRestApi41EB688DGETtestverifyeoa8813905A": Object {
-      "Properties": Object {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": Object {
-          "Fn::GetAtt": Array [
-            "testVerification888035B9",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "arn:",
-              Object {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:",
-              Object {
-                "Ref": "AWS::Region",
-              },
-              ":",
-              Object {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              Object {
-                "Ref": "RestApi0C43BF4B",
-              },
-              "/",
-              Object {
-                "Ref": "[HASH REMOVED]",
-              },
-              "/GET/test/verify/*",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "RestApitestverifyeoaOPTIONSAA88D55F": Object {
-      "Properties": Object {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "OPTIONS",
-        "Integration": Object {
-          "IntegrationResponses": Array [
-            Object {
-              "ResponseParameters": Object {
-                "method.response.header.Access-Control-Allow-Credentials": "'false'",
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE'",
-                "method.response.header.Access-Control-Allow-Origin": "''",
-              },
-              "StatusCode": "200",
-            },
-          ],
-          "PassthroughBehavior": "NEVER",
-          "RequestTemplates": Object {
-            "application/json": "{"statusCode": 200}",
-          },
-          "Type": "MOCK",
-        },
-        "MethodResponses": Array [
-          Object {
-            "ResponseParameters": Object {
-              "method.response.header.Access-Control-Allow-Credentials": true,
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true,
-              "method.response.header.Access-Control-Allow-Origin": true,
-            },
-            "StatusCode": "200",
-          },
-        ],
-        "ResourceId": Object {
-          "Ref": "RestApitestverifyeoa7B79A4AB",
-        },
-        "RestApiId": Object {
-          "Ref": "RestApi0C43BF4B",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "RestApiverifyBAACE9AF": Object {
-      "Properties": Object {
-        "ParentId": Object {
-          "Fn::GetAtt": Array [
-            "RestApi0C43BF4B",
-            "RootResourceId",
-          ],
-        },
-        "PathPart": "verify",
-        "RestApiId": Object {
-          "Ref": "RestApi0C43BF4B",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "RestApiverifyeoa0F5B975F": Object {
-      "Properties": Object {
-        "ParentId": Object {
-          "Ref": "RestApiverifyBAACE9AF",
-        },
-        "PathPart": "{eoa}",
-        "RestApiId": Object {
-          "Ref": "RestApi0C43BF4B",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "RestApiverifyeoaGET8F9A4083": Object {
+    "RestApieoaGET5B3E5E0E": Object {
       "Properties": Object {
         "AuthorizationType": "NONE",
         "HttpMethod": "GET",
@@ -447,7 +218,7 @@ Object {
           },
         },
         "ResourceId": Object {
-          "Ref": "RestApiverifyeoa0F5B975F",
+          "Ref": "RestApieoa93F8128F",
         },
         "RestApiId": Object {
           "Ref": "RestApi0C43BF4B",
@@ -455,7 +226,7 @@ Object {
       },
       "Type": "AWS::ApiGateway::Method",
     },
-    "RestApiverifyeoaGETApiPermissionTesttestRestApi41EB688DGETverifyeoaAA0DA3EA": Object {
+    "RestApieoaGETApiPermissionTesttestRestApi41EB688DGETeoa2B511B42": Object {
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -485,14 +256,14 @@ Object {
               Object {
                 "Ref": "RestApi0C43BF4B",
               },
-              "/test-invoke-stage/GET/verify/*",
+              "/test-invoke-stage/GET/*",
             ],
           ],
         },
       },
       "Type": "AWS::Lambda::Permission",
     },
-    "RestApiverifyeoaGETApiPermissiontestRestApi41EB688DGETverifyeoaABDB1EB7": Object {
+    "RestApieoaGETApiPermissiontestRestApi41EB688DGETeoaC1906188": Object {
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -526,14 +297,14 @@ Object {
               Object {
                 "Ref": "[HASH REMOVED]",
               },
-              "/GET/verify/*",
+              "/GET/*",
             ],
           ],
         },
       },
       "Type": "AWS::Lambda::Permission",
     },
-    "RestApiverifyeoaOPTIONS1995E63A": Object {
+    "RestApieoaOPTIONS7CB4A00C": Object {
       "Properties": Object {
         "AuthorizationType": "NONE",
         "HttpMethod": "OPTIONS",
@@ -567,181 +338,13 @@ Object {
           },
         ],
         "ResourceId": Object {
-          "Ref": "RestApiverifyeoa0F5B975F",
+          "Ref": "RestApieoa93F8128F",
         },
         "RestApiId": Object {
           "Ref": "RestApi0C43BF4B",
         },
       },
       "Type": "AWS::ApiGateway::Method",
-    },
-    "testVerification888035B9": Object {
-      "DependsOn": Array [
-        "testVerificationServiceRoleDefaultPolicyC53FEB41",
-        "testVerificationServiceRole04D8062F",
-      ],
-      "Properties": Object {
-        "Code": Object {
-          "S3Bucket": Object {
-            "Ref": "[HASH REMOVED]",
-          },
-          "S3Key": Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                Object {
-                  "Fn::Select": Array [
-                    0,
-                    Object {
-                      "Fn::Split": Array [
-                        "||",
-                        Object {
-                          "Ref": "[HASH REMOVED]",
-                        },
-                      ],
-                    },
-                  ],
-                },
-                Object {
-                  "Fn::Select": Array [
-                    1,
-                    Object {
-                      "Fn::Split": Array [
-                        "||",
-                        Object {
-                          "Ref": "[HASH REMOVED]",
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            ],
-          },
-        },
-        "Environment": Object {
-          "Variables": Object {
-            "AllowedOrigin": "",
-            "EnvironmentId": "test",
-          },
-        },
-        "FunctionName": "claime-verifier-testVerification-test",
-        "Handler": "bin/main",
-        "Role": Object {
-          "Fn::GetAtt": Array [
-            "testVerificationServiceRole04D8062F",
-            "Arn",
-          ],
-        },
-        "Runtime": "go1.x",
-        "Timeout": 60,
-        "TracingConfig": Object {
-          "Mode": "Active",
-        },
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "testVerificationServiceRole04D8062F": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": Array [
-          Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "arn:",
-                Object {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "testVerificationServiceRoleDefaultPolicyC53FEB41": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": Array [
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            Object {
-              "Action": Array [
-                "dynamodb:Put*",
-                "dynamodb:Get*",
-                "dynamodb:Scan*",
-                "dynamodb:Query*",
-                "dynamodb:Delete*",
-                "dynamodb:Batch*",
-              ],
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:dynamodb:",
-                    Object {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    Object {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":table/claime-verifier-main-test*",
-                  ],
-                ],
-              },
-            },
-            Object {
-              "Action": "ssm:Get*",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:ssm:",
-                    Object {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    Object {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/claime-verifier*",
-                  ],
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "testVerificationServiceRoleDefaultPolicyC53FEB41",
-        "Roles": Array [
-          Object {
-            "Ref": "testVerificationServiceRole04D8062F",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
     },
     "verify2EA97391": Object {
       "DependsOn": Array [
