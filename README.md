@@ -78,7 +78,7 @@ example:
 ##### Evidence format
 
 ```
-<meta name="claime-ownership-claim" content="${your_address}" />
+<meta name="claime-ownership-claim" content="${your_address}">
 ```
 
 ##### Claim format
