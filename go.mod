@@ -3,6 +3,7 @@ module claime-verifier
 go 1.16
 
 require (
+	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/aws/aws-cdk-go/awscdk v1.129.0-devpreview
 	github.com/aws/aws-cdk-go/awscdk/v2 v2.0.0-rc.27
 	github.com/aws/aws-lambda-go v1.27.0
@@ -17,9 +18,11 @@ require (
 	github.com/guregu/dynamo v1.11.0
 	github.com/kyokomi/goslash v0.1.0
 	github.com/pkg/errors v0.9.1
+	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca
 	github.com/sirupsen/logrus v1.8.1
 	github.com/slack-go/slack v0.9.5
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.10.2
+	golang.org/x/net v0.0.0-20210916014120-12bc252f5db8
 	golang.org/x/oauth2 v0.0.0-20211005180243-6b3c2da341f1
 )
