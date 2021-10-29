@@ -37,15 +37,9 @@ export class Route53Stack extends Stack {
       recordName: `www.${rootDomain}`,
       domainName: 'cname.vercel-dns.com',
     })
-    // Vercel  LP Domain Verification
-    new CnameRecord(this, 'VercelLpCNAMERecord', {
+    new CnameRecord(this, 'VercelDevCNAMERecord', {
       zone: this.hostedZone,
-      recordName: `service.${rootDomain}`,
-      domainName: 'cname.vercel-dns.com',
-    })
-    new CnameRecord(this, 'VercelLpCNAMEWWWRecord', {
-      zone: this.hostedZone,
-      recordName: `www.service.${rootDomain}`,
+      recordName: `dev.${rootDomain}`,
       domainName: 'cname.vercel-dns.com',
     })
   }
