@@ -5,6 +5,7 @@ import (
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"claime-verifier/lib/functions/lib/infrastructure/verifiers/twitter"
 	"claime-verifier/lib/functions/lib/infrastructure/verifiers/txt"
+	"claime-verifier/lib/functions/lib/infrastructure/verifiers/website"
 	"context"
 	"os"
 
@@ -40,5 +41,6 @@ func SupportedVerifiers(ctx context.Context, ssm ssm.Client) (map[claim.Verifier
 	return map[claim.Verifier]claim.EvidenceRepository{
 		{PropertyType: "Domain", Method: "TXT"}:            txt.New(),
 		{PropertyType: "Twitter Account", Method: "Tweet"}: tw,
+		{PropertyType: "Website", Method: "Meta Tag"}:      website.New(),
 	}, err
 }
