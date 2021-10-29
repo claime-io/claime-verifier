@@ -27,7 +27,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	address := common.HexToAddress(eoa)
 	testingClaim := claim.Claim{
 		PropertyType: request.QueryStringParameters["propertyType"],
-		PropertyID:   request.QueryStringParameters["propertyType"],
+		PropertyID:   request.QueryStringParameters["propertyId"],
 		Method:       request.QueryStringParameters["method"],
 		Evidence:     request.QueryStringParameters["evidence"],
 	}
