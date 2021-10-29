@@ -12,7 +12,7 @@ require (
 	github.com/aws/constructs-go/constructs/v3 v3.3.156
 	github.com/aws/jsii-runtime-go v1.35.0
 	github.com/bwmarrin/discordgo v0.23.3-0.20210821175000-0fad116c6c2a
-	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f
+	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/dghubble/go-twitter v0.0.0-20211002212826-ad02880e616b
 	github.com/ethereum/go-ethereum v1.10.8
 	github.com/go-playground/validator/v10 v10.9.0
