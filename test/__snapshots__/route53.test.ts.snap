@@ -40,20 +40,6 @@ Object {
       },
       "Type": "AWS::Route53::RecordSet",
     },
-    "VercelDevCNAMERecordFA0135A9": Object {
-      "Properties": Object {
-        "HostedZoneId": Object {
-          "Ref": "HostedZoneDB99F866",
-        },
-        "Name": "dev.test.",
-        "ResourceRecords": Array [
-          "cname.vercel-dns.com",
-        ],
-        "TTL": "1800",
-        "Type": "CNAME",
-      },
-      "Type": "AWS::Route53::RecordSet",
-    },
   },
 }
 `;
