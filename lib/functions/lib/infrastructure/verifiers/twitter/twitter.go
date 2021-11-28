@@ -41,23 +41,21 @@ func New(ctx context.Context, r Resolver) (Client, error) {
 	}, err
 }
 
-// EOA get eoa from twitter
-func (c Client) EOA(ctx context.Context, cl claim.Claim) (claim.EOAOutput, error) {
+// Find twitter ownership evidences
+func (c Client) Find(ctx context.Context, cl claim.Claim) (claim.Evidence, error) {
 	i, err := strconv.ParseInt(cl.Evidence, 10, 64)
 	if err != nil {
 		log.Error("id should be int64", err)
-		return claim.EOAOutput{}, err
+		return claim.Evidence{}, err
 	}
 	tweet, err := c.lookupper.Lookup(i)
 	if err != nil {
-		return claim.EOAOutput{}, err
+		return claim.Evidence{}, err
 	}
-	return claim.EOAOutput{
-		Actual: claim.Actual{
-			Evidence:   tweet.text,
-			PropertyID: tweet.userID,
-		},
-		EOA: eoa(tweet.text),
+	return claim.Evidence{
+		PropertyID: tweet.userID,
+		EOAs:       []common.Address{eoa(tweet.text)},
+		Evidences:  []string{tweet.text},
 	}, nil
 }
 
