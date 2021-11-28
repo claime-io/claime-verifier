@@ -17,31 +17,43 @@ const (
 
 type (
 	// Client client
-	Client struct{}
+	Client struct {
+		lookupper recordsLookupper
+	}
+	recordsLookupper interface {
+		LookupTXT(name string) ([]string, error)
+	}
+	dnsService struct{}
 )
+
+func (s dnsService) LookupTXT(name string) ([]string, error) {
+	return net.LookupTXT(name)
+}
 
 // New new client
 func New() Client {
-	return Client{}
+	return Client{lookupper: dnsService{}}
 }
 
-// EOA get eoa from domain
-func (c Client) EOA(ctx context.Context, cl claim.Claim) (claim.EOAOutput, error) {
-	txtrecords, err := net.LookupTXT(cl.PropertyID)
+// Find domain ownership evidences
+func (c Client) Find(ctx context.Context, cl claim.Claim) (claim.Evidence, error) {
+	txtrecords, err := c.lookupper.LookupTXT(cl.PropertyID)
 	if err != nil {
 		log.Error("nslookup failed", err)
+		return claim.Evidence{}, err
+	}
+	evidence := claim.Evidence{
+		PropertyID: cl.PropertyID,
 	}
 	for _, txt := range txtrecords {
 		if strings.HasPrefix(txt, recordPrefix) {
-			address := strings.ReplaceAll(txt, recordPrefix, "")
-			return claim.EOAOutput{
-				Actual: claim.Actual{
-					PropertyID: cl.PropertyID,
-					Evidence:   txt,
-				},
-				EOA: common.HexToAddress(address),
-			}, nil
+			actualAddress := strings.ReplaceAll(txt, recordPrefix, "")
+			evidence.EOAs = append(evidence.EOAs, common.HexToAddress(actualAddress))
+			evidence.Evidences = append(evidence.Evidences, txt)
 		}
 	}
-	return claim.EOAOutput{}, errors.New("no txt records found")
+	if len(evidence.EOAs) == 0 {
+		return claim.Evidence{}, errors.New("no evidencial txt records found")
+	}
+	return evidence, nil
 }
