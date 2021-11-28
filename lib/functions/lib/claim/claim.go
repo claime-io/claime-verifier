@@ -16,30 +16,30 @@ type (
 		Method       string `json:"method"`
 	}
 
-	// VerifiedOutput output
-	VerifiedOutput struct {
-		Claim  Claim              `json:"claim"`
-		Result VerificationResult `json:"result"`
-		Actual Actual             `json:"actual"`
-		At     time.Time          `json:"at"`
-		Error  string             `json:"error"`
+	// VerificationResponse output
+	VerificationResponse struct {
+		Claim    Claim              `json:"claim"`
+		Result   VerificationResult `json:"result"`
+		Evidence Evidence           `json:"actual"`
+		At       time.Time          `json:"at"`
+		Error    string             `json:"error"`
 	}
 
-	// Actual actual
-	Actual struct {
-		PropertyID string `json:"propertyId"`
-		Evidence   string `json:"evidence"`
+	// Evidence actual
+	Evidence struct {
+		PropertyID string           `json:"propertyId"`
+		EOAs       []common.Address `json:"eoas"`
+		Evidences  []string         `json:"evidences"`
 	}
 
-	// Verifier verifier
-	Verifier struct {
+	// VerificationKey verificationKey
+	PropertyKey struct {
 		PropertyType, Method string
 	}
 
-	// EOAOutput eoa
-	EOAOutput struct {
-		Actual Actual
-		EOA    common.Address
+	// EvidenceRepository evidenceRepository
+	EvidenceRepository interface {
+		Find(ctx context.Context, cl Claim) (Evidence, error)
 	}
 
 	// Repository repository
@@ -49,12 +49,8 @@ type (
 
 	// Service service
 	Service struct {
-		rep       Repository
-		verifiers map[Verifier]EvidenceRepository
-	}
-	// EvidenceRepository evidence repository
-	EvidenceRepository interface {
-		EOA(ctx context.Context, cl Claim) (EOAOutput, error)
+		rep          Repository
+		repositories map[PropertyKey]EvidenceRepository
 	}
 	VerificationResult string
 )
@@ -66,33 +62,33 @@ const (
 )
 
 // NewService new service
-func NewService(rep Repository, supported map[Verifier]EvidenceRepository) Service {
+func NewService(rep Repository, supported map[PropertyKey]EvidenceRepository) Service {
 	return Service{
-		rep:       rep,
-		verifiers: supported,
+		rep:          rep,
+		repositories: supported,
 	}
 }
 
 // VerifyClaims lists the verification results for claims of eoa.
-func (s Service) VerifyClaims(ctx context.Context, eoa common.Address) ([]VerifiedOutput, error) {
+func (s Service) VerifyClaims(ctx context.Context, eoa common.Address) ([]VerificationResponse, error) {
 	claims, err := s.claimsOf(ctx, eoa)
 	if err != nil {
-		return []VerifiedOutput{}, err
+		return []VerificationResponse{}, err
 	}
-	res := []VerifiedOutput{}
+	res := []VerificationResponse{}
 	for _, cl := range claims {
-		verifier := s.verifiers[Verifier{PropertyType: cl.PropertyType, Method: cl.Method}]
-		if verifier == nil {
-			res = append(res, VerifiedOutput{
+		repository := s.repositories[PropertyKey{PropertyType: cl.PropertyType, Method: cl.Method}]
+		if repository == nil {
+			res = append(res, VerificationResponse{
 				Claim:  cl,
 				At:     time.Now(),
 				Result: unsupported,
 			})
 			continue
 		}
-		got, err := verifier.EOA(ctx, cl)
+		evidence, err := repository.Find(ctx, cl)
 		if err != nil {
-			res = append(res, VerifiedOutput{
+			res = append(res, VerificationResponse{
 				Claim:  cl,
 				At:     time.Now(),
 				Result: failed,
@@ -100,23 +96,28 @@ func (s Service) VerifyClaims(ctx context.Context, eoa common.Address) ([]Verifi
 			})
 			continue
 		}
-		res = append(res, VerifiedOutput{
-			Claim:  cl,
-			Actual: got.Actual,
-			At:     time.Now(),
-			Result: verify(cl, eoa, got),
+		res = append(res, VerificationResponse{
+			Claim:    cl,
+			Evidence: evidence,
+			Result:   verify(cl, eoa, evidence),
+			At:       time.Now(),
 		})
 	}
 	return res, nil
 }
 
-func verify(cl Claim, eoa common.Address, got EOAOutput) VerificationResult {
-	if (cl.PropertyID == got.Actual.PropertyID) && (eoa == got.EOA) {
-		return verified
-	}
-	return failed
-}
-
 func (s Service) claimsOf(ctx context.Context, eoa common.Address) ([]Claim, error) {
 	return s.rep.ClaimsOf(ctx, eoa)
+}
+
+func verify(cl Claim, eoa common.Address, evidence Evidence) VerificationResult {
+	if cl.PropertyID != evidence.PropertyID {
+		return failed
+	}
+	for _, actualEOA := range evidence.EOAs {
+		if eoa == actualEOA {
+			return verified
+		}
+	}
+	return failed
 }

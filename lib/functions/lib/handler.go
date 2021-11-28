@@ -35,10 +35,10 @@ func Origin(request events.APIGatewayProxyRequest) string {
 	return request.Headers["origin"]
 }
 
-// SupportedVerifiers list supported verifiers by Verify Methods
-func SupportedVerifiers(ctx context.Context, ssm ssm.Client) (map[claim.Verifier]claim.EvidenceRepository, error) {
+// SupportedVerifications list supported verifications by Property and verification methods
+func SupportedVerifications(ctx context.Context, ssm ssm.Client) (map[claim.PropertyKey]claim.EvidenceRepository, error) {
 	tw, err := twitter.New(ctx, ssm)
-	return map[claim.Verifier]claim.EvidenceRepository{
+	return map[claim.PropertyKey]claim.EvidenceRepository{
 		{PropertyType: "Domain", Method: "TXT"}:            txt.New(),
 		{PropertyType: "Twitter Account", Method: "Tweet"}: tw,
 		{PropertyType: "Website", Method: "Meta Tag"}:      website.New(),

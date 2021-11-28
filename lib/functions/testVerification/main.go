@@ -31,7 +31,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		Method:       request.QueryStringParameters["method"],
 		Evidence:     request.QueryStringParameters["evidence"],
 	}
-	verifiers, err := lib.SupportedVerifiers(ctx, ssmClient)
+	verifications, err := lib.SupportedVerifications(ctx, ssmClient)
 	if err != nil {
 		log.Error("client initialize failed", err)
 		return events.APIGatewayProxyResponse{
@@ -40,7 +40,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			Body:       "{}",
 		}, nil
 	}
-	service := claim.NewService(repository{Claim: testingClaim}, verifiers)
+	service := claim.NewService(repository{Claim: testingClaim}, verifications)
 	claims, err := service.VerifyClaims(ctx, address)
 	if err != nil {
 		log.Error("get claim failed", err)
