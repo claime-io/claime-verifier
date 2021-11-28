@@ -31,41 +31,60 @@ func newFakeScraper(htmlStr string, err error) fakeScraper {
 }
 
 const (
-	propertyID      = "https://example.com"
-	expectedAddress = "0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb"
+	propertyID        = "https://example.com"
+	addressStr        = "0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb"
+	anotherAddressStr = "0x00142C7D23f0E761E997dsa8eF80244E3D123456"
 )
 
 var (
-	validEvidence        = fmt.Sprintf(`<meta name="%s" content="%s">`, tagName, expectedAddress)
-	emptyContentEvidence = fmt.Sprintf(`<meta name="%s">`, tagName)
-	htmlStr              = fmt.Sprintf(`<html><head><meta name="Name" content="Content">%s<title>Title</title></head><body></body></html>`, validEvidence)
-	emptyContentHtmlStr  = fmt.Sprintf(`<html><head><meta name="Name" content="Content">%s<title>Title</title></head><body></body></html>`, emptyContentEvidence)
+	validEvidence            = fmt.Sprintf(`<meta name="%s" content="%s">`, tagName, addressStr)
+	anotherEvidence          = fmt.Sprintf(`<meta name="%s" content="%s">`, tagName, anotherAddressStr)
+	multipleEvidence         = anotherEvidence + validEvidence
+	address                  = common.HexToAddress(addressStr)
+	anotherAddress           = common.HexToAddress(anotherAddressStr)
+	emptyContentEvidence     = fmt.Sprintf(`<meta name="%s">`, tagName)
+	evidenceHtmlStr          = fmt.Sprintf(`<html><head><meta name="Name" content="Content">%s<title>Title</title></head><body></body></html>`, validEvidence)
+	multipleEvidencesHtmlStr = fmt.Sprintf(`<html><head><meta name="Name" content="Content">%s<title>Title</title></head><body></body></html>`, multipleEvidence)
+	emptyContentHtmlStr      = fmt.Sprintf(`<html><head><meta name="Name" content="Content">%s<title>Title</title></head><body></body></html>`, emptyContentEvidence)
 )
 
-func TestEOA(t *testing.T) {
+func TestFind(t *testing.T) {
 	t.Run("return eoa, actual", func(t *testing.T) {
-		got, err := Client{
-			scraper: newFakeScraper(htmlStr, nil),
-		}.EOA(context.Background(), claim.Claim{PropertyID: propertyID})
+		evidence, err := Client{
+			scraper: newFakeScraper(evidenceHtmlStr, nil),
+		}.Find(context.Background(), claim.Claim{PropertyID: propertyID})
 		assert.Nil(t, err)
-		assert.Equal(t, common.HexToAddress(expectedAddress), got.EOA)
-		assert.Equal(t, validEvidence, got.Actual.Evidence)
-		assert.Equal(t, propertyID, got.Actual.PropertyID)
+		assert.Equal(t, address, evidence.EOAs[0])
+		assert.Equal(t, validEvidence, evidence.Evidences[0])
+		assert.Equal(t, propertyID, evidence.PropertyID)
+	})
+	t.Run("return multiple eoas", func(t *testing.T) {
+		evidence, err := Client{
+			scraper: newFakeScraper(multipleEvidencesHtmlStr, nil),
+		}.Find(context.Background(), claim.Claim{PropertyID: propertyID})
+		assert.Nil(t, err)
+		assert.Equal(t, anotherAddress, evidence.EOAs[0])
+		assert.Equal(t, anotherEvidence, evidence.Evidences[0])
+		assert.Equal(t, address, evidence.EOAs[1])
+		assert.Equal(t, validEvidence, evidence.Evidences[1])
+		assert.Equal(t, propertyID, evidence.PropertyID)
 	})
 	t.Run("return empty if claim not found", func(t *testing.T) {
-		got, err := Client{
+		evidence, err := Client{
 			scraper: newFakeScraper("", nil),
-		}.EOA(context.Background(), claim.Claim{PropertyID: propertyID})
+		}.Find(context.Background(), claim.Claim{PropertyID: propertyID})
 		assert.Nil(t, err)
-		assert.Equal(t, common.HexToAddress(""), got.EOA)
-		assert.Equal(t, "", got.Actual.Evidence)
-		assert.Equal(t, propertyID, got.Actual.PropertyID)
+		assert.Empty(t, evidence.EOAs)
+		assert.Empty(t, evidence.Evidences)
+		assert.Equal(t, propertyID, evidence.PropertyID)
 	})
 	t.Run("return meta tag with name only if content not found", func(t *testing.T) {
-		got, err := Client{
+		evidence, err := Client{
 			scraper: newFakeScraper(emptyContentHtmlStr, nil),
-		}.EOA(context.Background(), claim.Claim{PropertyID: propertyID})
+		}.Find(context.Background(), claim.Claim{PropertyID: propertyID})
 		assert.Nil(t, err)
-		assert.Equal(t, emptyContentEvidence, got.Actual.Evidence)
+		assert.Empty(t, evidence.EOAs)
+		assert.Equal(t, emptyContentEvidence, evidence.Evidences[0])
+		assert.Equal(t, propertyID, evidence.PropertyID)
 	})
 }
