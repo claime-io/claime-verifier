@@ -10,17 +10,17 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-type fakeRepository struct {
+type fakeClaimRepository struct {
 	Repository
 	fakeClaimsOf func(ctx context.Context, eoa common.Address) ([]Claim, error)
 }
 
-func (mock fakeRepository) ClaimsOf(ctx context.Context, eoa common.Address) ([]Claim, error) {
+func (mock fakeClaimRepository) ClaimsOf(ctx context.Context, eoa common.Address) ([]Claim, error) {
 	return mock.fakeClaimsOf(ctx, eoa)
 }
 
-func newFakeRepository(claims []Claim, err error) fakeRepository {
-	return fakeRepository{
+func newFakeClaimRepository(claims []Claim, err error) fakeClaimRepository {
+	return fakeClaimRepository{
 		fakeClaimsOf: func(ctx context.Context, eoa common.Address) ([]Claim, error) {
 			return claims, err
 		},
@@ -29,32 +29,24 @@ func newFakeRepository(claims []Claim, err error) fakeRepository {
 
 type fakeEvidenceRepository struct {
 	EvidenceRepository
-	fakeEOA func(ctx context.Context, cl Claim) (EOAOutput, error)
+	fakeOutput func(ctx context.Context, cl Claim) (Evidence, error)
 }
 
-func (mock fakeEvidenceRepository) EOA(ctx context.Context, cl Claim) (EOAOutput, error) {
-	return mock.fakeEOA(ctx, cl)
+func (fake fakeEvidenceRepository) Find(ctx context.Context, cl Claim) (Evidence, error) {
+	return fake.fakeOutput(ctx, cl)
 }
 
-func newFakeEvidenceRepository(out EOAOutput, err error) fakeEvidenceRepository {
+func newFakeEvidenceRepository(out Evidence, err error) EvidenceRepository {
 	return fakeEvidenceRepository{
-		fakeEOA: func(ctx context.Context, cl Claim) (EOAOutput, error) {
+		fakeOutput: func(ctx context.Context, cl Claim) (Evidence, error) {
 			return out, err
 		},
 	}
 }
 
-func newFakeVerifier(out EOAOutput, err error) fakeEvidenceRepository {
-	return fakeEvidenceRepository{
-		fakeEOA: func(ctx context.Context, cl Claim) (EOAOutput, error) {
-			return out, err
-		},
-	}
-}
-
-func newFakeVerfiers(verifier Verifier, out EOAOutput, err error) map[Verifier]EvidenceRepository {
-	return map[Verifier]EvidenceRepository{
-		verifier: newFakeVerifier(out, err),
+func newFakeEvidenceRepositories(key PropertyKey, out Evidence, err error) map[PropertyKey]EvidenceRepository {
+	return map[PropertyKey]EvidenceRepository{
+		key: newFakeEvidenceRepository(out, err),
 	}
 }
 
@@ -66,64 +58,51 @@ var (
 		Evidence:     "",
 		Method:       "TestMethod",
 	}
-	mockVerifier = Verifier{
+	mockPropertyKey = PropertyKey{
 		PropertyType: mockClaim.PropertyType,
 		Method:       mockClaim.Method,
 	}
-	mockOutput = EOAOutput{
-		Actual: Actual{
-			PropertyID: mockClaim.PropertyID,
-			Evidence:   "TestEvidence",
-		},
-		EOA: verifyingEOA,
+	mockEvidence = Evidence{
+		PropertyID: mockClaim.PropertyID,
+		Evidences:  []string{"TestEvidence"},
+		EOAs:       []common.Address{verifyingEOA},
 	}
 )
 
+func TestVerifyClaim(t *testing.T) {
+	t.Run("return verified if matched actual EOA", func(t *testing.T) {
+		assert.Equal(t, verify(mockClaim, verifyingEOA, mockEvidence), verified)
+	})
+	t.Run("return failed if not matched got EOA", func(t *testing.T) {
+		assert.Equal(t, verify(mockClaim, common.HexToAddress("anotherEOA"), mockEvidence), failed)
+	})
+	t.Run("return failed if not matched got propertyID", func(t *testing.T) {
+		assert.Equal(t, verify(mockClaim, common.HexToAddress("anotherEOA"), Evidence{
+			PropertyID: "another Property",
+			EOAs:       mockEvidence.EOAs,
+			Evidences:  mockEvidence.Evidences,
+		}), failed)
+	})
+}
 func TestVerifyClaims(t *testing.T) {
-	t.Run("return verified if matched got EOA", func(t *testing.T) {
+	t.Run("return verified if verified", func(t *testing.T) {
 		service := NewService(
-			newFakeRepository([]Claim{mockClaim}, nil),
-			newFakeVerfiers(mockVerifier, mockOutput, nil),
+			newFakeClaimRepository([]Claim{mockClaim}, nil),
+			newFakeEvidenceRepositories(mockPropertyKey, mockEvidence, nil),
 		)
 		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA)
 		assert.Nil(t, err)
 		assert.NotEmpty(t, outputs)
 		assert.Equal(t, outputs[0].Result, verified)
-	})
-	t.Run("return failed if not matched got EOA", func(t *testing.T) {
-		service := NewService(
-			newFakeRepository([]Claim{mockClaim}, nil),
-			newFakeVerfiers(mockVerifier, EOAOutput{
-				Actual: mockOutput.Actual,
-				EOA:    common.HexToAddress("differentEOA"),
-			}, nil),
-		)
-		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA)
-		assert.Nil(t, err)
-		assert.NotEmpty(t, outputs)
-		assert.Equal(t, outputs[0].Result, failed)
-	})
-	t.Run("return failed if not matched got propertyID", func(t *testing.T) {
-		service := NewService(
-			newFakeRepository([]Claim{mockClaim}, nil),
-			newFakeVerfiers(mockVerifier, EOAOutput{
-				Actual: Actual{
-					Evidence:   mockOutput.Actual.Evidence,
-					PropertyID: "differentID",
-				},
-				EOA: mockOutput.EOA,
-			}, nil),
-		)
-		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA)
-		assert.Nil(t, err)
-		assert.NotEmpty(t, outputs)
-		assert.Equal(t, outputs[0].Result, failed)
+		assert.Equal(t, outputs[0].Evidence, mockEvidence)
+		assert.Equal(t, outputs[0].Claim, mockClaim)
+		assert.Equal(t, "", outputs[0].Error)
 	})
 	t.Run("return failed and message if error", func(t *testing.T) {
 		expectedMessage := "Error Message"
 		service := NewService(
-			newFakeRepository([]Claim{mockClaim}, nil),
-			newFakeVerfiers(mockVerifier, EOAOutput{}, errors.Errorf(expectedMessage)),
+			newFakeClaimRepository([]Claim{mockClaim}, nil),
+			newFakeEvidenceRepositories(mockPropertyKey, Evidence{}, errors.Errorf(expectedMessage)),
 		)
 		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA)
 		assert.Nil(t, err)
@@ -133,8 +112,8 @@ func TestVerifyClaims(t *testing.T) {
 	})
 	t.Run("return unsuported if verifier not found", func(t *testing.T) {
 		service := NewService(
-			newFakeRepository([]Claim{mockClaim}, nil),
-			newFakeVerfiers(Verifier{}, EOAOutput{}, nil),
+			newFakeClaimRepository([]Claim{mockClaim}, nil),
+			newFakeEvidenceRepositories(PropertyKey{}, Evidence{}, nil),
 		)
 		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA)
 		assert.Nil(t, err)
@@ -143,8 +122,8 @@ func TestVerifyClaims(t *testing.T) {
 	})
 	t.Run("return error if failed to get claims", func(t *testing.T) {
 		service := NewService(
-			newFakeRepository([]Claim{}, errors.Errorf("")),
-			newFakeVerfiers(Verifier{}, EOAOutput{}, nil),
+			newFakeClaimRepository([]Claim{}, errors.Errorf("")),
+			newFakeEvidenceRepositories(PropertyKey{}, Evidence{}, nil),
 		)
 		_, err := service.VerifyClaims(context.Background(), verifyingEOA)
 		assert.Error(t, err)

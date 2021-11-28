@@ -67,20 +67,20 @@ func TestEOA(t *testing.T) {
 		client := Client{
 			lookupper: newFakeLookUpper(validClaim, propertyID, nil),
 		}
-		got, err := client.EOA(context.Background(), claim.Claim{Evidence: validEvidence})
+		evidence, err := client.Find(context.Background(), claim.Claim{Evidence: validEvidence})
 		assert.Nil(t, err)
-		assert.Equal(t, got.Actual.Evidence, validClaim)
-		assert.Equal(t, got.Actual.PropertyID, propertyID)
-		assert.Equal(t, got.EOA, verifyingEOA)
+		assert.Equal(t, evidence.PropertyID, propertyID)
+		assert.Equal(t, verifyingEOA, evidence.EOAs[0])
+		assert.Equal(t, validClaim, evidence.Evidences[0])
 	})
 	t.Run("error if evidence is not int64", func(t *testing.T) {
 		client := Client{lookupper: newFakeLookUpper("", "", nil)}
-		_, err := client.EOA(context.Background(), claim.Claim{Evidence: "string"})
+		_, err := client.Find(context.Background(), claim.Claim{Evidence: "string"})
 		assert.Error(t, err)
 	})
 	t.Run("error if failed to lookup", func(t *testing.T) {
 		client := Client{lookupper: newFakeLookUpper("", "", errors.Errorf(""))}
-		_, err := client.EOA(context.Background(), claim.Claim{Evidence: validEvidence})
+		_, err := client.Find(context.Background(), claim.Claim{Evidence: validEvidence})
 		assert.Error(t, err)
 	})
 }

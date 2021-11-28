@@ -27,7 +27,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	}
 	eoa := request.PathParameters["eoa"]
 	address := common.HexToAddress(eoa)
-	verifiers, err := lib.SupportedVerifiers(ctx, ssmClient)
+	verifications, err := lib.SupportedVerifications(ctx, ssmClient)
 	if err != nil {
 		log.Error("client initialize failed", err)
 		return events.APIGatewayProxyResponse{
@@ -36,7 +36,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			Body:       "{}",
 		}, nil
 	}
-	service := claim.NewService(rep, verifiers)
+	service := claim.NewService(rep, verifications)
 	claims, err := service.VerifyClaims(ctx, address)
 	if err != nil {
 		log.Error("get claim failed", err)
