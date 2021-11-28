@@ -11,7 +11,7 @@ paths:
   '/verify/{eoa}':
     get:
       summary: ''
-      operationId: get
+      operationId: verify
       responses:
         '200':
           description: OK
@@ -47,24 +47,28 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/VerifierOutput'
-      operationId: get-test-verify-eoa
+      operationId: testVerify
       parameters:
         - schema:
             type: string
           in: query
           name: propertyType
+          required: true
         - schema:
             type: string
           in: query
           name: propertyId
+          required: true
         - schema:
             type: string
           in: query
           name: method
+          required: true
         - schema:
             type: string
           in: query
           name: evidence
+          required: true
 components:
   responses: {}
   schemas:
@@ -88,14 +92,19 @@ components:
         actual:
           type: object
           description: hex address got
-          required:
-            - propertyId
-            - evidence
           properties:
             propertyId:
               type: string
-            evidence:
-              type: string
+            evidences:
+              type: array
+              items:
+                type: string
+            eoas:
+              type: array
+              items:
+                type: string
+          required:
+            - propertyId
       required:
         - result
         - claim
