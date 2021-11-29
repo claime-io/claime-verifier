@@ -21,6 +21,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/VerifierOutput'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: network
     parameters:
       - schema:
           type: string

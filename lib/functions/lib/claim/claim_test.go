@@ -57,6 +57,7 @@ var (
 		PropertyID:   "TestPropertyID",
 		Evidence:     "",
 		Method:       "TestMethod",
+		Network:      "TestNetwork",
 	}
 	mockPropertyKey = PropertyKey{
 		PropertyType: mockClaim.PropertyType,
