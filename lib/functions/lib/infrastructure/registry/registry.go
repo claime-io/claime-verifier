@@ -47,13 +47,17 @@ func callOpts(ctx context.Context) *bind.CallOpts {
 	}
 }
 
-func (p Provider) newRegistry() (*contracts.ContractsCaller, error) {
-	return contracts.NewContractsCaller(common.HexToAddress(registryAddress()), p.cli)
+func (p Provider) newRegistry(network string) (*contracts.ContractsCaller, error) {
+	address, err := registryAddress(network)
+	if err != nil {
+		return nil, err
+	}
+	return contracts.NewContractsCaller(common.HexToAddress(address), p.cli)
 }
 
 // ClaimsOf claims of eoa
-func (p Provider) ClaimsOf(ctx context.Context, eoa common.Address) ([]claim.Claim, error) {
-	reg, err := p.newRegistry()
+func (p Provider) ClaimsOf(ctx context.Context, eoa common.Address, network string) ([]claim.Claim, error) {
+	reg, err := p.newRegistry(network)
 	if err != nil {
 		return []claim.Claim{}, err
 	}
@@ -72,6 +76,7 @@ func (p Provider) ClaimsOf(ctx context.Context, eoa common.Address) ([]claim.Cla
 			PropertyID:   c.PropertyId,
 			Evidence:     c.Evidence,
 			Method:       c.Method,
+			Network:      network,
 		})
 	}
 	return res, nil

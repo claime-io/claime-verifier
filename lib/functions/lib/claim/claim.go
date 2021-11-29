@@ -45,7 +45,7 @@ type (
 
 	// Repository repository
 	Repository interface {
-		ClaimsOf(ctx context.Context, eoa common.Address) ([]Claim, error)
+		ClaimsOf(ctx context.Context, eoa common.Address, network string) ([]Claim, error)
 	}
 
 	// Service service
@@ -71,8 +71,8 @@ func NewService(rep Repository, supported map[PropertyKey]EvidenceRepository) Se
 }
 
 // VerifyClaims lists the verification results for claims of eoa.
-func (s Service) VerifyClaims(ctx context.Context, eoa common.Address) ([]VerificationResponse, error) {
-	claims, err := s.claimsOf(ctx, eoa)
+func (s Service) VerifyClaims(ctx context.Context, eoa common.Address, network string) ([]VerificationResponse, error) {
+	claims, err := s.claimsOf(ctx, eoa, network)
 	if err != nil {
 		return []VerificationResponse{}, err
 	}
@@ -107,8 +107,8 @@ func (s Service) VerifyClaims(ctx context.Context, eoa common.Address) ([]Verifi
 	return res, nil
 }
 
-func (s Service) claimsOf(ctx context.Context, eoa common.Address) ([]Claim, error) {
-	return s.rep.ClaimsOf(ctx, eoa)
+func (s Service) claimsOf(ctx context.Context, eoa common.Address, network string) ([]Claim, error) {
+	return s.rep.ClaimsOf(ctx, eoa, network)
 }
 
 func verify(cl Claim, eoa common.Address, evidence Evidence) VerificationResult {

@@ -15,7 +15,7 @@ type fakeClaimRepository struct {
 	fakeClaimsOf func(ctx context.Context, eoa common.Address) ([]Claim, error)
 }
 
-func (mock fakeClaimRepository) ClaimsOf(ctx context.Context, eoa common.Address) ([]Claim, error) {
+func (mock fakeClaimRepository) ClaimsOf(ctx context.Context, eoa common.Address, network string) ([]Claim, error) {
 	return mock.fakeClaimsOf(ctx, eoa)
 }
 
@@ -57,6 +57,7 @@ var (
 		PropertyID:   "TestPropertyID",
 		Evidence:     "",
 		Method:       "TestMethod",
+		Network:      "TestNetwork",
 	}
 	mockPropertyKey = PropertyKey{
 		PropertyType: mockClaim.PropertyType,
@@ -90,7 +91,7 @@ func TestVerifyClaims(t *testing.T) {
 			newFakeClaimRepository([]Claim{mockClaim}, nil),
 			newFakeEvidenceRepositories(mockPropertyKey, mockEvidence, nil),
 		)
-		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA)
+		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA, mockClaim.Network)
 		assert.Nil(t, err)
 		assert.NotEmpty(t, outputs)
 		assert.Equal(t, outputs[0].Result, verified)
@@ -104,7 +105,7 @@ func TestVerifyClaims(t *testing.T) {
 			newFakeClaimRepository([]Claim{mockClaim}, nil),
 			newFakeEvidenceRepositories(mockPropertyKey, Evidence{}, errors.Errorf(expectedMessage)),
 		)
-		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA)
+		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA, "")
 		assert.Nil(t, err)
 		assert.NotEmpty(t, outputs)
 		assert.Equal(t, outputs[0].Result, failed)
@@ -115,7 +116,7 @@ func TestVerifyClaims(t *testing.T) {
 			newFakeClaimRepository([]Claim{mockClaim}, nil),
 			newFakeEvidenceRepositories(PropertyKey{}, Evidence{}, nil),
 		)
-		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA)
+		outputs, err := service.VerifyClaims(context.Background(), verifyingEOA, "")
 		assert.Nil(t, err)
 		assert.NotEmpty(t, outputs)
 		assert.Equal(t, outputs[0].Result, unsupported)
@@ -125,7 +126,7 @@ func TestVerifyClaims(t *testing.T) {
 			newFakeClaimRepository([]Claim{}, errors.Errorf("")),
 			newFakeEvidenceRepositories(PropertyKey{}, Evidence{}, nil),
 		)
-		_, err := service.VerifyClaims(context.Background(), verifyingEOA)
+		_, err := service.VerifyClaims(context.Background(), verifyingEOA, "")
 		assert.Error(t, err)
 	})
 }

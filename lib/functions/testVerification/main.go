@@ -17,7 +17,7 @@ type repository struct {
 	claim.Claim
 }
 
-func (rep repository) ClaimsOf(ctx context.Context, eoa common.Address) ([]claim.Claim, error) {
+func (rep repository) ClaimsOf(ctx context.Context, eoa common.Address, network string) ([]claim.Claim, error) {
 	return []claim.Claim{rep.Claim}, nil
 }
 
@@ -41,7 +41,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}, nil
 	}
 	service := claim.NewService(repository{Claim: testingClaim}, verifications)
-	claims, err := service.VerifyClaims(ctx, address)
+	claims, err := service.VerifyClaims(ctx, address, "")
 	if err != nil {
 		log.Error("get claim failed", err)
 		return events.APIGatewayProxyResponse{
