@@ -1,16 +1,30 @@
 package registry
 
-import "os"
+import (
+	"claime-verifier/lib/functions/lib/infrastructure/evmnetwork"
+	"os"
+
+	"github.com/pkg/errors"
+)
 
 const (
-	claimeRegistryAddressRinkeby = "0x886A9591D624b5360d22B32C5866387340803593"
+	claimeRegistryAddressRinkeby = "0xD721AF405fb939fFeBF7B44b294D9D02A232b359"
+	claimeRegistryAddressMumbai  = "0x9b67374857503dA14209844598B0e65fA022Ac1B"
 	claimeRegistryAddressMainnet = "0xb52E96533528eD66AbFC3a9680A998a4eBe0E35a"
 )
 
-func registryAddress() string {
+func registryAddress(network string) (string, error) {
 	env := os.Getenv("EnvironmentId")
-	if env == "prod" {
-		return claimeRegistryAddressMainnet
+	if evmnetwork.Mainnet.Equals(network) {
+		return claimeRegistryAddressMainnet, nil
 	}
-	return claimeRegistryAddressRinkeby
+	if env != "prod" {
+		if evmnetwork.Rinkeby.Equals(network) {
+			return claimeRegistryAddressRinkeby, nil
+		}
+		if evmnetwork.Mumbai.Equals(network) {
+			return claimeRegistryAddressMumbai, nil
+		}
+	}
+	return "", errors.Errorf("Unsupported network: %s", network)
 }

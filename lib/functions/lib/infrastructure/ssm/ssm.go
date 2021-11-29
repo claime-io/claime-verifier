@@ -1,6 +1,7 @@
 package ssm
 
 import (
+	"claime-verifier/lib/functions/lib/infrastructure/evmnetwork"
 	"context"
 	"crypto/ed25519"
 	"encoding/hex"
@@ -35,6 +36,7 @@ const (
 	endpointRinkeby       = keyPrefix + "endpoint-rinkeby"
 	endpointMainnet       = keyPrefix + "endpoint-mainnet"
 	endpointPolygon       = keyPrefix + "endpoint-polygon"
+	endpointMumbai        = keyPrefix + "endpoint-mumbai"
 	twitterConsumerKey    = keyPrefix + "twitter-consumer-key"
 	twitterConsumerSecret = keyPrefix + "twitter-consumer-secret"
 )
@@ -61,13 +63,16 @@ func (c Client) DiscordPublicKey(ctx context.Context) (val string, err error) {
 }
 
 func (c Client) EndpointByNetwork(ctx context.Context, network string) (val string, err error) {
-	if network == "rinkeby" {
+	if evmnetwork.Rinkeby.Equals(network) {
 		return c.get(ctx, endpointRinkeby)
 	}
-	if network == "mainnet" {
+	if evmnetwork.Mumbai.Equals(network) {
+		return c.get(ctx, endpointMumbai)
+	}
+	if evmnetwork.Mainnet.Equals(network) {
 		return c.get(ctx, endpointMainnet)
 	}
-	if network == "polygon" {
+	if evmnetwork.Polygon.Equals(network) {
 		return c.get(ctx, endpointPolygon)
 	}
 	return "", errors.New(fmt.Sprintf("Unsupported network : %s", network))
