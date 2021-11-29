@@ -9,13 +9,16 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/pkg/errors"
 )
 
 type (
 
 	// Provider eth provider
 	Provider struct {
-		cli *ethclient.Client
+		cli             *ethclient.Client
+		network         string
+		contractAddress common.Address
 	}
 	// EndpointResolver resolver
 	EndpointResolver interface {
@@ -25,6 +28,11 @@ type (
 
 // NewProvider new Provider
 func NewProvider(ctx context.Context, network string, res EndpointResolver) (Provider, error) {
+	address, err := registryAddress(network)
+	if err != nil {
+		err := errors.Errorf("unsupported network:", network)
+		return Provider{}, err
+	}
 	e, err := res.EndpointByNetwork(ctx, network)
 	if err != nil {
 		log.Error("resolve endpoint failed", err)
@@ -36,7 +44,9 @@ func NewProvider(ctx context.Context, network string, res EndpointResolver) (Pro
 		return Provider{}, err
 	}
 	return Provider{
-		cli: client,
+		cli:             client,
+		network:         network,
+		contractAddress: common.HexToAddress(address),
 	}, nil
 }
 
@@ -47,17 +57,13 @@ func callOpts(ctx context.Context) *bind.CallOpts {
 	}
 }
 
-func (p Provider) newRegistry(network string) (*contracts.ContractsCaller, error) {
-	address, err := registryAddress(network)
-	if err != nil {
-		return nil, err
-	}
-	return contracts.NewContractsCaller(common.HexToAddress(address), p.cli)
+func (p Provider) newRegistry() (*contracts.ContractsCaller, error) {
+	return contracts.NewContractsCaller(p.contractAddress, p.cli)
 }
 
 // ClaimsOf claims of eoa
-func (p Provider) ClaimsOf(ctx context.Context, eoa common.Address, network string) ([]claim.Claim, error) {
-	reg, err := p.newRegistry(network)
+func (p Provider) ClaimsOf(ctx context.Context, eoa common.Address) ([]claim.Claim, error) {
+	reg, err := p.newRegistry()
 	if err != nil {
 		return []claim.Claim{}, err
 	}
@@ -76,7 +82,7 @@ func (p Provider) ClaimsOf(ctx context.Context, eoa common.Address, network stri
 			PropertyID:   c.PropertyId,
 			Evidence:     c.Evidence,
 			Method:       c.Method,
-			Network:      network,
+			Network:      p.network,
 		})
 	}
 	return res, nil

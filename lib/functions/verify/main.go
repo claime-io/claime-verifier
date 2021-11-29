@@ -29,7 +29,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}, nil
 	}
 	// rep := subgraph.New(os.Getenv("SubgraphEndpoint"))
-	rep, err := registry.NewProvider(ctx, network, ssmClient)
+	rep, err := registry.NewRepository(ctx, network, ssmClient)
 	if err != nil {
 		log.Error("client initialize failed", err)
 		return events.APIGatewayProxyResponse{
@@ -39,7 +39,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}, nil
 	}
 	service := claim.NewService(rep, verifications)
-	claims, err := service.VerifyClaims(ctx, address, network)
+	claims, err := service.VerifyClaims(ctx, address)
 	if err != nil {
 		log.Error("get claim failed", err)
 		return events.APIGatewayProxyResponse{

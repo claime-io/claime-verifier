@@ -16,7 +16,7 @@ func TestClaimsOf(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		res, err := p.ClaimsOf(ctx, common.HexToAddress("0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb"), "rinkeby")
+		res, err := p.ClaimsOf(ctx, common.HexToAddress("0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb"))
 		if err != nil {
 			t.Error(err)
 		}
