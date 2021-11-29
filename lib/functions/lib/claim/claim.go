@@ -14,6 +14,7 @@ type (
 		PropertyID   string `json:"propertyId"`
 		Evidence     string `json:"evidence"`
 		Method       string `json:"method"`
+		Network      string `json:"network"`
 	}
 
 	// VerificationResponse output
