@@ -30,7 +30,7 @@ type (
 func NewProvider(ctx context.Context, network string, res EndpointResolver) (Provider, error) {
 	address, err := registryAddress(network)
 	if err != nil {
-		err := errors.Errorf("unsupported network:", network)
+		err := errors.Errorf("unsupported network:%s", network)
 		return Provider{}, err
 	}
 	e, err := res.EndpointByNetwork(ctx, network)
