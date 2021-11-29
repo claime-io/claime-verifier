@@ -635,6 +635,7 @@ Object {
           "Variables": Object {
             "AllowedOrigin": "",
             "EnvironmentId": "test",
+            "SubgraphEndpoint": "endpoint-of-subgraph",
           },
         },
         "FunctionName": "claime-verifier-testVerification-test",
@@ -803,6 +804,7 @@ Object {
           "Variables": Object {
             "AllowedOrigin": "",
             "EnvironmentId": "test",
+            "SubgraphEndpoint": "endpoint-of-subgraph",
           },
         },
         "FunctionName": "claime-verifier-verify-test",

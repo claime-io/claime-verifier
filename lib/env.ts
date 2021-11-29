@@ -10,6 +10,7 @@ export interface EnvironmentVariables {
   rootDomain: string
   hostedZoneId: string
   certificateArn: string
+  subgraphEndpoint: string
 }
 
 const EnvironmentVariablesSetting: {
@@ -21,6 +22,7 @@ const EnvironmentVariablesSetting: {
     hostedZoneId: 'Z08305602GK0LP28IOTQ3',
     certificateArn:
       'arn:aws:acm:us-east-1:495476032358:certificate/4da06504-10a6-4231-8200-5581568a907c',
+    subgraphEndpoint: 'TBD',
   },
   [Environments.DEV]: {
     allowedOrigin:
@@ -29,12 +31,15 @@ const EnvironmentVariablesSetting: {
     hostedZoneId: 'Z08620181ARYV5PENJUEI',
     certificateArn:
       'arn:aws:acm:us-east-1:495476032358:certificate/7ba1d525-652e-4388-9e09-c06b86f7f29a',
+    subgraphEndpoint:
+      'https://api.studio.thegraph.com/query/8417/claime-rinkeby/v0.0.1',
   },
   [Environments.TEST]: {
     allowedOrigin: '',
     rootDomain: 'test',
     hostedZoneId: 'test',
     certificateArn: '',
+    subgraphEndpoint: 'endpoint-of-subgraph',
   },
 }
 

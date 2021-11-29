@@ -532,6 +532,10 @@ Object {
                 "Name": "EnvironmentId",
                 "Value": "test",
               },
+              Object {
+                "Name": "SubgraphEndpoint",
+                "Value": "endpoint-of-subgraph",
+              },
             ],
             "Essential": true,
             "Image": Object {
@@ -670,6 +674,7 @@ Object {
           "Variables": Object {
             "AllowedOrigin": "",
             "EnvironmentId": "test",
+            "SubgraphEndpoint": "endpoint-of-subgraph",
           },
         },
         "FunctionName": "claime-verifier-discord-test",

@@ -77,6 +77,7 @@ export const environmentVariables = (target: environment.Environments) => {
   return {
     AllowedOrigin: environment.valueOf(target).allowedOrigin,
     EnvironmentId: target,
+    SubgraphEndpoint: environment.valueOf(target).subgraphEndpoint,
   }
 }
 const aRecord = (
