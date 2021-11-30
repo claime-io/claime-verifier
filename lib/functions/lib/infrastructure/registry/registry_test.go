@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestClaimsOf(t *testing.T) {
@@ -17,24 +18,12 @@ func TestClaimsOf(t *testing.T) {
 			t.Error(err)
 		}
 		res, err := p.ClaimsOf(ctx, common.HexToAddress("0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb"))
-		if err != nil {
-			t.Error(err)
-		}
-		if len(res) == 0 {
-			t.Error("empty response")
-		}
-		claime := res[0]
-		if claime.Evidence != "claime-dev.tk" {
-			t.Error("got", claime.Evidence)
-		}
-		if claime.PropertyType != "Domain" {
-			t.Error("got", claime.PropertyType)
-		}
-		if claime.PropertyID != "claime-dev.tk" {
-			t.Error("got", claime.PropertyID)
-		}
-		if claime.Method != "TXT" {
-			t.Error("got", claime.Method)
-		}
+		assert.Nil(t, err)
+		assert.Len(t, res, 1)
+		assert.Equal(t, res[0].PropertyType, "Domain")
+		assert.Equal(t, res[0].PropertyID, "claime-dev.tk")
+		assert.Equal(t, res[0].Method, "TXT")
+		assert.Equal(t, res[0].Evidence, "")
+		assert.Equal(t, res[0].Network, "rinkeby")
 	})
 }

@@ -67,7 +67,7 @@ func (p Provider) ClaimsOf(ctx context.Context, eoa common.Address) ([]claim.Cla
 	if err != nil {
 		return []claim.Claim{}, err
 	}
-	keys, _, err := reg.ListClaims(callOpts(ctx), eoa)
+	keys, err := reg.ListClaims(callOpts(ctx), eoa)
 	if err != nil {
 		return []claim.Claim{}, err
 	}

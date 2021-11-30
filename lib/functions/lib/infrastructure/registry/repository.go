@@ -21,8 +21,7 @@ var (
 )
 
 func NewRepository(ctx context.Context, network string, res EndpointResolver) (Repository, error) {
-	evmnw := evmnetwork.ValueOf(network)
-	if network != "" && evmnw != "" {
+	if network != "" {
 		provider, err := NewProvider(ctx, network, res)
 		if err != nil {
 			return Repository{}, err
