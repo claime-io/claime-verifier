@@ -19,7 +19,7 @@ func TestClaimsOf(t *testing.T) {
 		}
 		res, err := p.ClaimsOf(ctx, common.HexToAddress("0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb"))
 		assert.Nil(t, err)
-		assert.Len(t, res, 1)
+		assert.GreaterOrEqual(t, len(res), 1)
 		assert.Equal(t, res[0].PropertyType, "Domain")
 		assert.Equal(t, res[0].PropertyID, "claime-dev.tk")
 		assert.Equal(t, res[0].Method, "TXT")
