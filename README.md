@@ -3,13 +3,9 @@
 ## Supported Property Types
 
 - [Discord User](#Discord%20AUser)
-
-### To Be Supported...
-
 - [Domain](#Domain)
 - [Website](#Website)
 - [Twitter Account](#Twitter%20Account)
-- and more...
 
 ## Verification Methods
 
@@ -93,7 +89,7 @@ example:
 ```json
 {
   "propertyType": "Website",
-  "propertyId": "example.com/page"
+  "propertyId": "https://example.com/page"
 }
 ```
 
