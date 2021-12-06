@@ -2,7 +2,6 @@ import {
   ARecord,
   ARecordProps,
   CnameRecord,
-  HostedZone,
   IHostedZone,
   PublicHostedZone,
   RecordTarget,
@@ -21,6 +20,7 @@ export class Route53Stack extends Stack {
   ) {
     super(scope, id, props)
     const { rootDomain, ownerEOA } = environment.valueOf(target)
+
     this.hostedZone = hostedZone(this, target)
     // Vercel Domain Verification
     const vercelARecordProps: ARecordProps = {
@@ -54,16 +54,6 @@ const hostedZone = (
   })
 }
 
-export const hostedZoneName = (target: environment.Environments) => {
+const hostedZoneName = (target: environment.Environments) => {
   return environment.valueOf(target).rootDomain
-}
-
-export const hostedZoneFromId = (
-  scope: Construct,
-  target: environment.Environments,
-) => {
-  return HostedZone.fromHostedZoneAttributes(scope, `HostedZone`, {
-    zoneName: hostedZoneName(target),
-    hostedZoneId: environment.valueOf(target).hostedZoneId,
-  })
 }

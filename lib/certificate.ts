@@ -3,32 +3,38 @@ import {
   ICertificate,
   ValidationMethod,
 } from '@aws-cdk/aws-certificatemanager'
-import { Construct, Stack } from '@aws-cdk/core'
+import { IHostedZone } from '@aws-cdk/aws-route53'
+import { Construct, Stack, StackProps } from '@aws-cdk/core'
 import * as environment from './env'
-import { hostedZoneFromId } from './route53'
 
+type CertificateStackProps = {
+  hostedZone: IHostedZone
+}
 export class CertificateStack extends Stack {
   public readonly certificate: ICertificate
 
-  constructor(scope: Construct, id: string, target: environment.Environments) {
+  constructor(
+    scope: Construct,
+    id: string,
+    target: environment.Environments,
+    props: CertificateStackProps & StackProps,
+  ) {
     super(scope, id)
-    const { hostedZoneId } = environment.valueOf(target)
-    if (environment.isProd(target)) return
-    if (!hostedZoneId) throw new Error('env.hostedZoneId is requied')
-    this.certificate = certificate(this, target)
+    const { hostedZone } = props
+    this.certificate = certificate(this, hostedZone, target)
   }
 }
 
 const certificate = (
   scope: Construct,
+  hostedZone: IHostedZone,
   target: environment.Environments,
 ): ICertificate => {
   const { rootDomain } = environment.valueOf(target)
-
   return new DnsValidatedCertificate(scope, 'Certificate', {
     domainName: `${rootDomain}`,
     subjectAlternativeNames: [`*.${rootDomain}`],
-    hostedZone: hostedZoneFromId(scope, target),
+    hostedZone,
     validationMethod: ValidationMethod.DNS,
     region: 'us-east-1',
   })

@@ -10,12 +10,12 @@ import {
 import * as certificatemanager from '@aws-cdk/aws-certificatemanager'
 import { Code } from '@aws-cdk/aws-lambda'
 import * as route53 from '@aws-cdk/aws-route53'
+import { IHostedZone } from '@aws-cdk/aws-route53'
 import * as alias from '@aws-cdk/aws-route53-targets'
 import * as cdk from '@aws-cdk/core'
 import { Stack } from '@aws-cdk/core'
 import { resolve } from 'path'
 import * as environment from './env'
-import { hostedZoneFromId } from './route53'
 
 export function addCorsOptions(
   apiResource: IResource,
@@ -85,9 +85,10 @@ const aRecord = (
   target: environment.Environments,
   domainName: string,
   customDomain: DomainName,
+  hostedZone: IHostedZone,
 ) => {
   new route53.ARecord(stack, 'RestApiARecord', {
-    zone: hostedZoneFromId(stack, target),
+    zone: hostedZone,
     recordName: domainName,
     target: route53.RecordTarget.fromAlias(
       new alias.ApiGatewayDomain(customDomain),
@@ -105,12 +106,13 @@ export const withCustomDomain = (
   api: RestApi,
   domain: string,
   target: environment.Environments,
+  hostedZone: IHostedZone,
 ) => {
   const customDomain = api.addDomainName(
     environment.withEnvPrefix(target, 'domain'),
     customDomainProps(stack, domain, target),
   )
-  aRecord(stack, target, domain, customDomain)
+  aRecord(stack, target, domain, customDomain, hostedZone)
   return customDomain
 }
 

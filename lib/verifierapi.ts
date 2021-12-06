@@ -1,5 +1,6 @@
 import { LambdaIntegration, RestApi } from '@aws-cdk/aws-apigateway'
 import { Function, Runtime, Tracing } from '@aws-cdk/aws-lambda'
+import { IHostedZone } from '@aws-cdk/aws-route53'
 import * as cdk from '@aws-cdk/core'
 import {
   addCorsOptions,
@@ -10,14 +11,18 @@ import {
 import { basicPolicytStatements } from './discord'
 import * as environment from './env'
 
+type VerifierApiStackProps = {
+  hostedZone: IHostedZone
+}
 export class VerifierApiStack extends cdk.Stack {
   constructor(
     scope: cdk.Construct,
     id: string,
     target: environment.Environments,
-    props?: cdk.StackProps,
+    props: VerifierApiStackProps & cdk.StackProps,
   ) {
     super(scope, id, props)
+    const { hostedZone } = props
     const api = new RestApi(this, 'RestApi', {
       restApiName: environment.withEnvPrefix(target, 'verifier'),
     })
@@ -29,7 +34,7 @@ export class VerifierApiStack extends cdk.Stack {
       target,
       api,
     )
-    withCustomDomain(this, api, restApiDomainName(target), target)
+    withCustomDomain(this, api, restApiDomainName(target), target, hostedZone)
   }
 }
 

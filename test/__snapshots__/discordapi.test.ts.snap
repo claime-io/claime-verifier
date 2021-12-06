@@ -67,7 +67,9 @@ Object {
             ],
           },
         },
-        "HostedZoneId": "test",
+        "HostedZoneId": Object {
+          "Fn::ImportValue": "test-hostedZone:ExportsOutputRefHostedZoneDB99F8662BBAE844",
+        },
         "Name": "discord.test.",
         "Type": "A",
       },

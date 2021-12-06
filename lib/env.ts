@@ -8,7 +8,6 @@ export enum Environments {
 export interface EnvironmentVariables {
   allowedOrigin: string
   rootDomain: string
-  hostedZoneId: string
   certificateArn: string
   subgraphEndpoint: string
   ownerEOA: string
@@ -20,7 +19,6 @@ const EnvironmentVariablesSetting: {
   [Environments.PROD]: {
     allowedOrigin: 'https://claime.io',
     rootDomain: 'claime.io',
-    hostedZoneId: 'Z08305602GK0LP28IOTQ3',
     certificateArn:
       'arn:aws:acm:us-east-1:495476032358:certificate/4da06504-10a6-4231-8200-5581568a907c',
     subgraphEndpoint: 'TBD',
@@ -30,7 +28,6 @@ const EnvironmentVariablesSetting: {
     allowedOrigin:
       'https://claime-webfront-git-feature-discord-squard.vercel.app',
     rootDomain: 'claime-dev.tk',
-    hostedZoneId: 'Z08620181ARYV5PENJUEI',
     certificateArn:
       'arn:aws:acm:us-east-1:495476032358:certificate/7ba1d525-652e-4388-9e09-c06b86f7f29a',
     subgraphEndpoint:
@@ -40,7 +37,6 @@ const EnvironmentVariablesSetting: {
   [Environments.TEST]: {
     allowedOrigin: '',
     rootDomain: 'test',
-    hostedZoneId: 'test',
     certificateArn: '',
     subgraphEndpoint: 'endpoint-of-subgraph',
     ownerEOA: '0x0000000000000000000000000000000000000000',

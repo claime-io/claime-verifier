@@ -79,7 +79,9 @@ Object {
             ],
           },
         },
-        "HostedZoneId": "test",
+        "HostedZoneId": Object {
+          "Fn::ImportValue": "test-hostedZone:ExportsOutputRefHostedZoneDB99F8662BBAE844",
+        },
         "Name": "verifier.test.",
         "Type": "A",
       },
