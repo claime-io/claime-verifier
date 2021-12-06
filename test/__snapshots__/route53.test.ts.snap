@@ -12,6 +12,20 @@ Object {
       },
       "Type": "AWS::Route53::HostedZone",
     },
+    "OwnershipClaimTXTRecord6497FDAE": Object {
+      "Properties": Object {
+        "HostedZoneId": Object {
+          "Ref": "HostedZoneDB99F866",
+        },
+        "Name": "test.",
+        "ResourceRecords": Array [
+          ""claime-ownership-claim=0x0000000000000000000000000000000000000000"",
+        ],
+        "TTL": "1800",
+        "Type": "TXT",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
     "VercelARecord89A76128": Object {
       "Properties": Object {
         "HostedZoneId": Object {
