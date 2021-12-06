@@ -1,0 +1,133 @@
+openapi: 3.0.0
+info:
+  title: Claime Verifier
+  version: '1.0'
+servers:
+  - url: 'https://verifier.claime.io'
+    description: prod
+  - url: 'https://verifier.claime-dev.tk'
+    description: ''
+paths:
+  '/verify/{eoa}':
+    get:
+      summary: ''
+      operationId: verify
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VerifierOutput'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: network
+    parameters:
+      - schema:
+          type: string
+        name: eoa
+        in: path
+        required: true
+        description: eoa hex address
+  '/test/verify/{eoa}':
+    parameters:
+      - schema:
+          type: string
+        name: eoa
+        in: path
+        required: true
+    get:
+      summary: ''
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VerifierOutput'
+      operationId: testVerify
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: propertyType
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: propertyId
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: method
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: evidence
+          required: true
+components:
+  responses: {}
+  schemas:
+    VerifierOutput:
+      title: VerifierOutput
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+            - Verified
+            - Failed
+            - Unsupported
+        error:
+          type: string
+        claim:
+          $ref: '#/components/schemas/Claim'
+        at:
+          type: string
+          description: unix timestamp verified at
+        actual:
+          type: object
+          description: hex address got
+          properties:
+            propertyId:
+              type: string
+            evidences:
+              type: array
+              items:
+                type: string
+            eoas:
+              type: array
+              items:
+                type: string
+          required:
+            - propertyId
+      required:
+        - result
+        - claim
+        - at
+    Claim:
+      title: Claim
+      type: object
+      properties:
+        propertyType:
+          type: string
+        propertyId:
+          type: string
+        method:
+          type: string
+        evidence:
+          type: string
+      required:
+        - propertyType
+        - propertyId
+        - method
+        - evidence

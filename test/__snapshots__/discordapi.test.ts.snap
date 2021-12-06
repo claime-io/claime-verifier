@@ -47,7 +47,7 @@ Object {
   "Resources": Object {
     "RestApi0C43BF4B": Object {
       "Properties": Object {
-        "Name": "claime-verifier-verification-restapi-test",
+        "Name": "claime-verifier-discord-restapi-test",
       },
       "Type": "AWS::ApiGateway::RestApi",
     },
@@ -199,6 +199,12 @@ Object {
                 "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE'",
                 "method.response.header.Access-Control-Allow-Origin": "''",
               },
+              "ResponseTemplates": Object {
+                "application/json": "
+    #set($origin = $input.params().header.get('origin'))
+    #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin)
+    ",
+              },
               "StatusCode": "200",
             },
           ],
@@ -250,7 +256,7 @@ Object {
                 ":lambda:path/2015-03-31/functions/",
                 Object {
                   "Fn::GetAtt": Array [
-                    "verify2EA97391",
+                    "verifydiscordE2737BEA",
                     "Arn",
                   ],
                 },
@@ -273,7 +279,7 @@ Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
           "Fn::GetAtt": Array [
-            "verify2EA97391",
+            "verifydiscordE2737BEA",
             "Arn",
           ],
         },
@@ -310,7 +316,7 @@ Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
           "Fn::GetAtt": Array [
-            "verify2EA97391",
+            "verifydiscordE2737BEA",
             "Arn",
           ],
         },
@@ -346,10 +352,10 @@ Object {
       },
       "Type": "AWS::Lambda::Permission",
     },
-    "verify2EA97391": Object {
+    "verifydiscordE2737BEA": Object {
       "DependsOn": Array [
-        "verifyServiceRoleDefaultPolicyBE827A6A",
-        "verifyServiceRole4DDB2A47",
+        "verifydiscordServiceRoleDefaultPolicyC7A75DBB",
+        "verifydiscordServiceRole9622CB46",
       ],
       "Properties": Object {
         "Code": Object {
@@ -394,13 +400,14 @@ Object {
           "Variables": Object {
             "AllowedOrigin": "",
             "EnvironmentId": "test",
+            "SubgraphEndpoint": "endpoint-of-subgraph",
           },
         },
-        "FunctionName": "claime-verifier-verify-test",
+        "FunctionName": "claime-verifier-verifydiscord-test",
         "Handler": "bin/main",
         "Role": Object {
           "Fn::GetAtt": Array [
-            "verifyServiceRole4DDB2A47",
+            "verifydiscordServiceRole9622CB46",
             "Arn",
           ],
         },
@@ -412,7 +419,7 @@ Object {
       },
       "Type": "AWS::Lambda::Function",
     },
-    "verifyServiceRole4DDB2A47": Object {
+    "verifydiscordServiceRole9622CB46": Object {
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -443,7 +450,7 @@ Object {
       },
       "Type": "AWS::IAM::Role",
     },
-    "verifyServiceRoleDefaultPolicyBE827A6A": Object {
+    "verifydiscordServiceRoleDefaultPolicyC7A75DBB": Object {
       "Properties": Object {
         "PolicyDocument": Object {
           "Statement": Array [
@@ -505,10 +512,10 @@ Object {
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "verifyServiceRoleDefaultPolicyBE827A6A",
+        "PolicyName": "verifydiscordServiceRoleDefaultPolicyC7A75DBB",
         "Roles": Array [
           Object {
-            "Ref": "verifyServiceRole4DDB2A47",
+            "Ref": "verifydiscordServiceRole9622CB46",
           },
         ],
       },

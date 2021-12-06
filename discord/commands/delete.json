@@ -1,7 +1,7 @@
 {
-  "name": "delete",
+  "name": "{COMMAND_NAME}",
   "type": 1,
-  "application_id": "892321773981421568",
+  "application_id": "{APPLICATION_ID}",
   "description": "Delete the settings associated with the contract address",
   "options": [
     { "type": 3, "name": "contract_address", "description": "The contract address of the NFT", "required": true }

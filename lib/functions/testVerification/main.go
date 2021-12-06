@@ -4,7 +4,6 @@ import (
 	"claime-verifier/lib/functions/lib"
 	"claime-verifier/lib/functions/lib/claim"
 	"claime-verifier/lib/functions/lib/common/log"
-	"claime-verifier/lib/functions/lib/infrastructure/registry"
 	"claime-verifier/lib/functions/lib/infrastructure/ssm"
 	"context"
 	"encoding/json"
@@ -14,11 +13,24 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+type repository struct {
+	claim.Claim
+}
+
+func (rep repository) ClaimsOf(ctx context.Context, eoa common.Address) ([]claim.Claim, error) {
+	return []claim.Claim{rep.Claim}, nil
+}
+
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	ssmClient := ssm.New()
 	eoa := request.PathParameters["eoa"]
-	network := request.PathParameters["network"]
 	address := common.HexToAddress(eoa)
+	testingClaim := claim.Claim{
+		PropertyType: request.QueryStringParameters["propertyType"],
+		PropertyID:   request.QueryStringParameters["propertyId"],
+		Method:       request.QueryStringParameters["method"],
+		Evidence:     request.QueryStringParameters["evidence"],
+	}
 	verifications, err := lib.SupportedVerifications(ctx, ssmClient)
 	if err != nil {
 		log.Error("client initialize failed", err)
@@ -28,17 +40,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			Body:       "{}",
 		}, nil
 	}
-	// rep := subgraph.New(os.Getenv("SubgraphEndpoint"))
-	rep, err := registry.NewRepository(ctx, network, ssmClient)
-	if err != nil {
-		log.Error("client initialize failed", err)
-		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Headers:    lib.Headers(lib.Origin(request)),
-			Body:       "{}",
-		}, nil
-	}
-	service := claim.NewService(rep, verifications)
+	service := claim.NewService(repository{Claim: testingClaim}, verifications)
 	claims, err := service.VerifyClaims(ctx, address)
 	if err != nil {
 		log.Error("get claim failed", err)

@@ -6,6 +6,7 @@ import {
   IHostedZone,
   PublicHostedZone,
   RecordTarget,
+  TxtRecord,
 } from '@aws-cdk/aws-route53'
 import { Construct, Stack, StackProps } from '@aws-cdk/core'
 import * as environment from './env'
@@ -19,7 +20,7 @@ export class Route53Stack extends Stack {
     props?: StackProps,
   ) {
     super(scope, id, props)
-    const { rootDomain } = environment.valueOf(target)
+    const { rootDomain, ownerEOA } = environment.valueOf(target)
     if (environment.isProd(target)) {
       return
     }
@@ -37,16 +38,10 @@ export class Route53Stack extends Stack {
       recordName: `www.${rootDomain}`,
       domainName: 'cname.vercel-dns.com',
     })
-    // Vercel  LP Domain Verification
-    new CnameRecord(this, 'VercelLpCNAMERecord', {
+
+    new TxtRecord(this, 'OwnershipClaimTXTRecord', {
       zone: this.hostedZone,
-      recordName: `service.${rootDomain}`,
-      domainName: 'cname.vercel-dns.com',
-    })
-    new CnameRecord(this, 'VercelLpCNAMEWWWRecord', {
-      zone: this.hostedZone,
-      recordName: `www.service.${rootDomain}`,
-      domainName: 'cname.vercel-dns.com',
+      values: [`claime-ownership-claim=${ownerEOA}`],
     })
   }
 }

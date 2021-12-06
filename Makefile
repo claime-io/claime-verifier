@@ -1,4 +1,4 @@
-.PHONY: setup build deploy
+.PHONY: setup test build deploy
 TARGET = dev
 
 setup:
@@ -17,6 +17,8 @@ build:
 		cd ../../..;\
 	  echo  "building finished. $${module_dir}";\
 	done
+test: 
+	go test ./lib/...
 deploy:
 	cdk deploy -c target=dev --all --require-approval never
 abi:

@@ -7,13 +7,13 @@ concurrency: this_is_concurrency_workflow
 
 jobs:
   deploy:
-    name: CDK deoloy
+    name: CDK deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: "12"
+          node-version: '12'
       - name: Setup AWS CDK
         run: npm install -g aws-cdk@1.122.0
       - name: Setup typescript
@@ -29,7 +29,7 @@ jobs:
       - name: Setup Dependencies
         run: npm ci
       - name: Build
-        run: make build
+        run: make test build
       - name: Test
         run: npm run test
       - name: CDK deploy dev

@@ -2,11 +2,42 @@
 
 ## Supported Property Types
 
+- [Discord User](#Discord%20AUser)
 - [Domain](#Domain)
 - [Website](#Website)
 - [Twitter Account](#Twitter%20Account)
 
 ## Verification Methods
+
+### Discord User
+
+<details><summary>Claime Discord App verification</summary>
+<br/>
+
+Claims of this type are only available for [the Claime discord app](discord).
+
+##### Evidence format
+
+None.
+
+##### Claim format
+
+- `propertyType`: `Discord User ID`
+- `propertyId`: `${your_discord_user_id}`
+- `evidence`: `(blank)`
+- `method`: `Claime Discord App`
+
+example:
+
+```json
+{
+  "propertyType": "Discord User ID",
+  "propertyId": "000000000000000000",
+  "Method": "Claime Discord App"
+}
+```
+
+</details>
 
 ### Domain
 
@@ -22,8 +53,8 @@ example.com TXT "claime-ownership-claim=${your_address}"
 
 - `propertyType`: `Domain`
 - `propertyId`: `${your_domain_name}`
-- `evidence`: `${your_domain_name}` or blank
-- `method`: `TXT` or blank
+- `evidence`: `(blank)`
+- `method`: `TXT`
 
 example:
 
@@ -43,22 +74,22 @@ example:
 ##### Evidence format
 
 ```
-<meta name="claime-ownership-claim" content="${your_address}" />
+<meta name="claime-ownership-claim" content="${your_address}">
 ```
 
 ##### Claim format
 
 - `propertyType`: `Website`
 - `propertyId`: `${your_website_url}`
-- `evidence`: `${your_website_url}` or blank
-- `method`: `MetaTag` or blank
+- `evidence`: `(blank)`
+- `method`: `MetaTag`
 
 example:
 
 ```json
 {
   "propertyType": "Website",
-  "propertyId": "example.com/page"
+  "propertyId": "https://example.com/page"
 }
 ```
 
@@ -71,7 +102,7 @@ example:
 ##### Evidence format
 
 ```
-claime-ownership-claim="${your_address}"
+claime-ownership-claim=${your_address}
 ```
 
 ##### Claim format
@@ -79,7 +110,7 @@ claime-ownership-claim="${your_address}"
 - `propertyType`: `Twitter Account`
 - `propertyId`: `${your_twitter_id}`
 - `evidence`: `${your_tweet_id}`
-- `method`: `Tweet` or blank
+- `method`: `Tweet`
 
 example:
 
