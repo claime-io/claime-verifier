@@ -13,7 +13,7 @@ import (
 
 const (
 	validEvidence = "1448877989106651140"
-	validClaim    = "claime-ownership-claim=0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb"
+	validClaim    = "claime-ownership-claim=0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb\nSee results in Claime:\nhttps://claime.io/0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb"
 )
 
 var (
@@ -43,9 +43,11 @@ func newFakeLookUpper(tweet string, userID string, err error) fakeLookUpper {
 func TestEoaRaw(t *testing.T) {
 	t.Run("get eoa success with "+validClaim, func(t *testing.T) {
 		got := eoaRaw(validClaim)
-		if common.HexToAddress(got).Hex() != verifyingEOA.Hex() {
-			t.Error("got:", got)
-		}
+		assert.Equal(t, verifyingEOA.Hex(), got)
+	})
+	t.Run("get empty with invalid claim", func(t *testing.T) {
+		got := eoaRaw("xxxxx")
+		assert.Equal(t, "", got)
 	})
 }
 

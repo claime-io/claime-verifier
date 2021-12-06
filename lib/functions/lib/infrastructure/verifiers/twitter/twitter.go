@@ -4,8 +4,8 @@ import (
 	"claime-verifier/lib/functions/lib/claim"
 	"claime-verifier/lib/functions/lib/common/log"
 	"context"
+	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -64,5 +64,10 @@ func eoa(rawMessage string) common.Address {
 }
 
 func eoaRaw(raw string) string {
-	return strings.TrimPrefix(raw, evidencePrefix)
+	assined := regexp.MustCompile(evidencePrefix + `(0x\w+)`)
+	results := assined.FindSubmatch([]byte(raw))
+	if len(results) < 2 {
+		return ""
+	}
+	return string(results[1])
 }
