@@ -21,9 +21,7 @@ export class Route53Stack extends Stack {
   ) {
     super(scope, id, props)
     const { rootDomain, ownerEOA } = environment.valueOf(target)
-    if (environment.isProd(target)) {
-      return
-    }
+
     this.hostedZone = hostedZone(this, target)
     // Vercel Domain Verification
     const vercelARecordProps: ARecordProps = {
@@ -41,6 +39,7 @@ export class Route53Stack extends Stack {
 
     new TxtRecord(this, 'OwnershipClaimTXTRecord', {
       zone: this.hostedZone,
+      recordName: `${rootDomain}`,
       values: [`claime-ownership-claim=${ownerEOA}`],
     })
   }
@@ -56,7 +55,7 @@ const hostedZone = (
   })
 }
 
-export const hostedZoneName = (target: environment.Environments) => {
+const hostedZoneName = (target: environment.Environments) => {
   return environment.valueOf(target).rootDomain
 }
 

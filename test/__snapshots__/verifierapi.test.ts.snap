@@ -79,7 +79,7 @@ Object {
             ],
           },
         },
-        "HostedZoneId": "test",
+        "HostedZoneId": "",
         "Name": "verifier.test.",
         "Type": "A",
       },

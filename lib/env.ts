@@ -20,9 +20,9 @@ const EnvironmentVariablesSetting: {
   [Environments.PROD]: {
     allowedOrigin: 'https://claime.io',
     rootDomain: 'claime.io',
-    hostedZoneId: 'Z08305602GK0LP28IOTQ3',
+    hostedZoneId: 'Z0946745RTFKXAGZ5H3I',
     certificateArn:
-      'arn:aws:acm:us-east-1:495476032358:certificate/4da06504-10a6-4231-8200-5581568a907c',
+      'arn:aws:acm:us-east-1:495476032358:certificate/801688ab-eb82-450e-9a33-c23580d2bf1e',
     subgraphEndpoint: 'TBD',
     ownerEOA: '0x81A2863ED122811A1197dB2D9b90a720d73ac81c',
   },
@@ -40,7 +40,7 @@ const EnvironmentVariablesSetting: {
   [Environments.TEST]: {
     allowedOrigin: '',
     rootDomain: 'test',
-    hostedZoneId: 'test',
+    hostedZoneId: '',
     certificateArn: '',
     subgraphEndpoint: 'endpoint-of-subgraph',
     ownerEOA: '0x0000000000000000000000000000000000000000',

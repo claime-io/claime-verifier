@@ -23,14 +23,8 @@ new VerifierApiStack(
   app,
   environment.withEnvPrefix(target, 'verifierapi'),
   target,
-  {},
 )
-new DiscordApiStack(
-  app,
-  environment.withEnvPrefix(target, 'restapi'),
-  target,
-  {},
-)
+new DiscordApiStack(app, environment.withEnvPrefix(target, 'restapi'), target)
 new DatasourceStack(
   app,
   environment.withEnvPrefix(target, 'datasource'),
