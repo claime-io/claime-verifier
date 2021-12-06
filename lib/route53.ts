@@ -2,6 +2,7 @@ import {
   ARecord,
   ARecordProps,
   CnameRecord,
+  HostedZone,
   IHostedZone,
   PublicHostedZone,
   RecordTarget,
@@ -56,4 +57,14 @@ const hostedZone = (
 
 const hostedZoneName = (target: environment.Environments) => {
   return environment.valueOf(target).rootDomain
+}
+
+export const hostedZoneFromId = (
+  scope: Construct,
+  target: environment.Environments,
+) => {
+  return HostedZone.fromHostedZoneAttributes(scope, `HostedZone`, {
+    zoneName: hostedZoneName(target),
+    hostedZoneId: environment.valueOf(target).hostedZoneId,
+  })
 }
