@@ -28,15 +28,15 @@ func newFakeLookUpper(records []string, err error) fakeLookUpper {
 }
 
 const (
-	addressStr        = "0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb"
+	addressStr        = "0x81A2863ED122811A1197dB2D9b90a720d73ac81c"
 	anotherAddressStr = "0x00142C7D23f0E761E997dsa8eF80244E3D123456"
-	mockPropertyID    = "claime-dev.tk"
+	mockPropertyID    = "claime.io"
 	mockRecord        = recordPrefix + addressStr
 	mockAnotherRecord = recordPrefix + anotherAddressStr
 )
 
 var (
-	address        = common.HexToAddress("0xCdfc500F7f0FCe1278aECb0340b523cD55b3EBbb")
+	address        = common.HexToAddress("0x81A2863ED122811A1197dB2D9b90a720d73ac81c")
 	anotherAddress = common.HexToAddress(anotherAddressStr)
 )
 
