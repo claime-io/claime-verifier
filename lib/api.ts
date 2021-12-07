@@ -17,10 +17,7 @@ import { resolve } from 'path'
 import * as environment from './env'
 import { hostedZoneFromId } from './route53'
 
-export function addCorsOptions(
-  apiResource: IResource,
-  target: environment.Environments,
-) {
+export function addCorsOptions(apiResource: IResource) {
   apiResource.addMethod(
     'OPTIONS',
     new MockIntegration({
@@ -30,15 +27,12 @@ export function addCorsOptions(
           responseParameters: {
             'method.response.header.Access-Control-Allow-Headers':
               "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-            'method.response.header.Access-Control-Allow-Origin': `'${
-              environment.valueOf(target).allowedOrigin
-            }'`,
+            'method.response.header.Access-Control-Allow-Origin': `'*'`,
             'method.response.header.Access-Control-Allow-Credentials':
               "'false'",
             'method.response.header.Access-Control-Allow-Methods':
               "'OPTIONS,GET,PUT,POST,DELETE'",
           },
-          responseTemplates: responseTemplates(target),
         },
       ],
       passthroughBehavior: PassthroughBehavior.NEVER,
@@ -60,14 +54,6 @@ export function addCorsOptions(
       ],
     },
   )
-}
-const responseTemplates = (target: environment.Environments) => {
-  return {
-    'application/json': `
-    #set($origin = $input.params().header.get('origin'))
-    #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin)
-    `,
-  }
 }
 
 export const environmentVariables = (target: environment.Environments) => {

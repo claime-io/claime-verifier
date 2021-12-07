@@ -57,7 +57,7 @@ const apifunction = (
     api.root,
   )
   re.addMethod('GET', new LambdaIntegration(func))
-  addCorsOptions(re, target)
+  addCorsOptions(re)
   return func
 }
 
