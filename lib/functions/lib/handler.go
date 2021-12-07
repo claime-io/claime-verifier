@@ -7,7 +7,6 @@ import (
 	"claime-verifier/lib/functions/lib/infrastructure/verifiers/txt"
 	"claime-verifier/lib/functions/lib/infrastructure/verifiers/website"
 	"context"
-	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 )
@@ -23,10 +22,6 @@ func Headers(origin string) map[string]string {
 }
 
 func allowedOrigin(origin string) string {
-	env := os.Getenv("EnvironmentId")
-	if env == "prod" {
-		return os.Getenv("AllowedOrigin")
-	}
 	return origin
 }
 

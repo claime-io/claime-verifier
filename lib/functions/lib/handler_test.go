@@ -15,9 +15,9 @@ func Test_allowedOrigin(t *testing.T) {
 			t.Errorf("allowedOrigin() = %v, want %v", got, want)
 		}
 	})
-	t.Run("at prod env, allowed origin should be the origin which is specified at environment parameters", func(t *testing.T) {
+	t.Run("at prod env, allowed origin should be the origin which is specified at request header, too", func(t *testing.T) {
 		os.Setenv("EnvironmentId", "prod")
-		want := "https://claime.io"
+		want := "https://auroradao.org"
 		os.Setenv("AllowedOrigin", want)
 		defer os.Setenv("EnvironmentId", "")
 		defer os.Setenv("AllowedOrigin", "")
