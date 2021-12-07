@@ -62,9 +62,6 @@ export function addCorsOptions(
   )
 }
 const responseTemplates = (target: environment.Environments) => {
-  if (environment.isProd(target)) {
-    return undefined
-  }
   return {
     'application/json': `
     #set($origin = $input.params().header.get('origin'))
