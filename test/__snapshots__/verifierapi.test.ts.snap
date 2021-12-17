@@ -354,9 +354,8 @@ Object {
           "IntegrationResponses": Array [
             Object {
               "ResponseParameters": Object {
-                "method.response.header.Access-Control-Allow-Credentials": "'false'",
                 "method.response.header.Access-Control-Allow-Headers": "'*'",
-                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,POST'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'",
                 "method.response.header.Access-Control-Allow-Origin": "'*'",
               },
               "StatusCode": "200",
@@ -371,7 +370,6 @@ Object {
         "MethodResponses": Array [
           Object {
             "ResponseParameters": Object {
-              "method.response.header.Access-Control-Allow-Credentials": true,
               "method.response.header.Access-Control-Allow-Headers": true,
               "method.response.header.Access-Control-Allow-Methods": true,
               "method.response.header.Access-Control-Allow-Origin": true,
@@ -541,9 +539,8 @@ Object {
           "IntegrationResponses": Array [
             Object {
               "ResponseParameters": Object {
-                "method.response.header.Access-Control-Allow-Credentials": "'false'",
                 "method.response.header.Access-Control-Allow-Headers": "'*'",
-                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,POST'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'",
                 "method.response.header.Access-Control-Allow-Origin": "'*'",
               },
               "StatusCode": "200",
@@ -558,7 +555,6 @@ Object {
         "MethodResponses": Array [
           Object {
             "ResponseParameters": Object {
-              "method.response.header.Access-Control-Allow-Credentials": true,
               "method.response.header.Access-Control-Allow-Headers": true,
               "method.response.header.Access-Control-Allow-Methods": true,
               "method.response.header.Access-Control-Allow-Origin": true,

@@ -10,12 +10,11 @@ import (
 )
 
 // Headers with headers
-func Headers() map[string]string {
+func Headers(methods string) map[string]string {
 	return map[string]string{
-		"Access-Control-Allow-Headers":     "*",
-		"Access-Control-Allow-Methods":     "GET,POST",
-		"Access-Control-Allow-Credentials": "false",
-		"Access-Control-Allow-Origin":      "*",
+		"Access-Control-Allow-Headers": "*",
+		"Access-Control-Allow-Methods": methods,
+		"Access-Control-Allow-Origin":  "*",
 	}
 }
 

@@ -17,42 +17,53 @@ import { resolve } from 'path'
 import * as environment from './env'
 import { hostedZoneFromId } from './route53'
 
-export function addCorsOptions(apiResource: IResource) {
+type CordOptionsConfig = {
+  methods: ('GET' | 'POST' | 'PUT' | 'DELETE')[]
+  withCredentials?: true
+  headers?: string[]
+  origin?: string
+}
+export function addCorsOptions(
+  apiResource: IResource,
+  config: CordOptionsConfig,
+) {
+  const responseParameters = integrationResponseParameters(config)
+  const methodResponseParameters = Object.keys(responseParameters).reduce(
+    (res, key) => Object.assign(res, { [key]: true }),
+    {},
+  )
   apiResource.addMethod(
     'OPTIONS',
     new MockIntegration({
-      integrationResponses: [
-        {
-          statusCode: '200',
-          responseParameters: {
-            'method.response.header.Access-Control-Allow-Headers': "'*'",
-            'method.response.header.Access-Control-Allow-Origin': `'*'`,
-            'method.response.header.Access-Control-Allow-Credentials':
-              "'false'",
-            'method.response.header.Access-Control-Allow-Methods':
-              "'OPTIONS,GET,POST'",
-          },
-        },
-      ],
+      integrationResponses: [{ statusCode: '200', responseParameters }],
       passthroughBehavior: PassthroughBehavior.NEVER,
-      requestTemplates: {
-        'application/json': '{"statusCode": 200}',
-      },
+      requestTemplates: { 'application/json': '{"statusCode": 200}' },
     }),
     {
       methodResponses: [
-        {
-          statusCode: '200',
-          responseParameters: {
-            'method.response.header.Access-Control-Allow-Headers': true,
-            'method.response.header.Access-Control-Allow-Methods': true,
-            'method.response.header.Access-Control-Allow-Credentials': true,
-            'method.response.header.Access-Control-Allow-Origin': true,
-          },
-        },
+        { statusCode: '200', responseParameters: methodResponseParameters },
       ],
     },
   )
+}
+
+const integrationResponseParameters = (config: CordOptionsConfig) => {
+  const { methods, withCredentials, headers, origin } = config
+  const params = {
+    'method.response.header.Access-Control-Allow-Headers': `'${
+      headers?.join(',') || '*'
+    }'`,
+    'method.response.header.Access-Control-Allow-Origin': `'${origin || '*'}'`,
+    'method.response.header.Access-Control-Allow-Methods': `'OPTIONS,${methods.join(
+      ',',
+    )}'`,
+  }
+  if (withCredentials) {
+    Object.assign(params, {
+      'method.response.header.Access-Control-Allow-Credentials': "'true'",
+    })
+  }
+  return params
 }
 
 export const environmentVariables = (target: environment.Environments) => {
