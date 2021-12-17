@@ -12,9 +12,8 @@ import (
 // Headers with headers
 func Headers() map[string]string {
 	return map[string]string{
-		"Access-Control-Allow-Headers":     "*",
-		"Access-Control-Allow-Methods":     "GET,POST,PUT,DELETE",
-		"Access-Control-Allow-Credentials": "true",
+		"Access-Control-Allow-Methods":     "GET",
+		"Access-Control-Allow-Credentials": "false",
 		"Access-Control-Allow-Origin":      "*",
 	}
 }
