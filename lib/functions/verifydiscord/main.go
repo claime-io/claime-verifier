@@ -69,6 +69,6 @@ func response(statusCode int, request events.APIGatewayProxyRequest) events.APIG
 	return events.APIGatewayProxyResponse{
 		StatusCode: statusCode,
 		Body:       "{}",
-		Headers:    lib.Headers(lib.Origin(request)),
+		Headers:    lib.Headers("POST"),
 	}
 }

@@ -61,7 +61,8 @@ example:
 ```json
 {
   "propertyType": "Domain",
-  "propertyId": "example.com"
+  "propertyId": "example.com",
+  "method": "TXT"
 }
 ```
 
@@ -82,14 +83,15 @@ example:
 - `propertyType`: `Website`
 - `propertyId`: `${your_website_url}`
 - `evidence`: `(blank)`
-- `method`: `MetaTag`
+- `method`: `Meta Tag`
 
 example:
 
 ```json
 {
   "propertyType": "Website",
-  "propertyId": "https://example.com/page"
+  "propertyId": "https://example.com/page",
+  "method": "Meta Tag"
 }
 ```
 
@@ -118,7 +120,8 @@ example:
 {
   "propertyType": "Twitter Account",
   "propertyId": "example_id",
-  "evidence": "0000000000000000000"
+  "evidence": "0000000000000000000",
+  "method": "Tweet"
 }
 ```
 

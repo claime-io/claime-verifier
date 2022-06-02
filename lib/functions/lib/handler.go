@@ -7,27 +7,15 @@ import (
 	"claime-verifier/lib/functions/lib/infrastructure/verifiers/txt"
 	"claime-verifier/lib/functions/lib/infrastructure/verifiers/website"
 	"context"
-
-	"github.com/aws/aws-lambda-go/events"
 )
 
 // Headers with headers
-func Headers(origin string) map[string]string {
+func Headers(methods string) map[string]string {
 	return map[string]string{
-		"Access-Control-Allow-Headers":     "*",
-		"Access-Control-Allow-Methods":     "GET,POST,PUT,DELETE",
-		"Access-Control-Allow-Credentials": "true",
-		"Access-Control-Allow-Origin":      allowedOrigin(origin),
+		"Access-Control-Allow-Headers": "*",
+		"Access-Control-Allow-Methods": methods,
+		"Access-Control-Allow-Origin":  "*",
 	}
-}
-
-func allowedOrigin(origin string) string {
-	return origin
-}
-
-// Origin retrive origin value from request headers
-func Origin(request events.APIGatewayProxyRequest) string {
-	return request.Headers["origin"]
 }
 
 // SupportedVerifications list supported verifications by Property and verification methods

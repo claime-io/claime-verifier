@@ -1,7 +1,6 @@
 package main
 
 import (
-	"claime-verifier/lib/functions/lib"
 	"claime-verifier/lib/functions/lib/common/log"
 	"claime-verifier/lib/functions/lib/guild"
 	guildrep "claime-verifier/lib/functions/lib/guild/persistence"
@@ -96,7 +95,6 @@ func errorResponse(request events.APIGatewayProxyRequest, output subscribe.Outpu
 	}
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
-		Headers:    lib.Headers(lib.Origin(request)),
 		Body:       string(out),
 	}, nil
 }

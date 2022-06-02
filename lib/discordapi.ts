@@ -57,7 +57,7 @@ const discordFunction = (
   )
   const rs = api.root.addResource('verify')
   rs.addMethod('POST', new LambdaIntegration(func))
-  addCorsOptions(rs, target)
+  addCorsOptions(rs, { methods: ['POST'] })
   return func
 }
 

@@ -36,7 +36,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		log.Error("client initialize failed", err)
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
-			Headers:    lib.Headers(lib.Origin(request)),
+			Headers:    Headers(),
 			Body:       "{}",
 		}, nil
 	}
@@ -46,7 +46,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		log.Error("get claim failed", err)
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
-			Headers:    lib.Headers(lib.Origin(request)),
+			Headers:    Headers(),
 			Body:       "{}",
 		}, nil
 	}
@@ -55,15 +55,19 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		log.Error("json marshal failed", err)
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
-			Headers:    lib.Headers(lib.Origin(request)),
+			Headers:    Headers(),
 			Body:       "{}",
 		}, nil
 	}
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
-		Headers:    lib.Headers(lib.Origin(request)),
+		Headers:    Headers(),
 		Body:       string(res),
 	}, err
+}
+
+func Headers() map[string]string {
+	return lib.Headers("GET")
 }
 
 func main() {

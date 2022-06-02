@@ -194,16 +194,9 @@ Object {
           "IntegrationResponses": Array [
             Object {
               "ResponseParameters": Object {
-                "method.response.header.Access-Control-Allow-Credentials": "'false'",
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE'",
-                "method.response.header.Access-Control-Allow-Origin": "''",
-              },
-              "ResponseTemplates": Object {
-                "application/json": "
-    #set($origin = $input.params().header.get('origin'))
-    #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin)
-    ",
+                "method.response.header.Access-Control-Allow-Headers": "'*'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
               },
               "StatusCode": "200",
             },
@@ -217,7 +210,6 @@ Object {
         "MethodResponses": Array [
           Object {
             "ResponseParameters": Object {
-              "method.response.header.Access-Control-Allow-Credentials": true,
               "method.response.header.Access-Control-Allow-Headers": true,
               "method.response.header.Access-Control-Allow-Methods": true,
               "method.response.header.Access-Control-Allow-Origin": true,

@@ -2,8 +2,6 @@
 
 This bot can grant roles that you defined to people who have NFTs in your guild.
 
-[Add to Discord](https://discord.com/oauth2/authorize?client_id=892321773981421568&permissions=268437504&scope=applications.commands%20bot)
-
 ## How to Use
 
 ### Granting roles
